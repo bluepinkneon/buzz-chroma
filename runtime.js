@@ -9,6 +9,7 @@ import {palettePreview} from "./palette-preview.js";
 import {sidebarIconCss} from "./sidebar-icon.js";
 import {ownTerminalColors} from "./terminal-theme.js";
 import {ownPaletteTransition} from "./palette-transition.js";
+import {hueDial} from "./hue-dial.js";
 
 export const inject = ["react", "pages"];
 const degree = (value) => ((Math.round(value) % 360) + 360) % 360;
@@ -412,7 +413,7 @@ export function apply(ctx) {
       const control = { color: "var(--text-standard)", backgroundColor: "var(--surface-panel)",
         border: "1px solid var(--border-prominent)", borderRadius: "6px", padding: "8px" };
       const buttonStyle = (selected) => ({ ...control, backgroundColor: selected ? "var(--affordance-selected)" : control.backgroundColor });
-      const swatchStyle = { width: "64px", height: "40px", cursor: "pointer" };
+      const swatchStyle = { width: "58px", height: "32px", cursor: "pointer" };
       const setMode = (mode) => save({ ...choice, theme: "bluepinkneon", mode });
       const changeRange = (event) => {
         const value = Number(event.target.value);
@@ -438,9 +439,9 @@ export function apply(ctx) {
         h("p",null,choice.theme==="default"?"Buzz’s own appearance is active.":localTheme?(libraryDirty?"This theme library has changes saved only for this session.":"Saved on this device."):preset?.description??"Your own color combination."),
         h("div", { style: {display:"flex",gap:"8px",marginTop:"16px"}, "aria-label":"Appearance" },
           ...[["dark","Dark"],["light","Light"],["auto","Auto"]].map(([value,label])=>h("button",{key:value,type:"button","aria-pressed":choice.appearance===value,style:buttonStyle(choice.appearance===value),onClick:()=>save({...choice,appearance:value})},label))),
-        h("p", null, choice.appearance === "auto" ? `Auto follows Buzz’s appearance · ${appearance}.` : `${appearance === "dark" ? "Dark" : "Light"} palette.`),
-        h("fieldset", { "aria-label":"Palette controls",style: { marginTop: "20px", border: "none", padding: 0 } },
-          h("div", { className:"chroma-mode-group",style: { display: "flex", gap: "8px", marginBottom: "20px" } },
+        ...(choice.appearance === "auto"?[h("p",{className:"chroma-auto-note"},`Auto follows Buzz · ${appearance}.`)]:[]),
+        h("fieldset", { "aria-label":"Palette controls",style: { marginTop: "16px", border: "none", padding: 0 } },
+          h("div", { className:"chroma-mode-group",style: { display: "flex", gap: "8px", marginBottom: "16px" } },
             ...[["color", "Trichrome"], ["duo","Bichrome"], ["mono", "Monochrome"]].map(([mode, label]) => h("button", {
               key: mode, type: "button", "aria-pressed": choice.mode === mode,
               style: buttonStyle(choice.mode === mode), onClick: () => setMode(mode),
@@ -465,14 +466,12 @@ export function apply(ctx) {
                   onClick: () => save({ ...choice, neutral: true }) }, "Neutral gray"),
                 h("button", { type:"button",style:buttonStyle(choice.monoHue===null),"aria-pressed":choice.monoHue===null,
                   onClick:()=>save({...choice,monoHue:null,neutral:false}) },"Use primary hue")))),
-          h("label", { htmlFor: "bluepinkneon-rotation", style: { display: "block", marginTop: "20px" } }, `Hue rotation: ${choice.rotation}°`),
-          h("input", { id: "bluepinkneon-rotation", type: "range", min: 0, max: 359, step: 1,
-            value: choice.rotation, style: { width: "100%", accentColor: colors["--palette-primary-7"] },
-            onChange: changeRange }),
+          h("label", { htmlFor: "bluepinkneon-rotation",className:"chroma-dial-label" }, "Hue rotation"),
+          h("div",{className:"chroma-dial-row"},hueDial(h,choice.rotation,changeRange),
           h("div",{className:"chroma-colors-actions"},h("button", { type: "button", style: control,
             onClick: () => save({ ...choice, theme: "bluepinkneon", rotation: degree(choice.rotation + 45) }) }, "Rotate +45°"),
-          h("button", { type: "button", style: control, onClick: () => save(defaults()) }, "Reset blue-pink-neon"))),
-        h("details",{style:{marginTop:"24px"}},h("summary",null,"Save your theme"),
+          h("button", { type: "button", style: control,"aria-label":"Reset blue-pink-neon",title:"Reset blue-pink-neon", onClick: () => save(defaults()) }, "Reset")))),
+        h("details",{style:{marginTop:"14px"}},h("summary",null,"Save your theme"),
         h("fieldset",{style:{marginTop:"12px",border:"1px solid var(--border-standard)",padding:"16px",borderRadius:"8px"}},
           h("legend",null,"Local themes"),
           h("label",{style:{display:"grid",gap:"8px"}},"Theme name",

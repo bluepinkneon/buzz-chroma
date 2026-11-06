@@ -56,7 +56,7 @@ export function find(node, predicate) {
 }
 export const input = (app, name) => find(app.tree(), (n) => n.tag === "input" && n.props["aria-label"] === name);
 export const rotate = (app, value) => find(app.tree(), (n) => n.tag === "input" && n.props.type === "range").props.onChange({ target: { value: String(value) } });
-export const click = (app, label) => find(app.tree(), (n) => n.tag === "button" && n.children[0] === label).props.onClick();
+export const click = (app, label) => find(app.tree(), (n) => n.tag === "button" && (n.children[0] === label||n.props?.["aria-label"]===label)).props.onClick();
 export const select = (app, value) => find(app.tree(), (n) => n.tag === "select").props.onChange({ target: { value } });
 export const variables = (css) => new Map([...css.split("}\n")[0].matchAll(/(--[\w-]+):\s*(#[\da-f]{6});/g)].map((m) => [m[1], m[2]]));
 

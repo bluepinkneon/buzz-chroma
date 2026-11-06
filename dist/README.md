@@ -32,7 +32,7 @@ repository, reference **main**, and folder **dist**, then **Find → review → 
 A GitHub install is pinned to the reviewed commit; pushing here does not hot-reload
 an installed copy. The new screen shows **Trichrome / Bichrome / Monochrome** and
 **Neon**. Reinstalling an old version tag keeps that old version. For a fixed
-release instead, select tag **v1.2.2** from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases).
+release instead, select a version tag from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases).
 
 Or download the folder ZIP from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases),
 extract it, and select it with **Add → Browse**. Existing folder installs can
@@ -40,12 +40,12 @@ reload the updated source through Manage plugins.
 
 ## Character palettes
 
-`blue-pink-neon` is Ranveer’s original. The other 39 are character-inspired,
+`blue-pink-neon` is Ranveer’s original. The other 41 are character-inspired,
 with a mix of comics, film, books, games and animation. Names use kebab-case:
 `daredevil` is one word; `blue-pink-neon` keeps the three words.
 
 <details>
-<summary>All 40 palettes and their default looks</summary>
+<summary>All 42 palettes and their default looks</summary>
 
 | Palette | Default | Color idea |
 |---|---|---|
@@ -89,6 +89,8 @@ with a mix of comics, film, books, games and animation. Names use kebab-case:
 | `link` | trichrome | Champion teal, relic gold and open-sky blue. |
 | `zelda` | trichrome | Royal indigo, sacred gold and jade. |
 | `samus-aran` | trichrome | Armor orange, cosmic violet and visor green. |
+| `sekiro` | trichrome | Weathered rust, steel silver and temple jade. |
+| `ezio-auditore` | trichrome | Aged gold, Assassin crimson and silver-white ink. |
 
 </details>
 
@@ -104,7 +106,8 @@ while keeping your appearance preference.
 - **Bichrome:** choose **Primary** and **Secondary**; Neon is derived automatically.
 - **Monochrome:** choose **Primary** for every decorative family. **Neutral gray** is
   the same mode at zero chroma. Alerts retain familiar signal colors.
-- **Hue rotation:** the bottom slider rotates the whole look in every mode. Editing
+- **Hue rotation:** drag the circular dial, or use the arrow keys. Page Up/Down
+  moves 15°; Home/End selects 0°/359°. Rotation moves the whole look in every mode. Editing
   a color keeps this angle and leaves unedited colors unchanged.
 - A gray pick makes only that family neutral. Two gray bichrome inputs also make
   the derived Neon neutral; one gray input borrows the other input’s hue.
@@ -112,7 +115,7 @@ while keeping your appearance preference.
 - **Auto:** follows Buzz’s resolved appearance, including its System setting and
   OS day/night schedule. It does not impose a sunrise timer or change Buzz’s saved
   preference. If Buzz supplies no resolved mode, it follows the OS directly.
-- **Reset blue-pink-neon:** restores the original colors,
+- **Reset:** restores the original colors,
   trichrome mode, rotation, neutral flags, ground relationship and dark appearance.
 - **Buzz default** removes the palette override. The Colors icon keeps its
   interface tint while the plugin is enabled; disabling removes both owned styles.
@@ -135,7 +138,7 @@ the old rollback key.
 ## See what the controls generate
 
 Controls and the live palette sit side by side in a wide window and stack in a
-narrow one. **Rotate +45°** and **Reset blue-pink-neon** stay visible.
+narrow one. **Rotate +45°** and **Reset** stay visible.
 
 - **Palette:** eight named families, with twelve source shades in each. Hover a
   shade to see its name, index and hex value.
@@ -342,6 +345,13 @@ at 512px in neutral gray `#8a8a8a`, on a transparent background.
 `icon.provenance.json` records the renderer/version and source/output hashes.
 The build verifies those hashes so the two assets cannot drift silently.
 
+## Changes in v1.3.1
+
+- A circular hue dial with pointer/touch dragging and keyboard control.
+- Compact labeled source ramps, ANSI exports and status tiles fit above the
+  fold in a desktop content area of 1024×760 or larger; smaller windows stack.
+- `sekiro` and `ezio-auditore` join the catalog. Preset labels use kebab-case.
+
 ## Changes in v1.3.0
 
 - Responsive two-column settings with sticky controls and a live palette;
@@ -353,7 +363,7 @@ The build verifies those hashes so the two assets cannot drift silently.
   incoming-call decisions retain contrast; light mode keeps dark fills/light ink.
 - Stable named ANSI colors through every color mode and rotation. These are
   exports, not a replacement for Buzz’s xterm ANSI configuration.
-- Slightly separated Black Widow, Motoko and Ahsoka recipes to keep the catalog
+- Slightly separated `black-widow`, `motoko-kusanagi` and `ahsoka-tano` recipes to keep the catalog
   distinguishable after the strong-control correction.
 
 ## Changes in v1.2.3
@@ -386,8 +396,9 @@ default theme and is removed when the plugin is disabled. Other icons are untouc
   combinations are rejected; derived neutral flags are available in snapshots.
 - Failed library saves remain visibly unsaved; stale windows refuse to overwrite
   another window’s saved themes. Future built-in names cannot lock local saves.
-- A theme-colored SVG outline in the sidebar and a transparent plugin icon
-  in the plugin details.
+- A theme-colored SVG outline in the sidebar and a packaged transparent plugin
+  icon. Released Buzz hosts showed a generic external-plugin details icon;
+  version 1.2.3 added the scoped enabled-plugin compatibility treatment.
 - Cleaner pickers/rotation, labeled palette and console previews, and current API
   reference and GitHub update instructions.
 

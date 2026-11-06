@@ -166,7 +166,7 @@ Deleting a theme never removes the currently applied colors.
 
 ## Validation and limits
 
-`npm run check` includes 3,506 full generated configurations and 1,998,420 role
+`npm run check` includes 3,522 full generated configurations and 2,173,074 role
 contrast measurements, including all 360 rotations in all three modes in both
 appearances plus independent hue/neutral-mask combinations. It also checks
 picker idempotence, mode transitions, storage, service cleanup, equal state steps

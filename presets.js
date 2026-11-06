@@ -487,6 +487,40 @@ export const PRESETS = Object.freeze([
     "defaultMode": "color",
     "defaultNeutral": false,
     "description": "Armor orange, cosmic violet and visor green."
+  },
+  {
+    "id": "sekiro",
+    "hues": [
+      45,
+      250,
+      155
+    ],
+    "surfaceOffset": 90,
+    "defaultMode": "color",
+    "defaultNeutral": false,
+    "neutrals": [
+      false,
+      true,
+      false
+    ],
+    "description": "Weathered rust, steel silver and temple jade."
+  },
+  {
+    "id": "ezio-auditore",
+    "hues": [
+      75,
+      15,
+      250
+    ],
+    "surfaceOffset": 0,
+    "defaultMode": "color",
+    "defaultNeutral": false,
+    "neutrals": [
+      false,
+      false,
+      true
+    ],
+    "description": "Aged gold, Assassin crimson and silver-white ink."
   }
 ].map(preset=>Object.freeze({defaultNeutral:false,...preset,hues:Object.freeze(preset.hues),neutrals:Object.freeze(preset.neutrals??[false,false,false])})));
 
