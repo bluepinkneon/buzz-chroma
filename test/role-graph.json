@@ -10,7 +10,12 @@
     "surfaceAliases": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/shared/design-system/styles/materials.css",
     "messagePaint": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/features/messages/Messages.module.css",
     "inlineReferences": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/shared/InlineReference.module.css",
-    "nativeSelection": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/shared/design-system/styles/typography.css"
+    "nativeSelection": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/shared/design-system/styles/typography.css",
+    "diffs": [
+      "https://github.com/block/buzz-app/blob/a70907c98c7b67c513d3489f51b80d8057923d14/src/bundled/diffs/Diffs.module.css#L66-L97",
+      "https://github.com/block/buzz-app/blob/a70907c98c7b67c513d3489f51b80d8057923d14/src/bundled/diffs/DiffViewer.tsx#L49-L55",
+      "https://github.com/block/buzz-app/blob/a70907c98c7b67c513d3489f51b80d8057923d14/src/bundled/channels/ChannelTemplates.module.css#L59-L69"
+    ]
   },
   "thresholds": {
     "body": {
@@ -212,9 +217,10 @@
       "background": "--surface-panel",
       "target": "body",
       "contexts": [
+        "compact/unboxed message uses feed backing",
         "generic text on opaque or glass-backed reading surfaces",
         "neutral code/table/revealed spoiler inset inside either bubble",
-        "compact/unboxed message uses feed backing"
+        "unchanged code and raw diff fallback"
       ],
       "coverage": "host-supported"
     },
@@ -241,6 +247,7 @@
       "background": "--surface-inset",
       "target": "body",
       "contexts": [
+        "file header name/type including Modified label",
         "generic text on opaque or glass-backed reading surfaces"
       ],
       "coverage": "host-supported"
@@ -685,6 +692,8 @@
       "background": "--surface-panel",
       "target": "body",
       "contexts": [
+        "CanvasDiff unchanged/skipped content",
+        "diff descriptions, truncation/no-hunks notices",
         "generic text on opaque or glass-backed reading surfaces"
       ],
       "coverage": "host-supported"
@@ -1931,7 +1940,8 @@
       "background": "--surface-inset",
       "target": "body",
       "contexts": [
-        "ordinary link and link hover outside message bubbles"
+        "ordinary link and link hover outside message bubbles",
+        "source repository/commit link in card header"
       ],
       "coverage": "host-supported"
     },
@@ -2228,6 +2238,7 @@
       "background": "--surface-panel",
       "target": "body",
       "contexts": [
+        "CanvasDiff removed line without local fill",
         "semantic text on reading and interaction surfaces"
       ],
       "coverage": "host-supported"
@@ -2255,6 +2266,7 @@
       "background": "--surface-inset",
       "target": "body",
       "contexts": [
+        "file-header deletion count",
         "semantic text on reading and interaction surfaces"
       ],
       "coverage": "host-supported"
@@ -2696,6 +2708,7 @@
       "background": "--surface-panel",
       "target": "body",
       "contexts": [
+        "CanvasDiff added line without local fill",
         "semantic text on reading and interaction surfaces"
       ],
       "coverage": "host-supported"
@@ -2723,6 +2736,7 @@
       "background": "--surface-inset",
       "target": "body",
       "contexts": [
+        "file-header addition count",
         "semantic text on reading and interaction surfaces"
       ],
       "coverage": "host-supported"
@@ -2912,7 +2926,8 @@
       "background": "--affordance-danger",
       "target": "body",
       "contexts": [
-        "destructive action all states"
+        "destructive action all states",
+        "diff deleted code/gutter and intra-line deletion highlight"
       ],
       "coverage": "host-supported"
     },
@@ -2948,6 +2963,7 @@
       "background": "--affordance-success",
       "target": "body",
       "contexts": [
+        "diff inserted code/gutter and intra-line insertion highlight",
         "success action all states"
       ],
       "coverage": "host-supported"
@@ -5177,5 +5193,17 @@
     "Semantic statuses are separate from decorative monochrome. Decide their policy explicitly before asserting every generated role has zero chroma.",
     "Five legacy mapped decorative roles are inventoried but not assigned a universal numeric threshold: border-standard, border-primary, border-message-thread, scrollbar-thumb, scrollbar-thumb-quiet. Their actual geometry and purpose determine whether a nontext accessibility boundary test applies.",
     "Hover-backed chip recipes account for translucent mention/reaction fills above the bubble hover color. Native text selection is a paired fill/text override, not an alpha-reduced overlay from these rules."
-  ]
+  ],
+  "diffBindings": {
+    "--diff-background-color": "--surface-panel",
+    "--diff-text-color": "--text-standard",
+    "--diff-gutter-insert-background-color": "--affordance-success",
+    "--diff-gutter-delete-background-color": "--affordance-danger",
+    "--diff-code-insert-background-color": "--affordance-success",
+    "--diff-code-delete-background-color": "--affordance-danger",
+    "--diff-code-insert-edit-background-color": "--affordance-success",
+    "--diff-code-delete-edit-background-color": "--affordance-danger",
+    "--diff-omit-gutter-line-color": "--border-standard",
+    "--diff-selection-background-color": "--affordance-selected"
+  }
 }

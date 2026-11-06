@@ -78,7 +78,7 @@ function readChoice(saved, legacy) {
   if (!legacy && (saved.appearance !== undefined && !["dark","light","auto"].includes(saved.appearance)
     || saved.neutrals !== undefined && (!Array.isArray(saved.neutrals) || saved.neutrals.length !== 3 || !saved.neutrals.every(v=>typeof v === "boolean")))) return null;
   return { ...defaults(), theme: saved.theme, hues, rotation: degree(saved.rotation),
-    appearance: saved.appearance ?? "dark", neutrals: saved.neutrals ?? [false,false,false],
+    appearance: legacy ? "dark" : saved.appearance ?? "dark", neutrals: legacy ? [false,false,false] : saved.neutrals ?? [false,false,false],
     ...(legacy ? {} : { mode: saved.mode, neutral: saved.neutral, monoHue: saved.monoHue === null ? null : degree(saved.monoHue) }) };
 }
 
@@ -186,8 +186,9 @@ export function apply(ctx) {
     if (Object.keys(options).some(key=>!allowed.includes(key))) throw new TypeError("Unknown theme option");
     const next = structuredClone(activeChoice()); next.theme = "bluepinkneon";
     if (options.colors !== undefined) {
-      if (!Array.isArray(options.colors) || options.colors.length !== 3 || !options.colors.every(hex=>typeof hex === "string" && /^#[0-9a-f]{6}$/i.test(hex))) throw new TypeError("colors must be three #RRGGBB values");
-      next.hues = options.colors.map((hex,index)=>hueFromSwatch(hex.toLowerCase(),7,next.hues[index]) ?? next.hues[index]);
+      if (!Array.isArray(options.colors) || options.colors.length !== 3 || !Array.from(options.colors).every(hex=>typeof hex === "string" && /^#[0-9a-f]{6}$/i.test(hex))) throw new TypeError("colors must be three #RRGGBB values");
+      const currentHues = effectiveHues(next);
+      next.hues = options.colors.map((hex,index)=>hueFromSwatch(hex.toLowerCase(),7,currentHues[index]) ?? currentHues[index]);
       next.neutrals = options.colors.map(hex=>hexToOklch(hex).c < .02);
       next.rotation = 0;
     }
@@ -206,7 +207,7 @@ export function apply(ctx) {
     if (options.monochrome !== undefined) {
       if (typeof options.monochrome !== "string" || !/^#[0-9a-f]{6}$/i.test(options.monochrome)) throw new TypeError("monochrome must be #RRGGBB");
       const hue = hueFromSwatch(options.monochrome.toLowerCase(),7,monoHue(next));
-      next.mode = "mono"; next.neutral = hue === null; next.monoHue = degree((hue ?? monoHue(next))-next.rotation);
+      next.mode = "mono"; next.neutral = hue === null; next.monoHue = hue ?? next.monoHue ?? next.hues[0];
     }
     return next;
   }
@@ -298,8 +299,8 @@ export function apply(ctx) {
           h("button", { type: "button", style: control, onClick: () => save(defaults()) }, "Reset BluePinkNeon")),
         h("div", { "aria-label": "Palette preview", style: { background: "var(--surface-panel)", color: "var(--text-standard)", borderRadius: "8px", padding: "16px", marginTop: "20px" } },
           h("div", { style: { display: "flex", gap: "8px", marginBottom: "12px" } },
-            ...[["Primary", "--palette-primary-7"], ["Secondary", "--palette-secondary-7"], ["Text", "--token-fg"]].map(([label, token]) => h("span", { key: label, title: label,
-              style: { background: colors[token], width: "32px", height: "32px", borderRadius: "50%" } }))),
+            ...[["Primary", "--affordance-prominent"], ["Secondary", "--surface-message-own"], ["Text", "--text-standard"]].map(([label, token]) => h("span", { key: label, title: label,
+              style: { background: currentRoles?.[token], width: "32px", height: "32px", borderRadius: "50%" } }))),
           "Your palette, applied across Buzz."),
         h("p", { role: "status" }, warning || (overrides.size ? "Another plugin is previewing a palette. Changing a control takes it back." : choice.theme === "bluepinkneon" ? "Palette active · saved on this device." : "Buzz default is active.")),
         h("p", null, "Disable this plugin in Manage plugins to restore Buzz’s appearance."));

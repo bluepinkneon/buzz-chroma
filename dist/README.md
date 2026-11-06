@@ -46,6 +46,10 @@ lightness and chroma. Their displayed swatches round-trip without hue drift.
 The Text picker shows its hue swatch; the preview shows the actual reading ink.
 In Light mode, ink can approach black when higher contrast requires it.
 
+Danger/removal stays red, success/addition green, and warning amber. Buzz’s diff
+viewer consumes those same semantic roles. It has no independent modification
+color: modifications are insertion/deletion hunks.
+
 Selected, hovered and pressed states use separate tones. Monochrome selections
 also retain an inset stripe; links keep Buzz’s underlines and reactions its rings.
 Preferences are local to this device. Older preferences migrate without deleting

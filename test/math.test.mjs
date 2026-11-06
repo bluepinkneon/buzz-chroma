@@ -73,3 +73,19 @@ test("gamut mapping keeps luminance monotone through the light-ink solver range"
   }
   assert(apca("#000000","#ffffff")>100);assert(apca("#ffffff","#000000")<-100);
 });
+
+test("semantic fills keep standard red/green/amber meanings independently of rotation or monochrome",()=>{
+  for(const appearance of ["dark","light"]) {
+    const reference=engine.generate({appearance}).signals;
+    for(const [role,lo,hi] of [["danger",15,35],["success",135,165],["warning",65,110]]) {
+      const h=hexOklch(reference[role].fill).h;assert(h>=lo&&h<=hi,`${appearance} ${role}: ${h}`);
+    }
+    for(let hue=0;hue<360;hue++) {
+      const result=engine.generate({appearance,mode:"mono",monoHue:hue});
+      for(const role of ["danger","success","warning","info"])assert.equal(result.signals[role].fill,reference[role].fill);
+      // The same measured separation floor as competing UI states. Light fills
+      // are intentionally pastel, and labels/icons retain the signal meaning.
+      for(const [a,b] of [["danger","success"],["danger","warning"],["success","warning"]])assert(deltaE(result.signals[a].fill,result.signals[b].fill)>3);
+    }
+  }
+});

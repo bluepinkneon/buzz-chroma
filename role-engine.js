@@ -139,7 +139,7 @@ export function createRoleEngine(originalColors={}) {
     add(inks,"onProminent",0,prominentNames,90,75,4.5,"dark",.05);
     add(borders,"standard",0,genericNames,0,0,1.5,appearance,.08);
     add(borders,"prominent",0,genericNames,30,30,3,appearance,.14);
-    add(borders,"focus",0,genericNames,60,45,3,appearance,.18);
+    add(borders,"focus",1,genericNames,60,45,3,appearance,.18);
     // Colored alerts are an explicit exception to decorative monochrome.
     for(const [name,anchor] of Object.entries(signalAnchors)) {
       const hue=anchor.h,cc=Math.min(anchor.c,.18);

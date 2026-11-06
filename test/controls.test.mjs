@@ -57,11 +57,21 @@ test("callable service validates atomically, stacks temporary leases, and unregi
   const b=api.setLook({mode:"monochrome",monochrome:"#808080",rotation:45});
   const second=h.css();assert.notEqual(second,first);
   a();assert.equal(h.css(),second,"disposing old caller cannot undo latest caller");
-  for(const bad of [{rotation:Infinity},{colors:["red"]},{mode:"mono"},{appearance:"system"},{unknown:1},{monochrome:"url(x)"}]) {
+  for(const bad of [{rotation:Infinity},{colors:["red"]},{colors:Array(3)},{mode:"mono"},{appearance:"system"},{unknown:1},{monochrome:"url(x)"}]) {
     assert.throws(()=>api.setLook(bad));assert.equal(h.css(),second);
   }
   b();assert.equal(h.css(),original);
   const release=api.setLook({appearance:"light"});click(app,"Dark");release();
   assert(h.css().includes("color-scheme:dark"),"manual control takes ownership");
   app.dispose();assert.equal(app.services.size,0);assert.throws(()=>api.setLook({}));
+});
+
+test("API monochrome rotation changes the generated palette, and legacy ignores new-field garbage",()=>{
+  const h=host(),app=h.boot(),api=app.services.get("chroma");
+  assert.notDeepEqual(api.generateTheme({mode:"monochrome",monochrome:"#0099dd",rotation:0}),api.generateTheme({mode:"monochrome",monochrome:"#0099dd",rotation:45}));
+  app.dispose();
+  const old=JSON.stringify({theme:"bluepinkneon",hues:[224,359,134],rotation:0,appearance:"bogus",neutrals:"bogus"});
+  const restored=host(new Map([["com.ranveer.bluepinkneon:theme:v2",old]])).boot();
+  assert.equal(restored.services.get("chroma").getLook().appearance,"dark");
+  assert.deepEqual(restored.services.get("chroma").getLook().neutrals,[false,false,false]);restored.dispose();
 });

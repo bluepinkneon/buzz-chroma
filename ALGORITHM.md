@@ -25,7 +25,11 @@ colors reduce chroma into the sRGB gamut at fixed OKLCH lightness and hue before
 rounding to eight-bit hex. This avoids changing hue through per-channel clipping.
 Grayscale is exactly the same process at C=0; one-hue monochrome uses one common
 hue. Signal roles are a deliberate exception: danger, warning, success and info
-retain hue anchors from the original hand-tuned signal ramps.
+retain hue anchors from the original hand-tuned signal ramps. Danger/removal is
+red, success/addition green, warning amber and information blue. Buzz’s diff
+viewer uses those same success/danger roles; it has no amber modification token.
+This intentionally supersedes the historical raw add/remove cyan/magenta aliases
+for actual Buzz diff rendering, while leaving the historical palette data intact.
 
 The state ladder uses equal requested lightness increments of .035:
 
