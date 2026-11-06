@@ -2,7 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {PRESETS} from "../presets.js";
 import {host,find,click,select,input,rotate} from "./host.mjs";
-import {hexOklch,deltaE} from "../role-engine.js";
+import {hexOklch,deltaE,createRoleEngine} from "../role-engine.js";
+import {mapRoles} from "../role-map.js";
+import {readFileSync} from "node:fs";
 
 test("named palettes supply three distinct hues and keep appearance with a recommended mode",()=>{
   const h=host(),app=h.boot(),api=app.services.get("chroma");
@@ -13,6 +15,7 @@ test("named palettes supply three distinct hues and keep appearance with a recom
     select(app,preset.id);
     const look=api.getLook();assert.equal(look.preset,preset.id);
     assert.deepEqual(look.hues,preset.hues);assert.equal(look.appearance,"auto");
+    assert.deepEqual(look.neutrals,preset.neutrals??[false,false,false]);
     assert.equal(look.mode,preset.defaultMode);assert.equal(look.monoHue,null);click(app,"Monochrome");
     assert.equal(find(app.tree(),n=>n.props?.id==="bluepinkneon-mono-hue").props.value,preset.hues[0]);
     assert(/^[a-z]+(?:-[a-z]+)*$/.test(preset.id));
@@ -23,6 +26,19 @@ test("named palettes supply three distinct hues and keep appearance with a recom
   }
   select(app,"daredevil");click(app,"Monochrome");assert(JSON.stringify(app.tree()).includes("daredevil’s primary"));
   app.dispose();
+});
+
+test("every default palette is distinct, including gray character accents",()=>{
+  const original=Object.fromEntries([...readFileSync(new URL("../shepherd-theme.css",import.meta.url),"utf8").matchAll(/(--[\w-]+):\s*(#[\da-f]{6});/gi)].map(m=>[m[1],m[2]]));
+  const engine=createRoleEngine(original);
+  const keys=["--surface-base","--surface-panel","--affordance-prominent","--surface-message-own","--text-primary","--text-link","--affordance-selected"];
+  for(const appearance of ["dark","light"]) {
+    const rendered=PRESETS.map(p=>mapRoles(engine.generate({appearance,hues:p.hues,surfaceOffset:p.surfaceOffset,mode:p.defaultMode,monoHue:p.hues[0],neutral:p.defaultNeutral,neutrals:p.neutrals})));
+    for(let a=0;a<rendered.length;a++)for(let b=a+1;b<rendered.length;b++) {
+      assert.notDeepEqual(rendered[a],rendered[b],`${appearance}: ${PRESETS[a].id}/${PRESETS[b].id}`);
+      if(appearance==="dark")assert(Math.max(...keys.map(key=>deltaE(rendered[a][key],rendered[b][key])))>=5,`${PRESETS[a].id}/${PRESETS[b].id}`);
+    }
+  }
 });
 
 test("monochrome follows the chosen primary, allows an override, and can relink",()=>{

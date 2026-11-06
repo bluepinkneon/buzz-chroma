@@ -50,34 +50,34 @@ with a mix of comics, film, books, games and animation. Names use kebab-case:
 | `sherlock-holmes` | monochrome | Sepia monochrome; ink blue and bottle green in full color. |
 | `trinity` | monochrome | Jade monochrome; ultraviolet and gold in full color. |
 | `neo` | monochrome | Phosphor-green monochrome; blue and gold in full color. |
-| `aragorn` | three colors | Forest green, weathered gold and steel blue. |
+| `aragorn` | three colors | Ranger green, worn burgundy and steel blue. |
 | `lara-croft` | three colors | Expedition teal, sandstone and orchid. |
 | `wonder-woman` | three colors | Royal blue, crimson and gold. |
-| `katniss-everdeen` | three colors | Woodland green, ember and cold silver-blue. |
+| `katniss-everdeen` | three colors | Mockingjay gold, ember and cold silver-blue. |
 | `princess-leia` | three colors | Indigo, rose and mint. |
 | `ripley` | three colors | Industrial teal, warning amber and deep violet. |
 | `geralt-of-rivia` | monochrome | Steel-blue monochrome; crimson and gold in full color. |
 | `wolverine` | three colors | Battle yellow, cobalt blue and claw-mark red. |
-| `batman` | neutral monochrome | Charcoal monochrome; midnight blue, signal gold and teal in full color. |
+| `batman` | neutral + accent | Charcoal and signal gold, with neutral reading ink. |
 | `superman` | three colors | Sky blue, cape red and sunlit gold. |
 | `harley-quinn` | three colors | Scarlet, hot pink and electric cyan. |
 | `deadpool` | three colors | Mercenary red, steel blue and mint. |
 | `joker` | three colors | Acid green, theatrical violet and brass. |
-| `doctor-strange` | three colors | Mystic blue, cloak red and spell gold. |
+| `doctor-strange` | three colors | Mystic violet, cloak red and spell gold. |
 | `ahsoka-tano` | three colors | Warm copper, saber cyan and indigo. |
-| `obi-wan-kenobi` | monochrome | Desert-sepia monochrome; saber blue and sage in full color. |
-| `darth-vader` | neutral monochrome | Charcoal monochrome; saber red, cold blue and ember in full color. |
-| `frodo-baggins` | three colors | Shire green, weathered leather and twilight blue. |
-| `gandalf` | neutral monochrome | Gray monochrome; smoke blue, fire gold and sage in full color. |
+| `obi-wan-kenobi` | three colors | Desert ochre, saber blue and sage. |
+| `darth-vader` | neutral + accent | Charcoal and saber red, with neutral reading ink. |
+| `frodo-baggins` | three colors | Shire-leaf green, weathered leather and twilight blue. |
+| `gandalf` | neutral + accent | Soft gray and icy blue, with neutral reading ink. |
 | `legolas` | three colors | Woodland green, pale gold and clear blue. |
 | `hermione-granger` | three colors | Scholarly crimson, parchment gold and ink blue. |
 | `howl` | three colors | Enchanted violet, rose and starlight gold. |
 | `san` | three colors | War-paint red, deep forest and cold sky. |
-| `motoko-kusanagi` | three colors | Cybernetic violet, neon teal and amber. |
-| `totoro` | neutral monochrome | Soft gray monochrome; forest, earth and rain-blue in full color. |
+| `motoko-kusanagi` | three colors | Cybernetic orchid, neon teal and amber. |
+| `totoro` | neutral + accent | Soft gray and forest green, with neutral reading ink. |
 | `chun-li` | three colors | Royal blue, gold and a pink spark. |
-| `link` | three colors | Hero green, relic gold and open-sky blue. |
-| `zelda` | three colors | Royal violet, sacred gold and jade. |
+| `link` | three colors | Champion teal, relic gold and open-sky blue. |
+| `zelda` | three colors | Royal indigo, sacred gold and jade. |
 | `samus-aran` | three colors | Armor orange, cosmic violet and visor green. |
 
 </details>
@@ -145,7 +145,21 @@ export function apply(ctx) {
 }
 ```
 
-`setLook(options)` returns an idempotent disposer. Last active caller wins;
+`setLook(options)` returns a live handle that is also an idempotent disposer:
+
+```js
+const live = ctx.chroma.setLook({ preset: "john-wick" });
+live.update({ rotation: 90 });
+live.update({ mode: "monochrome", monochrome: "#cc2233" });
+live.update({ appearance: "light" });
+live.dispose(); // equivalent to live()
+```
+
+`update(patch)` changes the same override synchronously; it does not stack a new
+override or save to storage. Each patch uses that handle’s own current settings.
+Priority follows handle creation order, so an older handle cannot steal priority
+by updating. Updating a disposed handle, or one cancelled by a UI action, throws.
+Invalid updates leave the current look untouched. Last active caller wins;
 disposing it restores the previous active caller, then the saved user palette.
 Overrides do not write preferences. Changing a UI control cancels all external
 overrides. Disabling the provider removes the service and its dependent plugins.

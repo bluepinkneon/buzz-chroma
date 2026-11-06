@@ -224,7 +224,7 @@ export function apply(ctx) {
 
   // The same controls, available to other trusted Buzz plugins. Overrides are
   // temporary, stack in activation order, and never write local preferences.
-  function apiChoice(options) {
+  function apiChoice(options, base = activeChoice()) {
     if (!alive) throw new Error("Chroma is disabled");
     if (!options || typeof options !== "object" || Array.isArray(options)) throw new TypeError("Expected theme options");
     // A full getLook() snapshot is also a valid request. Metadata is read-only;
@@ -238,7 +238,7 @@ export function apply(ctx) {
     }
     const allowed = ["preset","colors","rotation","appearance","mode","monochrome","surfaceOffset"];
     if (Object.keys(options).some(key=>!allowed.includes(key))) throw new TypeError("Unknown theme option");
-    let next = structuredClone(activeChoice()); next.theme = "bluepinkneon";
+    let next = structuredClone(base); next.theme = "bluepinkneon";
     if(options.preset!==undefined)next=applyPreset(next,options.preset);
     if(options.surfaceOffset!==undefined) {
       if(![0,90].includes(options.surfaceOffset))throw new TypeError("surfaceOffset must be 0 or 90");
@@ -283,7 +283,16 @@ export function apply(ctx) {
     setLook: (options) => {
       const next = apiChoice(options), key = Symbol();
       overrides.set(key,next); renderTheme(); for (const listener of listeners) listener();
-      return () => { if (overrides.delete(key)) { renderTheme(); for (const listener of listeners) listener(); } };
+      const dispose = () => { if (overrides.delete(key)) { renderTheme(); for (const listener of listeners) listener(); } };
+      dispose.update = (options) => {
+        if(!alive||!overrides.has(key))throw new Error("Look handle is inactive");
+        const next=apiChoice(options,overrides.get(key));
+        const isTop=[...overrides.keys()].at(-1)===key;
+        overrides.set(key,next);
+        if(isTop){renderTheme();for(const listener of listeners)listener();}
+      };
+      dispose.dispose = dispose;
+      return Object.freeze(dispose);
     },
   }));
 

@@ -48,8 +48,8 @@ test("host contrast graph passes every hue in both appearances and monochrome, i
     // Independent hues and all per-picker neutral masks (deterministic).
     for(let n=0;n<256;n++)verify({appearance,mode:"color",hues:[n*137%360,n*53%360,n*199%360],neutrals:[!!(n&1),!!(n&2),!!(n&4)]});
     for(const preset of PRESETS) {
-      verify({appearance,mode:"color",hues:preset.hues,surfaceOffset:preset.surfaceOffset});
-      verify({appearance,mode:"mono",hues:preset.hues,monoHue:preset.hues[0],surfaceOffset:preset.surfaceOffset});
+      verify({appearance,mode:"color",hues:preset.hues,neutrals:preset.neutrals,surfaceOffset:preset.surfaceOffset});
+      verify({appearance,mode:"mono",hues:preset.hues,monoHue:preset.hues[0],neutral:preset.defaultNeutral||preset.neutrals?.[0]||false,surfaceOffset:preset.surfaceOffset});
       verify({appearance,mode:"mono",hues:preset.hues,neutral:true,surfaceOffset:preset.surfaceOffset});
     }
   }

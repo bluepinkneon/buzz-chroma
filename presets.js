@@ -26,9 +26,9 @@ export const PRESETS = Object.freeze([
   {
     "id": "spider-man",
     "hues": [
-      25,
-      255,
-      85
+      235,
+      15,
+      180
     ],
     "surfaceOffset": 0,
     "defaultMode": "color",
@@ -59,7 +59,7 @@ export const PRESETS = Object.freeze([
   {
     "id": "storm",
     "hues": [
-      255,
+      250,
       75,
       180
     ],
@@ -81,7 +81,7 @@ export const PRESETS = Object.freeze([
   {
     "id": "miyamoto-musashi",
     "hues": [
-      250,
+      270,
       55,
       150
     ],
@@ -125,13 +125,13 @@ export const PRESETS = Object.freeze([
   {
     "id": "aragorn",
     "hues": [
-      150,
-      55,
+      155,
+      345,
       250
     ],
     "surfaceOffset": 0,
     "defaultMode": "color",
-    "description": "Forest green, weathered gold and steel blue."
+    "description": "Ranger green, worn burgundy and steel blue."
   },
   {
     "id": "lara-croft",
@@ -151,20 +151,20 @@ export const PRESETS = Object.freeze([
       25,
       85
     ],
-    "surfaceOffset": 0,
+    "surfaceOffset": 90,
     "defaultMode": "color",
     "description": "Royal blue, crimson and gold."
   },
   {
     "id": "katniss-everdeen",
     "hues": [
-      145,
-      35,
+      95,
+      25,
       240
     ],
     "surfaceOffset": 0,
     "defaultMode": "color",
-    "description": "Woodland green, ember and cold silver-blue."
+    "description": "Mockingjay gold, ember and cold silver-blue."
   },
   {
     "id": "princess-leia",
@@ -180,7 +180,7 @@ export const PRESETS = Object.freeze([
   {
     "id": "ripley",
     "hues": [
-      180,
+      210,
       75,
       285
     ],
@@ -191,7 +191,7 @@ export const PRESETS = Object.freeze([
   {
     "id": "geralt-of-rivia",
     "hues": [
-      250,
+      220,
       25,
       85
     ],
@@ -219,9 +219,14 @@ export const PRESETS = Object.freeze([
       170
     ],
     "surfaceOffset": 0,
-    "defaultMode": "mono",
-    "defaultNeutral": true,
-    "description": "Charcoal monochrome; midnight blue, signal gold and teal in full color."
+    "defaultMode": "color",
+    "defaultNeutral": false,
+    "description": "Charcoal and signal gold, with neutral reading ink.",
+    "neutrals": [
+      true,
+      false,
+      true
+    ]
   },
   {
     "id": "superman",
@@ -274,14 +279,14 @@ export const PRESETS = Object.freeze([
   {
     "id": "doctor-strange",
     "hues": [
-      255,
+      280,
       25,
       75
     ],
     "surfaceOffset": 0,
     "defaultMode": "color",
     "defaultNeutral": false,
-    "description": "Mystic blue, cloak red and spell gold."
+    "description": "Mystic violet, cloak red and spell gold."
   },
   {
     "id": "ahsoka-tano",
@@ -303,45 +308,55 @@ export const PRESETS = Object.freeze([
       150
     ],
     "surfaceOffset": 0,
-    "defaultMode": "mono",
+    "defaultMode": "color",
     "defaultNeutral": false,
-    "description": "Desert-sepia monochrome; saber blue and sage in full color."
+    "description": "Desert ochre, saber blue and sage."
   },
   {
     "id": "darth-vader",
     "hues": [
+      250,
       25,
-      255,
       75
     ],
     "surfaceOffset": 0,
-    "defaultMode": "mono",
-    "defaultNeutral": true,
-    "description": "Charcoal monochrome; saber red, cold blue and ember in full color."
+    "defaultMode": "color",
+    "defaultNeutral": false,
+    "description": "Charcoal and saber red, with neutral reading ink.",
+    "neutrals": [
+      true,
+      false,
+      true
+    ]
   },
   {
     "id": "frodo-baggins",
     "hues": [
-      145,
+      125,
       55,
       250
     ],
     "surfaceOffset": 0,
     "defaultMode": "color",
     "defaultNeutral": false,
-    "description": "Shire green, weathered leather and twilight blue."
+    "description": "Shire-leaf green, weathered leather and twilight blue."
   },
   {
     "id": "gandalf",
     "hues": [
-      255,
-      75,
-      165
+      250,
+      195,
+      75
     ],
     "surfaceOffset": 0,
-    "defaultMode": "mono",
-    "defaultNeutral": true,
-    "description": "Gray monochrome; smoke blue, fire gold and sage in full color."
+    "defaultMode": "color",
+    "defaultNeutral": false,
+    "description": "Soft gray and icy blue, with neutral reading ink.",
+    "neutrals": [
+      true,
+      false,
+      true
+    ]
   },
   {
     "id": "legolas",
@@ -394,26 +409,31 @@ export const PRESETS = Object.freeze([
   {
     "id": "motoko-kusanagi",
     "hues": [
-      285,
+      310,
       180,
       75
     ],
     "surfaceOffset": 0,
     "defaultMode": "color",
     "defaultNeutral": false,
-    "description": "Cybernetic violet, neon teal and amber."
+    "description": "Cybernetic orchid, neon teal and amber."
   },
   {
     "id": "totoro",
     "hues": [
+      250,
       145,
-      55,
-      240
+      75
     ],
     "surfaceOffset": 0,
-    "defaultMode": "mono",
-    "defaultNeutral": true,
-    "description": "Soft gray monochrome; forest, earth and rain-blue in full color."
+    "defaultMode": "color",
+    "defaultNeutral": false,
+    "description": "Soft gray and forest green, with neutral reading ink.",
+    "neutrals": [
+      true,
+      false,
+      true
+    ]
   },
   {
     "id": "chun-li",
@@ -430,26 +450,26 @@ export const PRESETS = Object.freeze([
   {
     "id": "link",
     "hues": [
-      145,
+      185,
       75,
       250
     ],
-    "surfaceOffset": 0,
+    "surfaceOffset": 90,
     "defaultMode": "color",
     "defaultNeutral": false,
-    "description": "Hero green, relic gold and open-sky blue."
+    "description": "Champion teal, relic gold and open-sky blue."
   },
   {
     "id": "zelda",
     "hues": [
-      285,
+      265,
       75,
       165
     ],
     "surfaceOffset": 0,
     "defaultMode": "color",
     "defaultNeutral": false,
-    "description": "Royal violet, sacred gold and jade."
+    "description": "Royal indigo, sacred gold and jade."
   },
   {
     "id": "samus-aran",
@@ -463,11 +483,12 @@ export const PRESETS = Object.freeze([
     "defaultNeutral": false,
     "description": "Armor orange, cosmic violet and visor green."
   }
-].map(preset=>Object.freeze({defaultNeutral:false,...preset,hues:Object.freeze(preset.hues)})));
+].map(preset=>Object.freeze({defaultNeutral:false,...preset,hues:Object.freeze(preset.hues),neutrals:Object.freeze(preset.neutrals??[false,false,false])})));
 
 export function findPreset(choice) {
-  if(choice.rotation!==0||choice.neutrals.some(Boolean))return null;
+  if(choice.rotation!==0)return null;
   return PRESETS.find(preset=>preset.surfaceOffset===(choice.surfaceOffset??90)
+    &&choice.neutrals.every((neutral,index)=>neutral===(preset.neutrals?.[index]??false))
     &&preset.hues.every((hue,index)=>hue===choice.hues[index]))??null;
 }
 
@@ -475,5 +496,5 @@ export function applyPreset(choice,id) {
   const preset=PRESETS.find(preset=>preset.id===id);
   if(!preset)throw new TypeError("Unknown preset");
   return {...choice,theme:"bluepinkneon",hues:[...preset.hues],rotation:0,mode:preset.defaultMode,
-    neutrals:[false,false,false],monoHue:null,neutral:preset.defaultNeutral,surfaceOffset:preset.surfaceOffset};
+    neutrals:[...(preset.neutrals??[false,false,false])],monoHue:null,neutral:preset.defaultNeutral,surfaceOffset:preset.surfaceOffset};
 }
