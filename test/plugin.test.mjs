@@ -20,7 +20,7 @@ test("default theme preserves every original color without importing layout toke
 
 test("all three hue controls, rotation wrapping, and reset affect the active theme", () => {
   const h = host(); const app = h.boot(); const original = h.css();
-  for (const name of ["Primary", "Secondary", "Text"]) {
+  for (const name of ["Primary", "Secondary", "Neon"]) {
     click(app, "Reset blue-pink-neon");
     input(app, name).props.onChange({ target: { value: "#ff7b00" } });
     assert.notEqual(h.css(), original, name);

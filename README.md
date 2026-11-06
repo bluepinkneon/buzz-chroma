@@ -4,7 +4,7 @@
 
 **We’ve already overthought it for you.**
 
-Choose three hues, or one. Get a complete Buzz palette in **Dark**, **Light**, or
+Choose one, two or three colors. Get a complete Buzz palette in **Dark**, **Light**, or
 **Auto**. Grayscale is monochrome with zero chroma. The repository is Buzz Chroma;
 the plugin keeps its original ID, so existing installations and preferences migrate.
 
@@ -39,61 +39,64 @@ with a mix of comics, film, books, games and animation. Names use kebab-case:
 
 | Palette | Default | Color idea |
 |---|---|---|
-| `blue-pink-neon` | three colors | Ranveer’s original: blue, pink and neon. |
-| `daredevil` | three colors | Crimson, violet and gold. |
-| `spider-man` | three colors | Comic-book red, electric blue and gold. |
-| `black-widow` | monochrome | Crimson monochrome; violet and ice in full color. |
-| `black-panther` | three colors | Royal violet, gold and ice. |
-| `storm` | monochrome | Storm-cloud indigo monochrome; lightning gold and sea glass in full color. |
-| `john-wick` | three colors | Midnight violet, neon cyan and gold. |
-| `miyamoto-musashi` | monochrome | Ink-indigo monochrome; cedar and bamboo green in full color. |
-| `sherlock-holmes` | monochrome | Sepia monochrome; ink blue and bottle green in full color. |
-| `trinity` | monochrome | Jade monochrome; ultraviolet and gold in full color. |
-| `neo` | monochrome | Phosphor-green monochrome; blue and gold in full color. |
-| `aragorn` | three colors | Ranger green, worn burgundy and steel blue. |
-| `lara-croft` | three colors | Expedition teal, sandstone and orchid. |
-| `wonder-woman` | three colors | Royal blue, crimson and gold. |
-| `katniss-everdeen` | three colors | Mockingjay gold, ember and cold silver-blue. |
-| `princess-leia` | three colors | Indigo, rose and mint. |
-| `ripley` | three colors | Industrial teal, warning amber and deep violet. |
-| `geralt-of-rivia` | monochrome | Steel-blue monochrome; crimson and gold in full color. |
-| `wolverine` | three colors | Battle yellow, cobalt blue and claw-mark red. |
-| `batman` | neutral + accent | Charcoal and signal gold, with neutral reading ink. |
-| `superman` | three colors | Sky blue, cape red and sunlit gold. |
-| `harley-quinn` | three colors | Scarlet, hot pink and electric cyan. |
-| `deadpool` | three colors | Mercenary red, steel blue and mint. |
-| `joker` | three colors | Acid green, theatrical violet and brass. |
-| `doctor-strange` | three colors | Mystic violet, cloak red and spell gold. |
-| `ahsoka-tano` | three colors | Warm copper, saber cyan and indigo. |
-| `obi-wan-kenobi` | three colors | Desert ochre, saber blue and sage. |
-| `darth-vader` | neutral + accent | Charcoal and saber red, with neutral reading ink. |
-| `frodo-baggins` | three colors | Shire-leaf green, weathered leather and twilight blue. |
-| `gandalf` | neutral + accent | Soft gray and icy blue, with neutral reading ink. |
-| `legolas` | three colors | Woodland green, pale gold and clear blue. |
-| `hermione-granger` | three colors | Scholarly crimson, parchment gold and ink blue. |
-| `howl` | three colors | Enchanted violet, rose and starlight gold. |
-| `san` | three colors | War-paint red, deep forest and cold sky. |
-| `motoko-kusanagi` | three colors | Cybernetic orchid, neon teal and amber. |
-| `totoro` | neutral + accent | Soft gray and forest green, with neutral reading ink. |
-| `chun-li` | three colors | Royal blue, gold and a pink spark. |
-| `link` | three colors | Champion teal, relic gold and open-sky blue. |
-| `zelda` | three colors | Royal indigo, sacred gold and jade. |
-| `samus-aran` | three colors | Armor orange, cosmic violet and visor green. |
+| `blue-pink-neon` | trichrome | Ranveer’s original: blue, pink and neon. |
+| `daredevil` | bichrome | Crimson, violet and gold. |
+| `spider-man` | trichrome | Comic-book red, electric blue and gold. |
+| `black-widow` | bichrome | Crimson and charcoal bichrome; ice in trichrome. |
+| `black-panther` | trichrome | Royal violet, gold and ice. |
+| `storm` | monochrome | Storm-cloud indigo monochrome; lightning gold and sea glass in trichrome. |
+| `john-wick` | trichrome | Midnight violet, neon cyan and gold. |
+| `miyamoto-musashi` | monochrome | Ink-indigo monochrome; cedar and bamboo green in trichrome. |
+| `sherlock-holmes` | monochrome | Sepia monochrome; ink blue and bottle green in trichrome. |
+| `trinity` | monochrome | Jade monochrome; ultraviolet and gold in trichrome. |
+| `neo` | monochrome | Phosphor-green monochrome; blue and gold in trichrome. |
+| `aragorn` | trichrome | Ranger green, worn burgundy and steel blue. |
+| `lara-croft` | trichrome | Expedition teal, sandstone and orchid. |
+| `wonder-woman` | trichrome | Royal blue, crimson and gold. |
+| `katniss-everdeen` | trichrome | Mockingjay gold, ember and cold silver-blue. |
+| `princess-leia` | trichrome | Indigo, rose and mint. |
+| `ripley` | trichrome | Industrial teal, warning amber and deep violet. |
+| `geralt-of-rivia` | monochrome | Steel-blue monochrome; crimson and gold in trichrome. |
+| `wolverine` | trichrome | Battle yellow, cobalt blue and claw-mark red. |
+| `batman` | bichrome | Charcoal and signal gold, with a matching reading-ink tint. |
+| `superman` | trichrome | Sky blue, cape red and sunlit gold. |
+| `harley-quinn` | trichrome | Scarlet, hot pink and electric cyan. |
+| `deadpool` | trichrome | Mercenary red, steel blue and mint. |
+| `joker` | trichrome | Acid green, theatrical violet and brass. |
+| `doctor-strange` | trichrome | Mystic violet, cloak red and spell gold. |
+| `ahsoka-tano` | trichrome | Warm copper, saber cyan and indigo. |
+| `obi-wan-kenobi` | trichrome | Desert ochre, saber blue and sage. |
+| `darth-vader` | bichrome | Charcoal and saber red, with a matching reading-ink tint. |
+| `frodo-baggins` | trichrome | Shire-leaf green, weathered leather and twilight blue. |
+| `gandalf` | bichrome | Soft gray and icy blue, with a matching reading-ink tint. |
+| `legolas` | trichrome | Woodland green, pale gold and clear blue. |
+| `hermione-granger` | trichrome | Scholarly crimson, parchment gold and ink blue. |
+| `howl` | trichrome | Enchanted violet, rose and starlight gold. |
+| `san` | trichrome | War-paint red, deep forest and cold sky. |
+| `motoko-kusanagi` | trichrome | Cybernetic orchid, neon teal and amber. |
+| `totoro` | bichrome | Soft gray and forest green, with a matching reading-ink tint. |
+| `chun-li` | trichrome | Royal blue, gold and a pink spark. |
+| `link` | trichrome | Champion teal, relic gold and open-sky blue. |
+| `zelda` | trichrome | Royal indigo, sacred gold and jade. |
+| `samus-aran` | trichrome | Armor orange, cosmic violet and visor green. |
 
 </details>
 
-Some open in monochrome, others in full color. Every palette supports both,
-plus Light/Dark/Auto. Monochrome follows the primary hue automatically. Pick a
+Some open in monochrome, others in bichrome or trichrome. Every palette supports
+all three modes, plus Light/Dark/Auto. Monochrome follows Primary automatically. Pick a
 custom monochrome hue, or choose **Use primary hue** to link it again. Selecting
 a built-in palette restores its recommended color mode and hue relationships,
 while keeping your appearance preference.
 
 ## Make a palette
 
-- **Full color:** choose primary, secondary and text hues; rotate them together.
-- **Monochrome:** choose one hue for every decorative role. **Neutral gray** is
+- **Trichrome:** choose **Primary**, **Secondary** and **Neon**.
+- **Bichrome:** choose **Primary** and **Secondary**; Neon is derived automatically.
+- **Monochrome:** choose **Primary** for every decorative family. **Neutral gray** is
   the same mode at zero chroma. Alerts retain familiar signal colors.
-- A gray pick in a full-color picker makes only that family neutral.
+- **Hue rotation:** the bottom slider rotates the whole look in every mode.
+- A gray pick makes only that family neutral. Two gray bichrome inputs also make
+  the derived Neon neutral; one gray input borrows the other input’s hue.
 - **Light / Dark:** independently computed surfaces and contrast-checked inks.
 - **Auto:** follows Buzz’s resolved appearance, including its System setting and
   OS day/night schedule. It does not impose a sunrise timer or change Buzz’s saved
@@ -101,9 +104,10 @@ while keeping your appearance preference.
 - **Reset blue-pink-neon:** resets the three hues, rotation and dark appearance.
 - **Buzz default**, or disabling the plugin, removes its owned style override.
 
-The three RGB controls select a hue or a neutral family; the generator owns
+The RGB controls select a hue or a neutral family; the generator owns
 lightness and chroma. Their displayed swatches round-trip without hue drift.
-The Text picker shows its hue swatch; the preview shows the actual reading ink.
+Neon supplies the reading-ink tint; its picker shows a hue swatch and the preview
+shows the actual ink. Hidden trichrome choices survive a visit to another mode.
 In Light mode, ink can approach black when higher contrast requires it.
 
 Danger/removal stays red, success/addition green, and warning amber. Buzz’s diff
@@ -119,7 +123,7 @@ the old rollback key.
 
 Enter a name under **Save your theme**, then choose **Save locally**. The name
 becomes kebab-case. Saved themes appear in the selector under **Saved on this
-device**, and survive app restarts. They restore color/monochrome settings while
+device**, and survive app restarts. They restore palette and color-mode settings while
 keeping your current Light/Dark/Auto preference. Duplicate names receive a
 suffix; built-ins and earlier saves are never overwritten. **Remove saved theme**
 removes the local copy and keeps the current colors as an unsaved look.
@@ -142,7 +146,7 @@ export function apply(ctx) {
     // colors: ["#0099dd", "#dd4083", "#95fae4"],
     rotation: 45,
     appearance: "auto", // dark | light | auto
-    mode: "color",      // color | monochrome
+    mode: "trichrome",  // monochrome | bichrome | trichrome
     // monochrome: "#808080", // optional one-hue/neutral override
   }));
 }
@@ -153,7 +157,8 @@ export function apply(ctx) {
 ```js
 const live = ctx.chroma.setLook({ preset: "john-wick" });
 live.update({ rotation: 90 });
-live.update({ mode: "monochrome", monochrome: "#cc2233" });
+live.update({ mode: "bichrome", colors: ["#0099dd", "#dd4083"] });
+live.update({ mode: "monochrome", colors: ["#cc2233"] });
 live.update({ appearance: "light" });
 live.dispose(); // equivalent to live()
 ```
@@ -170,10 +175,16 @@ Invalid values throw before changing the theme. Rotation accepts any finite
 angle and normalizes to whole degrees; colors are six-digit hexadecimal. Explicit
 colors/monochrome supply base hues when an explicit rotation is included.
 Without an explicit angle, a monochrome color renders as picked while preserving
-the saved full-color rotation, matching the UI.
+the saved trichrome rotation, matching the UI. Use one color for monochrome, two
+for bichrome, or three for trichrome. A full three-color seed array is also accepted
+in the other modes. `color` remains an alias for trichrome; `dichrome` is an alias
+for bichrome. The stored snapshot mode IDs remain `color`, `duo` and `mono` for
+compatibility.
 
 `listPresets()` returns a copy of the built-in catalog. `getLook()` returns a
-copy of the active settings and resolved appearance. Its `preset` identifies the
+copy of the active settings and resolved appearance. `hues` contains the stored
+three seeds; `effectiveHues` contains the three resulting hues after rotation and
+mode derivation. Its `preset` identifies the
 underlying three-color recipe; mode and monochrome overrides can differ. A complete `getLook()`
 snapshot can be passed back to `setLook()` without changing its colors.
 `surfaceOffset` is the relationship recipe, either `0` (primary-colored ground)
@@ -199,7 +210,7 @@ The build verifies the pinned original generator and CSS snapshot by SHA-256,
 uses culori 4.0.2 in an automatically removed temporary directory, and checks in
 the result under `dist/`. Installers do not need build tools.
 
-Tests cover all 360 hue positions in color and monochrome, both appearances,
+Tests cover all 360 hue positions in trichrome, bichrome and monochrome, both appearances,
 neutral families, independent hue combinations, the circular seam, picker
 round-trips, storage migration, Auto changes, callable-service custody and cleanup.
 The host text/background graph also samples animated highlight composites.
@@ -210,6 +221,7 @@ See [ALGORITHM.md](ALGORITHM.md) for the constraints, numeric floors and limits.
 - `role-map.js`: Buzz semantic role mapping and monochrome state cues.
 - `presets.js`: original character-inspired recipes.
 - `local-themes.js`: bounded local palette snapshots and names.
+- `harmony.js`: periodic two-input Neon derivation.
 - `vendor/bluepinkneon/`: unchanged original generator with hash provenance.
 - `shepherd-theme.css`: original 152-color snapshot.
 - `test/role-graph.json`: authored graph based on Buzz’s public contrast checks.

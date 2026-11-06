@@ -6,7 +6,7 @@ test("picker round-trips every rendered swatch without drifting across all 360 h
   const h=host(), app=h.boot();
   for(let hue=0;hue<360;hue++) {
     rotate(app,hue);
-    for(const name of ["Primary","Secondary","Text"]) {
+    for(const name of ["Primary","Secondary","Neon"]) {
       const shown=input(app,name), before=h.css();
       shown.props.onChange({target:{value:shown.props.value}});
       assert.equal(h.css(),before,`${hue} ${name}`);
@@ -17,7 +17,7 @@ test("picker round-trips every rendered swatch without drifting across all 360 h
 
 test("neutral pickers affect their own family; explicit monochrome retains distinct states",()=>{
   const h=host(),app=h.boot();
-  input(app,"Text").props.onChange({target:{value:"#808080"}});
+  input(app,"Neon").props.onChange({target:{value:"#808080"}});
   let state=JSON.parse([...h.saved.values()][0]);
   assert.equal(state.mode,"color");assert.deepEqual(state.neutrals,[false,false,true]);
   assert.equal(variables(h.css()).get("--palette-primary-7"),"#0099dd");
@@ -76,18 +76,17 @@ test("API monochrome rotation changes the generated palette, and legacy ignores 
   assert.deepEqual(restored.services.get("chroma").getLook().neutrals,[false,false,false]);restored.dispose();
 });
 
-test("monochrome picker and hue slider preserve the full-color rotation",()=>{
-  const h=host(),app=h.boot();rotate(app,129);const original=h.css();
-  click(app,"Monochrome");
-  input(app,"Monochrome hue").props.onChange({target:{value:"#ff7b00"}});
-  find(app.tree(),n=>n.props?.id==="bluepinkneon-mono-hue").props.onChange({target:{value:"270"}});
-  assert.equal(app.services.get("chroma").getLook().rotation,129);
-  click(app,"Full color");assert.equal(h.css(),original);app.dispose();
+test("monochrome primary preserves the saved seeds, while Hue rotation is shared",()=>{
+  const h=host(),app=h.boot(),api=app.services.get("chroma");rotate(app,129);const original=h.css(),seeds=api.getLook().hues;
+  click(app,"Monochrome");input(app,"Primary").props.onChange({target:{value:"#ff7b00"}});
+  assert.equal(api.getLook().rotation,129);click(app,"Trichrome");assert.equal(h.css(),original);
+  click(app,"Monochrome");rotate(app,270);assert.equal(api.getLook().rotation,270);
+  click(app,"Trichrome");assert.deepEqual(api.getLook().hues,seeds);assert.notEqual(h.css(),original);app.dispose();
 });
 
 test("a monochrome API color with no explicit angle agrees with the UI after rotation",()=>{
   const h=host(),app=h.boot(),api=app.services.get("chroma");rotate(app,129);
   const expected=api.generateTheme({monochrome:"#ff7b00"});
-  click(app,"Monochrome");input(app,"Monochrome hue").props.onChange({target:{value:"#ff7b00"}});
+  click(app,"Monochrome");input(app,"Primary").props.onChange({target:{value:"#ff7b00"}});
   assert.deepEqual(api.generateTheme({}),expected);app.dispose();
 });

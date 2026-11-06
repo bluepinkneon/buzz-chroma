@@ -42,13 +42,15 @@ test("host contrast graph passes every hue in both appearances and monochrome, i
   for(const appearance of ["dark","light"]) {
     for(let h=0;h<360;h++) {
       verify({appearance,hues:[h,(h+135)%360,(h+315)%360],mode:"color"});
+      verify({appearance,hues:[h,(h+135)%360,0],mode:"duo"});
       verify({appearance,monoHue:h,mode:"mono"});
     }
     verify({appearance,mode:"mono",neutral:true});
     // Independent hues and all per-picker neutral masks (deterministic).
-    for(let n=0;n<256;n++)verify({appearance,mode:"color",hues:[n*137%360,n*53%360,n*199%360],neutrals:[!!(n&1),!!(n&2),!!(n&4)]});
+    for(let n=0;n<256;n++)for(const mode of ["color","duo"])verify({appearance,mode,hues:[n*137%360,n*53%360,n*199%360],neutrals:[!!(n&1),!!(n&2),!!(n&4)]});
     for(const preset of PRESETS) {
       verify({appearance,mode:"color",hues:preset.hues,neutrals:preset.neutrals,surfaceOffset:preset.surfaceOffset});
+      verify({appearance,mode:"duo",hues:preset.hues,neutrals:preset.neutrals,surfaceOffset:preset.surfaceOffset});
       verify({appearance,mode:"mono",hues:preset.hues,monoHue:preset.hues[0],neutral:preset.defaultNeutral||preset.neutrals?.[0]||false,surfaceOffset:preset.surfaceOffset});
       verify({appearance,mode:"mono",hues:preset.hues,neutral:true,surfaceOffset:preset.surfaceOffset});
     }

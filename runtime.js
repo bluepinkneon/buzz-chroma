@@ -4,12 +4,14 @@ import { createRoleEngine } from "./role-engine.js";
 import { mapRoles, roleCss } from "./role-map.js";
 import { PRESETS, findPreset, applyPreset } from "./presets.js";
 import { LOCAL_LIMIT, LIBRARY_KEY, paletteSnapshot, paletteKey, themeSlug, isThemeName } from "./local-themes.js";
+import {deriveNeonHue,derivedNeonNeutral} from "./harmony.js";
 
 export const inject = ["react", "pages"];
 const degree = (value) => ((Math.round(value) % 360) + 360) % 360;
 const defaults = () => ({ theme: "bluepinkneon", hues: [224, 359, 179], rotation: 0,
   mode: "color", monoHue: null, neutral: false, neutrals: [false,false,false], appearance: "dark",surfaceOffset:90,localName:null });
-const effectiveHues = (choice) => choice.hues.map((hue) => degree(hue + choice.rotation));
+const seedHues = (choice) => choice.hues.map((hue) => degree(hue + choice.rotation));
+const effectiveHues = (choice) => {const hues=seedHues(choice);return choice.mode==="duo"?[hues[0],hues[1],deriveNeonHue(hues[0],hues[1],choice.neutrals)]:hues;};
 const monoHue = (choice) => degree((choice.monoHue ?? choice.hues[0]) + choice.rotation);
 const monoIsNeutral = (choice) => choice.neutral || (choice.monoHue === null && choice.neutrals[0]);
 const angularDistance = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
@@ -58,7 +60,8 @@ function paletteFor(choice) {
     ? (monoIsNeutral(choice) ? neutralRamp() : generatePalette(monoHue(choice))) : null;
   const colors = {};
   for (const [name, hue, index] of [["primary",primary,0],["shadow",degree(primary+choice.surfaceOffset),0],["secondary",secondary,1],["light",text,2]]) {
-    (mono || (choice.neutrals[index] ? neutralRamp() : generatePalette(hue))).forEach((hex, step) => { colors[`--palette-${name}-${step}`] = hex; });
+    const neutral=choice.mode==="duo"&&index===2?derivedNeonNeutral(choice.neutrals):choice.neutrals[index];
+    (mono || (neutral ? neutralRamp() : generatePalette(hue))).forEach((hex, step) => { colors[`--palette-${name}-${step}`] = hex; });
   }
   // Semantic signals are protected roles, independent of decorative rotation.
   // Using their hand-tuned source ramps also removes the old exact-preset cliff.
@@ -74,7 +77,7 @@ function readChoice(saved, legacy) {
     || !Array.isArray(saved.hues) || saved.hues.length !== 3
     || !Array.from(saved.hues).every((hue) => Number.isFinite(hue) && hue >= 0 && hue < 360)
     || !Number.isFinite(saved.rotation) || saved.rotation < 0 || saved.rotation >= 360) return null;
-  if (!legacy && (!["color", "mono"].includes(saved.mode) || typeof saved.neutral !== "boolean"
+  if (!legacy && (!["color", "duo", "mono"].includes(saved.mode) || typeof saved.neutral !== "boolean"
     || !(saved.monoHue === null || (Number.isFinite(saved.monoHue) && saved.monoHue >= 0 && saved.monoHue < 360)))) return null;
   const hues = saved.hues.map(degree);
   if (legacy) hues[2] = degree(hues[2] + 45); // v2 stored the text family's preceding hue.
@@ -186,18 +189,18 @@ export function apply(ctx) {
   }
 
   function saveLibrary(next) {
-    if(libraryLocked)return false;
+    if(libraryLocked)return "refused";
     const parsed=next.map(readLocalEntry);
     if(next.length>LOCAL_LIMIT||parsed.some(entry=>entry===null)||new Set(parsed.map(entry=>entry.name)).size!==parsed.length) {
       warning="The theme library update was refused. Existing saved themes were not changed.";
-      for(const listener of listeners)listener();return false;
+      for(const listener of listeners)listener();return "refused";
     }
     localThemes=parsed;warning="";
     let saved=true;
     try {localStorage.setItem(LIBRARY_KEY,JSON.stringify(localThemes));}
     catch {saved=false;warning="Theme library changed for this session, but could not be saved on this device.";}
     for(const listener of listeners)listener();
-    return saved;
+    return saved?"saved":"session";
   }
 
   function saveLocalTheme(name) {
@@ -212,15 +215,16 @@ export function apply(ctx) {
     }
     const next={...activeChoice(),localName:unique};
     const persisted=saveLibrary([...localThemes,{name:unique,look:paletteSnapshot(next)}]);
+    if(persisted==="refused")return;
     save(next);
-    if(!persisted){warning="Theme library changed for this session, but could not be saved on this device.";for(const listener of listeners)listener();}
+    if(persisted==="session"){warning="Theme library changed for this session, but could not be saved on this device.";for(const listener of listeners)listener();}
   }
 
   function chooseColor(index, hex) {
     const choice = activeChoice();
     if (!/^#[0-9a-f]{6}$/i.test(hex)) return;
     hex = hex.toLowerCase();
-    const hues = effectiveHues(choice);
+    const hues = seedHues(choice);
     const step = 7;
     if (hex === (choice.neutrals[index] ? neutralRamp() : generatePalette(hues[index]))[step]) return;
     const selected = hueFromSwatch(hex, step, hues[index]);
@@ -230,7 +234,7 @@ export function apply(ctx) {
     } else {
       hues[index] = selected;
       const neutrals = [...choice.neutrals]; neutrals[index] = false;
-      save({ ...choice, theme: "bluepinkneon", mode: "color", hues, neutrals, rotation: 0 });
+      save({ ...choice, theme: "bluepinkneon", mode:choice.mode==="duo"?"duo":"color", hues, neutrals, rotation: 0 });
     }
   }
 
@@ -253,13 +257,14 @@ export function apply(ctx) {
     // A full getLook() snapshot is also a valid request. Metadata is read-only;
     // palette fields go through the same validator as saved user preferences.
     if(Object.hasOwn(options,"theme")&&Object.hasOwn(options,"hues")) {
-      const keys=["theme","hues","rotation","mode","monoHue","neutral","neutrals","appearance","surfaceOffset","localName","preset","resolvedAppearance"];
+      const keys=["theme","hues","rotation","mode","monoHue","neutral","neutrals","appearance","surfaceOffset","localName","preset","resolvedAppearance","effectiveHues"];
       if(Object.keys(options).some(key=>!keys.includes(key)))throw new TypeError("Unknown snapshot field");
       if(options.preset!==undefined&&(typeof options.preset!=="string"||!(options.preset==="custom"||PRESETS.some(preset=>preset.id===options.preset))))throw new TypeError("Invalid snapshot preset metadata");
       if(options.resolvedAppearance!==undefined&&!["dark","light"].includes(options.resolvedAppearance))throw new TypeError("Invalid snapshot appearance metadata");
+      if(options.effectiveHues!==undefined&&(!Array.isArray(options.effectiveHues)||options.effectiveHues.length!==3||!Array.from(options.effectiveHues).every(h=>Number.isInteger(h)&&h>=0&&h<360)))throw new TypeError("Invalid snapshot hue metadata");
       const restored=readChoice(options,false);
       if(!restored)throw new TypeError("Invalid theme snapshot");
-      return restored;
+      return cleanLocalIdentity(restored);
     }
     const allowed = ["preset","colors","rotation","appearance","mode","monochrome","surfaceOffset"];
     if (Object.keys(options).some(key=>!allowed.includes(key))) throw new TypeError("Unknown theme option");
@@ -269,12 +274,25 @@ export function apply(ctx) {
       if(![0,90].includes(options.surfaceOffset))throw new TypeError("surfaceOffset must be 0 or 90");
       next.surfaceOffset=options.surfaceOffset;
     }
+    if (options.mode !== undefined) {
+      const modes={color:"color",trichrome:"color",bichrome:"duo",dichrome:"duo",monochrome:"mono"};
+      if(!Object.hasOwn(modes,options.mode))throw new TypeError("Invalid mode");
+      next.mode=modes[options.mode];
+    }
+    let monoInput=options.monochrome;
     if (options.colors !== undefined) {
-      if (!Array.isArray(options.colors) || options.colors.length !== 3 || !Array.from(options.colors).every(hex=>typeof hex === "string" && /^#[0-9a-f]{6}$/i.test(hex))) throw new TypeError("colors must be three #RRGGBB values");
-      const currentHues = effectiveHues(next);
-      next.hues = options.colors.map((hex,index)=>hueFromSwatch(hex.toLowerCase(),7,currentHues[index]) ?? currentHues[index]);
-      next.neutrals = options.colors.map(hex=>hexToOklch(hex).c < .02);
-      next.rotation = 0;
+      const sizes=next.mode==="mono"?[1,3]:next.mode==="duo"?[2,3]:[3];
+      if (!Array.isArray(options.colors) || !sizes.includes(options.colors.length) || !Array.from(options.colors).every(hex=>typeof hex === "string" && /^#[0-9a-f]{6}$/i.test(hex))) throw new TypeError("colors must contain #RRGGBB values for the selected mode");
+      if(options.colors.length===1)monoInput=options.monochrome??options.colors[0];
+      else {
+        const currentHues = seedHues(next);
+        next.hues = [...currentHues];next.neutrals=[...next.neutrals];
+        options.colors.forEach((hex,index)=>{
+          next.hues[index]=hueFromSwatch(hex.toLowerCase(),7,currentHues[index])??currentHues[index];
+          next.neutrals[index]=hexToOklch(hex).c<.02;
+        });
+        next.rotation = 0;
+      }
     }
     if (options.rotation !== undefined) {
       if (!Number.isFinite(options.rotation)) throw new TypeError("rotation must be finite");
@@ -284,23 +302,22 @@ export function apply(ctx) {
       if (!["dark","light","auto"].includes(options.appearance)) throw new TypeError("Invalid appearance");
       next.appearance = options.appearance;
     }
-    if (options.mode !== undefined) {
-      if (!["color","monochrome"].includes(options.mode)) throw new TypeError("Invalid mode");
-      next.mode = options.mode === "monochrome" ? "mono" : "color";
-    }
-    if (options.monochrome !== undefined) {
-      if (typeof options.monochrome !== "string" || !/^#[0-9a-f]{6}$/i.test(options.monochrome)) throw new TypeError("monochrome must be #RRGGBB");
-      const hue = hueFromSwatch(options.monochrome.toLowerCase(),7,monoHue(next));
+    if (monoInput !== undefined) {
+      if (typeof monoInput !== "string" || !/^#[0-9a-f]{6}$/i.test(monoInput)) throw new TypeError("monochrome must be #RRGGBB");
+      const hue = hueFromSwatch(monoInput.toLowerCase(),7,monoHue(next));
       next.mode = "mono"; next.neutral = hue === null;
       next.monoHue = hue === null ? next.monoHue ?? next.hues[0]
         : options.rotation === undefined ? degree(hue-next.rotation) : hue;
     }
-    return next;
+    return cleanLocalIdentity(next);
+  }
+  function cleanLocalIdentity(next) {
+    return next.localName&&!localThemes.some(theme=>theme.name===next.localName&&paletteKey(theme.look)===paletteKey(next))?{...next,localName:null}:next;
   }
   if (typeof ctx.provide === "function") ctx.provide("chroma", Object.freeze({
     version: 1,
     listPresets: () => { if (!alive) throw new Error("Chroma is disabled"); return structuredClone(PRESETS); },
-    getLook: () => { if (!alive) throw new Error("Chroma is disabled"); return structuredClone({ ...activeChoice(), preset:findPreset(activeChoice())?.id??"custom", resolvedAppearance: appearance }); },
+    getLook: () => { if (!alive) throw new Error("Chroma is disabled");const next=activeChoice();return structuredClone({ ...next, preset:findPreset(next)?.id??"custom", effectiveHues:next.mode==="mono"?Array(3).fill(monoHue(next)):effectiveHues(next),resolvedAppearance: appearance }); },
     generateTheme: (options = {}) => {
       const next = apiChoice(options);
       return structuredClone(mapRoles(engine.generate({ ...next, hues:effectiveHues(next), monoHue:monoHue(next), neutral:monoIsNeutral(next), appearance:resolveAppearance(next.appearance) })));
@@ -342,11 +359,10 @@ export function apply(ctx) {
       const buttonStyle = (selected) => ({ ...control, background: selected ? "var(--affordance-selected)" : control.background });
       const swatchStyle = { width: "64px", height: "40px", cursor: "pointer" };
       const setMode = (mode) => save({ ...choice, theme: "bluepinkneon", mode });
-      const changeRange = (event, mono) => {
+      const changeRange = (event) => {
         const value = Number(event.target.value);
         if (!Number.isFinite(value) || value < 0 || value >= 360) return;
-        save({ ...choice, theme: "bluepinkneon", ...(mono
-          ? { monoHue: degree(value-choice.rotation), neutral: false } : { rotation: degree(value) }) });
+        save({ ...choice, theme: "bluepinkneon", rotation: degree(value) });
       };
       return h("section", { className: "ui-card",
         style: { padding: "var(--space-panel-inset, 24px)", maxWidth: "640px" } },
@@ -367,35 +383,30 @@ export function apply(ctx) {
           ...PRESETS.map(preset=>h("option",{key:preset.id,value:preset.id},preset.id)),
           ...(localThemes.length?[h("optgroup",{label:"Saved on this device"},...localThemes.map(theme=>h("option",{key:theme.name,value:`local:${theme.name}`},theme.name)))]:[]),
           ...(!preset&&!localTheme?[h("option",{value:"custom",disabled:true},"custom")]:[])),
-        h("p",null,localTheme?"Saved on this device.":preset?.description??"Your own three-color combination."),
+        h("p",null,localTheme?"Saved on this device.":preset?.description??"Your own color combination."),
         h("div", { style: {display:"flex",gap:"8px",marginTop:"16px"}, "aria-label":"Appearance" },
           ...[["dark","Dark"],["light","Light"],["auto","Auto"]].map(([value,label])=>h("button",{key:value,type:"button","aria-pressed":choice.appearance===value,style:buttonStyle(choice.appearance===value),onClick:()=>save({...choice,appearance:value})},label))),
         h("p", null, choice.appearance === "auto" ? `Auto follows Buzz’s appearance · ${appearance}.` : `${appearance === "dark" ? "Dark" : "Light"} palette.`),
         h("fieldset", { style: { marginTop: "24px", border: "1px solid var(--border-standard)", padding: "16px", borderRadius: "8px" } },
           h("legend", null, "Make a palette"),
           h("div", { style: { display: "flex", gap: "8px", marginBottom: "20px" } },
-            ...[["color", "Full color"], ["mono", "Monochrome"]].map(([mode, label]) => h("button", {
+            ...[["color", "Trichrome"], ["duo","Bichrome"], ["mono", "Monochrome"]].map(([mode, label]) => h("button", {
               key: mode, type: "button", "aria-pressed": choice.mode === mode,
               style: buttonStyle(choice.mode === mode), onClick: () => setMode(mode),
             }, label))),
-          choice.mode === "color"
+          choice.mode !== "mono"
             ? h("div", null,
-              h("p", null, "Pick three hues, or rotate them together."),
+              h("p", null, choice.mode==="duo" ? "Choose Primary and Secondary. Neon is derived automatically." : "Choose Primary, Secondary and Neon."),
               h("div", { style: { display: "flex", flexWrap: "wrap", gap: "20px" } },
-                ...["Primary", "Secondary", "Text"].map((label, index) => h("label", { key: label, style: { display: "grid", gap: "8px" } }, label,
+                ...(choice.mode==="duo"?["Primary","Secondary"]:["Primary", "Secondary", "Neon"]).map((label, index) => h("label", { key: label, style: { display: "grid", gap: "8px" } }, label,
                   h("input", { type: "color", "aria-label": label,
                     value: (choice.neutrals[index] ? neutralRamp() : generatePalette(hues[index]))[7],
                     onChange: (event) => chooseColor(index, event.target.value), style: swatchStyle })))),
-              h("label", { htmlFor: "bluepinkneon-rotation", style: { display: "block", marginTop: "20px" } }, `Hue rotation: ${choice.rotation}°`),
-              h("input", { id: "bluepinkneon-rotation", type: "range", min: 0, max: 359, step: 1,
-                value: choice.rotation, style: { width: "100%", accentColor: colors["--palette-primary-7"] },
-                onChange: (event) => changeRange(event, false) }),
-              h("button", { type: "button", style: control,
-                onClick: () => save({ ...choice, theme: "bluepinkneon", rotation: degree(choice.rotation + 45) }) }, "Rotate +45°"))
+              ...(choice.mode==="duo"?[h("p",{style:{display:"flex",alignItems:"center",gap:"8px"}},h("span",{style:{display:"inline-block",width:"24px",height:"24px",borderRadius:"50%",background:(derivedNeonNeutral(choice.neutrals)?neutralRamp():generatePalette(hues[2]))[7]}}),"Neon · derived")]:[]))
             : h("div", null,
               h("p", null, monoIsNeutral(choice) ? "Neutral monochrome, with contrast-generated shades." : choice.monoHue===null ? `One hue, linked to ${paletteName}’s primary. Every shade is generated automatically.` : "One custom hue, a full range of shades."),
-              h("label", { style: { display: "grid", gap: "8px" } }, "Monochrome hue",
-                h("input", { type: "color", "aria-label": "Monochrome hue", style: swatchStyle,
+              h("label", { style: { display: "grid", gap: "8px" } }, "Primary",
+                h("input", { type: "color", "aria-label": "Primary", style: swatchStyle,
                   value: (monoIsNeutral(choice) ? neutralRamp() : generatePalette(monoHue(choice)))[7],
                   onChange: (event) => chooseMonoColor(event.target.value) })),
               h("div", { style: { display: "flex", gap: "8px", marginTop: "12px" } },
@@ -404,11 +415,13 @@ export function apply(ctx) {
                 h("button", { type: "button", style: buttonStyle(monoIsNeutral(choice)), "aria-pressed": monoIsNeutral(choice),
                   onClick: () => save({ ...choice, neutral: true, monoHue:degree(monoHue(choice)-choice.rotation) }) }, "Neutral gray"),
                 h("button", { type:"button",style:buttonStyle(choice.monoHue===null),"aria-pressed":choice.monoHue===null,
-                  onClick:()=>save({...choice,monoHue:null,neutral:false}) },"Use primary hue")),
-              h("label", { htmlFor: "bluepinkneon-mono-hue", style: { display: "block", marginTop: "20px" } }, `Hue: ${monoHue(choice)}°`),
-              h("input", { id: "bluepinkneon-mono-hue", type: "range", min: 0, max: 359, step: 1,
-                disabled: monoIsNeutral(choice), value: monoHue(choice), style: { width: "100%" },
-                onChange: (event) => changeRange(event, true) })),
+                  onClick:()=>save({...choice,monoHue:null,neutral:false}) },"Use primary hue"))),
+          h("label", { htmlFor: "bluepinkneon-rotation", style: { display: "block", marginTop: "20px" } }, `Hue rotation: ${choice.rotation}°`),
+          h("input", { id: "bluepinkneon-rotation", type: "range", min: 0, max: 359, step: 1,
+            value: choice.rotation, style: { width: "100%", accentColor: colors["--palette-primary-7"] },
+            onChange: changeRange }),
+          h("button", { type: "button", style: control,
+            onClick: () => save({ ...choice, theme: "bluepinkneon", rotation: degree(choice.rotation + 45) }) }, "Rotate +45°"),
           h("p", null, "Alerts keep their familiar colors."),
           h("button", { type: "button", style: control, onClick: () => save(defaults()) }, "Reset blue-pink-neon")),
         h("fieldset",{style:{marginTop:"20px",border:"1px solid var(--border-standard)",padding:"16px",borderRadius:"8px"}},
@@ -421,13 +434,13 @@ export function apply(ctx) {
             catch{warning="Could not reset the local library. Stored data was not changed.";for(const listener of listeners)listener();}
           }},"Reset local library")]:[]),
           ...(localTheme?[h("button",{type:"button",style:{...control,marginLeft:"8px"},onClick:()=>{
-            const persisted=saveLibrary(localThemes.filter(theme=>theme.name!==localTheme.name));save({...choice,localName:null});
-            if(!persisted){warning="Theme library changed for this session, but could not be saved on this device.";for(const listener of listeners)listener();}
+            const persisted=saveLibrary(localThemes.filter(theme=>theme.name!==localTheme.name));if(persisted==="refused")return;save({...choice,localName:null});
+            if(persisted==="session"){warning="Theme library changed for this session, but could not be saved on this device.";for(const listener of listeners)listener();}
           }},"Remove saved theme")]:[]),
           h("p",null,"Names use kebab-case. Saved only on this device; nothing is uploaded.")),
         h("div", { "aria-label": "Palette preview", style: { background: "var(--surface-panel)", color: "var(--text-standard)", borderRadius: "8px", padding: "16px", marginTop: "20px" } },
           h("div", { style: { display: "flex", gap: "8px", marginBottom: "12px" } },
-            ...[["Primary", "--affordance-prominent"], ["Secondary", "--surface-message-own"], ["Text", "--text-standard"]].map(([label, token]) => h("span", { key: label, title: label,
+            ...[["Primary", "--affordance-prominent"], ["Secondary", "--surface-message-own"], ["Neon", "--text-standard"]].map(([label, token]) => h("span", { key: label, title: label,
               style: { background: currentRoles?.[token], width: "32px", height: "32px", borderRadius: "50%" } }))),
           `${paletteName}, applied across Buzz.`),
         h("p", { role: "status" }, warning || (overrides.size ? "Another plugin is previewing a palette. Changing a control takes it back." : choice.theme === "bluepinkneon" ? "Palette active · saved on this device." : "Buzz default is active.")),

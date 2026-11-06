@@ -32,7 +32,7 @@ prefix += "const PLUGIN_ICON = " + json.dumps("data:image/png;base64," + base64.
 with tempfile.TemporaryDirectory(prefix="buzz-chroma-build-") as temp:
     stage = Path(temp)
     shutil.copytree(root / "vendor", stage / "vendor")
-    for name in ["role-engine.js", "role-map.js", "presets.js", "local-themes.js"]:
+    for name in ["role-engine.js", "role-map.js", "presets.js", "local-themes.js", "harmony.js"]:
         shutil.copy2(root / name, stage / name)
     shutil.copy2(root / "package.json", stage / "package.json")
     lock = root / "package-lock.json"

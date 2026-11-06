@@ -17,7 +17,7 @@ test("named palettes supply three distinct hues and keep appearance with a recom
     assert.deepEqual(look.hues,preset.hues);assert.equal(look.appearance,"auto");
     assert.deepEqual(look.neutrals,preset.neutrals??[false,false,false]);
     assert.equal(look.mode,preset.defaultMode);assert.equal(look.monoHue,null);click(app,"Monochrome");
-    assert.equal(find(app.tree(),n=>n.props?.id==="bluepinkneon-mono-hue").props.value,preset.hues[0]);
+    assert.equal(api.getLook().effectiveHues[0],preset.hues[0]);
     assert(/^[a-z]+(?:-[a-z]+)*$/.test(preset.id));
     for(let a=0;a<3;a++)for(let b=a+1;b<3;b++) {
       const distance=Math.abs(((preset.hues[a]-preset.hues[b]+540)%360)-180);
@@ -44,21 +44,21 @@ test("every default palette is distinct, including gray character accents",()=>{
 test("monochrome follows the chosen primary, allows an override, and can relink",()=>{
   const h=host(),app=h.boot(),api=app.services.get("chroma");select(app,"daredevil");
   click(app,"Monochrome");const red=h.css();
-  input(app,"Monochrome hue").props.onChange({target:{value:"#0099dd"}});
+  input(app,"Primary").props.onChange({target:{value:"#0099dd"}});
   assert.notEqual(h.css(),red);assert.notEqual(api.getLook().monoHue,null);
-  click(app,"Full color");click(app,"Monochrome");assert.notEqual(h.css(),red,"custom mono survives mode switch");
+  click(app,"Trichrome");click(app,"Monochrome");assert.notEqual(h.css(),red,"custom mono survives mode switch");
   click(app,"Use primary hue");assert.equal(h.css(),red);assert.equal(api.getLook().monoHue,null);
-  click(app,"Full color");rotate(app,45);click(app,"Monochrome");
-  assert.equal(find(app.tree(),n=>n.props?.id==="bluepinkneon-mono-hue").props.value,70);
+  click(app,"Trichrome");rotate(app,45);click(app,"Monochrome");
+  assert.equal(api.getLook().effectiveHues[0],70);
   select(app,"princess-leia");click(app,"Monochrome");assert.equal(api.getLook().rotation,0);assert.equal(api.getLook().monoHue,null);
-  assert.equal(find(app.tree(),n=>n.props?.id==="bluepinkneon-mono-hue").props.value,255);
+  assert.equal(api.getLook().effectiveHues[0],255);
   app.dispose();
 });
 
 test("gray primary links to neutral monochrome and presets survive restart",()=>{
   const h=host(),app=h.boot(),api=app.services.get("chroma");
   input(app,"Primary").props.onChange({target:{value:"#808080"}});click(app,"Monochrome");
-  assert.equal(input(app,"Monochrome hue").props.value.slice(1,3),input(app,"Monochrome hue").props.value.slice(3,5));
+  assert.equal(input(app,"Primary").props.value.slice(1,3),input(app,"Primary").props.value.slice(3,5));
   click(app,"Tinted");assert.notEqual(api.getLook().monoHue,null);
   click(app,"Use primary hue");assert.equal(api.getLook().monoHue,null);
   select(app,"daredevil");click(app,"Light");const css=h.css();app.dispose();

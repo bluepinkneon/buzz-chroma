@@ -1,5 +1,6 @@
 // Independent role-engine prototype. Source palette arrays are never mutated.
 // NEW colors gamut-map by reducing C at fixed OKLCH L and h before 8-bit rounding.
+import {deriveNeonHue,derivedNeonNeutral} from "./harmony.js";
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
 const radians=h=>h*Math.PI/180;
 function linearRgb(l,c,h) {
@@ -88,12 +89,13 @@ export function createRoleEngine(originalColors={}) {
   return {generate(options) {
     const {hues=[224,359,179],neutrals=[false,false,false],mode="color",monoHue,
       neutral=false,appearance="dark",surfaceOffset=90}=options;
-    if(!["dark","light"].includes(appearance)||!["color","mono"].includes(mode))
+    if(!["dark","light"].includes(appearance)||!["color","duo","mono"].includes(mode))
       throw new Error("Invalid mode or appearance");
     const isDark=appearance==="dark";
     const mono=mode==="mono";
-    const hue=(index,offset=0)=>mono?(monoHue??hues[0]):hues[index]+offset;
-    const c=(index,value)=>((mono?neutral:neutrals[index])?0:value);
+    const neon=mode==="duo"?deriveNeonHue(hues[0],hues[1],neutrals):hues[2];
+    const hue=(index,offset=0)=>mono?(monoHue??hues[0]):(index===2?neon:hues[index])+offset;
+    const c=(index,value)=>((mono?neutral:mode==="duo"&&index===2?derivedNeonNeutral(neutrals):neutrals[index])?0:value);
     const color=(index,L,C,offset=0)=>oklchHex(L,c(index,C),hue(index,offset));
     // Generic surfaces use the related shadow family in color mode. All
     // decorative roles collapse to the chosen h or C=0 in monochrome mode.

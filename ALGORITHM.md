@@ -4,13 +4,31 @@
 
 The original BluePinkNeon generator remains hash-pinned and unchanged. Its wheel
 has eight hue positions at equal 45° intervals and twelve shades per family.
-The Buzz adapter exposes primary, secondary and text hues, plus rotation. Rotation
+The Buzz adapter exposes Primary, Secondary and Neon colors, plus Hue rotation. Rotation
 adds the same whole-degree angle to each hue, preserving their chosen offsets and
 wrapping periodically through 359° → 0°.
 
 The original three inputs were Anchor, ANSI Index (role-to-wheel permutation),
 and Brand Index (position/shade). Three independent hue controls are a simpler
 adapter model, not the same three original inputs.
+
+Trichrome asks for all three. Monochrome asks for Primary and generates all three
+decorative families at that hue, with contrast solved separately for each role.
+Bichrome asks for Primary P and Secondary S, then derives Neon N in degrees:
+
+```
+N = wrap(round(P − 45√2 × sin((S − P) × π / 180)))
+```
+
+This is a smooth periodic aesthetic relationship, calibrated to the original
+blue-pink-neon pair (224°, 359° → 179°) and within 1° of daredevil’s curated Neon
+(25°, 280° → 86°). It does not reproduce every curated trichrome recipe or prove
+universal color harmony. It preserves rotation and mirror symmetry, with no
+shortest-arc jump at the circular seam. Complementary inputs derive the primary
+hue again; a smooth mirror-symmetric periodic rule necessarily permits such a
+coincidence. Tone and contrast still distinguish roles. One neutral seed lends
+the other seed’s hue to Neon; two neutral seeds keep Neon neutral. Hidden
+trichrome seeds survive mode switches.
 
 The original raw shades and 152 default token values remain exact. Visible UI
 roles intentionally change from v1 to satisfy the new contrast/state constraints;
@@ -98,7 +116,7 @@ automatic monochrome version follow its red primary.
 The relationship is stored and rotates with the hue anchors, so leaving the exact
 preset does not introduce a special-case cliff. Old saved settings default to 90°.
 The API exposes this field and accepts only 0 or 90. Character recipes may recommend
-color or monochrome; explicit API mode overrides the recommendation. Light/Dark/
+trichrome, bichrome or monochrome; explicit API mode overrides the recommendation. Light/Dark/
 Auto is independent. A custom monochrome override persists until reset or a new
 preset is selected; **Use primary hue** restores the link.
 
@@ -133,11 +151,12 @@ Deleting a theme never removes the currently applied colors.
 
 ## Validation and limits
 
-`npm run check` includes 2,194 full generated configurations and 1,250,580 role
-contrast measurements, including all 360 rotations and monochrome hues in both
+`npm run check` includes 3,506 full generated configurations and 1,998,420 role
+contrast measurements, including all 360 rotations in all three modes in both
 appearances plus independent hue/neutral-mask combinations. It also checks
 picker idempotence, mode transitions, storage, service cleanup, equal state steps
-and a 1,081,080-sample rendered luminance sweep. Independent auditors additionally
+and a 1,081,080-sample rendered luminance sweep. The two-input rule is tested over
+all 129,600 hue pairs for rotation, mirror symmetry and bounded steps. Independent auditors additionally
 checked 2,214,000 gamut-map samples without brightness reversals and all 360²
 own/selected hue combinations for separation. The raw original default colors
 remain hash-verified and exact.
