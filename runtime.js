@@ -13,6 +13,10 @@ import {hueDial} from "./hue-dial.js";
 
 export const inject = ["react", "pages"];
 const degree = (value) => ((Math.round(value) % 360) + 360) % 360;
+const displayName = id => id.split("-").map(word=>word.charAt(0).toUpperCase()+word.slice(1)).join(" ");
+const nameOrder = new Intl.Collator("en",{sensitivity:"base",numeric:true});
+const compareNames = (a,b) => nameOrder.compare(displayName(a),displayName(b)) || a.localeCompare(b,"en");
+const displayedPresets = [...PRESETS].sort((a,b)=>compareNames(a.id,b.id));
 const defaults = () => ({ theme: "bluepinkneon", hues: [224, 359, 179], rotation: 0,
   mode: "color", monoHue: null, neutral: false, neutrals: [false,false,false], appearance: "dark",surfaceOffset:90,localName:null });
 const seedHues = (choice) => choice.hues.map((hue) => degree(hue + choice.rotation));
@@ -432,10 +436,10 @@ export function apply(ctx) {
               if(theme)save({...choice,...structuredClone(theme.look),theme:"bluepinkneon",localName:theme.name});
             }
           } },
-          h("option", { value: "default" }, "Buzz default"),
-          ...PRESETS.map(preset=>h("option",{key:preset.id,value:preset.id},preset.id)),
-          ...(localThemes.length?[h("optgroup",{label:"Saved on this device"},...localThemes.map(theme=>h("option",{key:theme.name,value:`local:${theme.name}`},theme.name)))]:[]),
-          ...(!preset&&!localTheme?[h("option",{value:"custom",disabled:true},"custom")]:[])),
+          h("option", { value: "default" }, "Buzz Default"),
+          ...displayedPresets.map(preset=>h("option",{key:preset.id,value:preset.id},displayName(preset.id))),
+          ...(localThemes.length?[h("optgroup",{label:"Saved on this device"},...[...localThemes].sort((a,b)=>compareNames(a.name,b.name)).map(theme=>h("option",{key:theme.name,value:`local:${theme.name}`},displayName(theme.name))))]:[]),
+          ...(!preset&&!localTheme?[h("option",{value:"custom",disabled:true},"Custom")]:[])),
         h("p",null,choice.theme==="default"?"Buzz’s own appearance is active.":localTheme?(libraryDirty?"This theme library has changes saved only for this session.":"Saved on this device."):preset?.description??"Your own color combination."),
         h("div", { style: {display:"flex",gap:"8px",marginTop:"16px"}, "aria-label":"Appearance" },
           ...[["dark","Dark"],["light","Light"],["auto","Auto"]].map(([value,label])=>h("button",{key:value,type:"button","aria-pressed":choice.appearance===value,style:buttonStyle(choice.appearance===value),onClick:()=>save({...choice,appearance:value})},label))),
@@ -475,14 +479,14 @@ export function apply(ctx) {
         h("fieldset",{style:{marginTop:"12px",border:"1px solid var(--border-standard)",padding:"16px",borderRadius:"8px"}},
           h("legend",null,"Local themes"),
           h("label",{style:{display:"grid",gap:"8px"}},"Theme name",
-            h("input",{type:"text","aria-label":"Theme name",maxLength:60,value:localName,placeholder:"my-night-palette",style:control,onChange:event=>setLocalName(event.target.value)})),
+            h("input",{type:"text","aria-label":"Theme name",maxLength:60,value:localName,placeholder:"My Night Palette",style:control,onChange:event=>setLocalName(event.target.value)})),
           h("button",{type:"button",style:{...control,marginTop:"12px"},disabled:libraryLocked||choice.theme==="default",onClick:()=>saveLocalTheme(localName)},"Save locally"),
           ...(libraryLocked?[h("p",null,"Reset permanently removes the stored library, including unreadable entries. Your active palette is kept."),h("button",{type:"button",style:control,onClick:resetLibrary},"Reset local library")]:[]),
           ...(localTheme?[h("button",{type:"button",style:{...control,marginLeft:"8px"},onClick:()=>{
             const persisted=saveLibrary(localThemes.filter(theme=>theme.name!==localTheme.name));if(persisted==="refused")return;save({...choice,localName:null});
             if(persisted==="session"){warning="Theme library changed for this session, but could not be saved on this device.";for(const listener of listeners)listener();}
           }},"Remove saved theme")]:[]),
-          h("p",null,"Names use kebab-case. Saved only on this device; nothing is uploaded."))),
+          h("p",null,"Saved only on this device; nothing is uploaded."))),
         h("p", { role: "status" }, warning || (libraryLocked?"The local theme library is unreadable. Saving stays locked until an explicit reset.":libraryDirty?"Theme library has changes saved only for this session. They may be lost when Buzz closes.":overrides.size ? "Another plugin is previewing a palette. Changing a control takes it back." : choice.theme === "bluepinkneon" ? "Palette active · saved on this device." : "Buzz default is active.")));
       return h("section",{className:"chroma-colors-page"},
         h("style",null,PAGE_CSS),

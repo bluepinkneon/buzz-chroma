@@ -6,6 +6,29 @@ import {hexOklch,deltaE,createRoleEngine} from "../role-engine.js";
 import {mapRoles} from "../role-map.js";
 import {readFileSync} from "node:fs";
 
+test("picker uses alphabetized readable labels without changing preset IDs or API order",()=>{
+  const h=host(),app=h.boot(),api=app.services.get("chroma");
+  const picker=find(app.tree(),n=>n.tag==="select");
+  const options=picker.children.filter(n=>n?.tag==="option"&&n.props.value!=="default"&&n.props.value!=="custom");
+  assert.equal(picker.props.value,"blue-pink-neon");assert.equal(options[0].children[0],"Ahsoka Tano");assert.equal(options.at(-1).children[0],"Zelda");
+  for(let i=1;i<options.length;i++)assert(options[i-1].children[0].localeCompare(options[i].children[0],"en")<=0);
+  assert.equal(options.find(o=>o.props.value==="blue-pink-neon").children[0],"Blue Pink Neon");
+  assert.equal(options.find(o=>o.props.value==="black-widow").children[0],"Black Widow");
+  assert.equal(options.find(o=>o.props.value==="daredevil").children[0],"Daredevil");
+  assert.deepEqual(new Set(options.map(o=>o.props.value)),new Set(PRESETS.map(p=>p.id)));
+  assert.equal(api.listPresets()[0].id,"blue-pink-neon");
+  select(app,"black-widow");assert.equal(api.getLook().preset,"black-widow");app.dispose();
+});
+
+test("saved theme display order and labels leave stored names and selection identity intact",()=>{
+  const h=host(),app=h.boot(),api=app.services.get("chroma");
+  for(const name of ["zebra-night","apple-day"]) {input(app,"Theme name").props.onChange({target:{value:name}});click(app,"Save locally");}
+  const group=find(app.tree(),n=>n.tag==="optgroup");
+  assert.deepEqual(group.children.map(o=>[o.props.value,o.children[0]]),[["local:apple-day","Apple Day"],["local:zebra-night","Zebra Night"]]);
+  const library=JSON.parse(h.saved.get("com.ranveer.bluepinkneon:presets:v1"));assert.deepEqual(library.map(t=>t.name),["zebra-night","apple-day"]);
+  select(app,"local:zebra-night");assert.equal(api.getLook().localName,"zebra-night");app.dispose();
+});
+
 test("named palettes supply three distinct hues and keep appearance with a recommended mode",()=>{
   const h=host(),app=h.boot(),api=app.services.get("chroma");
   assert(!JSON.stringify(app.tree()).includes("Your palette"));

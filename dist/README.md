@@ -22,7 +22,7 @@ https://github.com/user-attachments/assets/a42c7ad7-cde1-43d4-a351-2ff9753cb342
 
 A silent tour of character palettes, Mono/Bi/Tri, Light/Dark/Auto, circular hue
 rotation, local saves and the live plugin API. The preview uses synthetic content
-and the same compiled plugin shipped here.
+and the v1.3.1 plugin. The color engine and callable API are unchanged.
 
 ## Install
 
@@ -56,8 +56,10 @@ reload the updated source through Manage plugins.
 ## Character palettes
 
 `blue-pink-neon` is Ranveer’s original. The other 41 are character-inspired,
-with a mix of comics, film, books, games and animation. Names use kebab-case:
-`daredevil` is one word; `blue-pink-neon` keeps the three words.
+with a mix of comics, film, books, games and animation. The picker sorts readable
+names alphabetically: **Black Widow**, **Blue Pink Neon**, **Daredevil**.
+Internal IDs stay in kebab-case, as shown below, so saved themes and API calls
+keep working. Saved local themes also use readable labels and their own sorted group.
 
 <details>
 <summary>All 42 palettes and their default looks</summary>
@@ -359,6 +361,12 @@ at 512px in neutral gray `#8a8a8a`, on a transparent background.
 `tools/render-icon.html` renders the PNG using browser Canvas 2D;
 `icon.provenance.json` records the renderer/version and source/output hashes.
 The build verifies those hashes so the two assets cannot drift silently.
+
+## Changes in v1.3.2
+
+- Alphabetical, title-cased theme labels in the picker. Internal IDs, saved keys
+  and API values keep their original kebab-case names.
+- Saved local themes use the same readable labels and sort within their group.
 
 ## Changes in v1.3.1
 
