@@ -18,7 +18,7 @@ export function host(saved = new Map()) {
   return {
     saved, attributes, styles, mediaListeners, observers,
     mode(value) { attributes.set("data-color-mode",value); for(const o of observers) o.fn(); },
-    css: () => [...styles][0]?.textContent ?? "",
+    css: () => [...styles].find(style=>style.dataset.role!=="sidebar-icon")?.textContent ?? "",
     boot() {
       let page; const services = new Map();
       const cleanups = [], hooks=[];let hookIndex=0;
@@ -36,7 +36,7 @@ export function host(saved = new Map()) {
         effect: (fn) => cleanups.push(fn()),
         pages: { register: (value) => { page = value; } },
       });
-      return { services, tree: () => {hookIndex=0;return page.component();}, dispose: () => cleanups.reverse().forEach((fn) => fn?.()) };
+      return { services, title:page.title, icon:page.icon, tree: () => {hookIndex=0;return page.component();}, dispose: () => cleanups.reverse().forEach((fn) => fn?.()) };
     },
   };
 }

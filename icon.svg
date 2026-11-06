@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Color Overthinkers three-color wheel">
-  <g fill="none" stroke-width="64" stroke-linecap="round">
-    <path d="M 158.419 158.419 A 138 138 0 0 1 353.581 158.419" stroke="#0099dd"/>
-    <path d="M 389.298 220.283 A 138 138 0 0 1 291.717 389.298" stroke="#dd4083"/>
-    <path d="M 220.283 389.298 A 138 138 0 0 1 122.702 220.283" stroke="#95fae4"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 3a9 9 0 1 0 0 18h1.2a2.2 2.2 0 0 0 1.6-3.7 1.7 1.7 0 0 1 1.2-2.9h1.1A3.9 3.9 0 0 0 21 10.5 8.5 8.5 0 0 0 12 3Z"/>
+  <circle cx="7.4" cy="10" r=".8" fill="currentColor" stroke="none"/>
+  <circle cx="10.5" cy="7.2" r=".8" fill="currentColor" stroke="none"/>
+  <circle cx="14.8" cy="7.5" r=".8" fill="currentColor" stroke="none"/>
+  <circle cx="17.4" cy="10.6" r=".8" fill="currentColor" stroke="none"/>
 </svg>

@@ -14,6 +14,9 @@ dist.mkdir(exist_ok=True)
 source = (root / "shepherd-theme.css").read_bytes()
 expected = "687b4dd1b65a9eea989307a1338ddc472df3ecc5aebe204fa19e9d6474a230e6"
 assert hashlib.sha256(source).hexdigest() == expected, "Shepherd CSS snapshot changed"
+icon_provenance=json.loads((root / "icon.provenance.json").read_text())
+for name, digest in icon_provenance["files"].items():
+    assert hashlib.sha256((root/name).read_bytes()).hexdigest()==digest, name+" changed; regenerate the icon from icon.svg"
 vendor = root / "vendor" / "bluepinkneon"
 provenance = json.loads((vendor / "provenance.json").read_text())
 for name, entry in provenance["files"].items():
@@ -26,13 +29,16 @@ for key, value in colors.items():
     if not key.startswith("--palette-"):
         refs[key] = next(k for k, v in palette_colors.items() if v == value)
 prefix = "// Color Overthinkers for Buzz — MIT. OKLCH palettes and measured APCA contrast.\n"
+technical_copy=json.loads((root / "copy.json").read_text())["technical"]
+assert technical_copy in (root / "README.md").read_text(), "README introduction differs from copy.json"
+prefix += "const PLUGIN_COPY = " + json.dumps([json.loads((root / "manifest.json").read_text())["description"],technical_copy]) + ";\n"
 prefix += "const ORIGINAL_COLORS = " + json.dumps(colors) + ";\n"
 prefix += "const TOKEN_REFS = " + json.dumps(refs) + ";\n"
-prefix += "const PLUGIN_ICON = " + json.dumps("data:image/svg+xml;base64," + base64.b64encode((root / "sidebar-icon.svg").read_bytes()).decode()) + ";\n"
+prefix += "const PLUGIN_ICON = " + json.dumps("data:image/svg+xml;base64," + base64.b64encode((root / "icon.svg").read_bytes()).decode()) + ";\n"
 with tempfile.TemporaryDirectory(prefix="buzz-chroma-build-") as temp:
     stage = Path(temp)
     shutil.copytree(root / "vendor", stage / "vendor")
-    for name in ["role-engine.js", "role-map.js", "presets.js", "local-themes.js", "harmony.js", "palette-preview.js"]:
+    for name in ["role-engine.js", "role-map.js", "presets.js", "local-themes.js", "harmony.js", "palette-preview.js", "sidebar-icon.js"]:
         shutil.copy2(root / name, stage / name)
     shutil.copy2(root / "package.json", stage / "package.json")
     lock = root / "package-lock.json"

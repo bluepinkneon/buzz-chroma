@@ -123,6 +123,6 @@ test('preview exposes all source shades, ANSI names and semantic colors; Buzz de
   const preview=find(tree,n=>n.props?.['aria-label']==='Generated colors');assert(preview);
   for(const label of ['Primary shades','Neon shades','Normal console colors','Bright console colors'])assert(find(preview,n=>n.props?.['aria-label']===label));
   const serialized=JSON.stringify(preview);for(const name of ['Added · Success','Removed · Danger','Warning','Information','Bright cyan'])assert(serialized.includes(name));
-  const source=readFileSync(new URL('../sidebar-icon.svg',import.meta.url),'utf8');assert(source.includes('currentColor'));
-  select(app,'default');assert(!find(app.tree(),n=>n.props?.['aria-label']==='Generated colors'));assert.equal(h.styles.size,0);app.dispose();
+  const source=readFileSync(new URL('../icon.svg',import.meta.url),'utf8');assert(source.includes('currentColor'));
+  select(app,'default');assert(!find(app.tree(),n=>n.props?.['aria-label']==='Generated colors'));assert.equal(h.css(),'');app.dispose();assert.equal(h.styles.size,0);
 });

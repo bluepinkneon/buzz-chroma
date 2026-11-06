@@ -35,8 +35,8 @@ test("choices survive reactivation, and default/disable remove all owned styles"
   const h = host(); let app = h.boot(); rotate(app, 120); const rotated = h.css();
   app.dispose(); assert.equal(h.styles.size, 0); assert.equal(h.attributes.size, 0);
   app = h.boot(); assert.equal(h.css(), rotated);
-  select(app, "default"); assert.equal(h.styles.size, 0); assert.equal(h.attributes.size, 0);
-  app.dispose(); app = h.boot(); assert.equal(h.styles.size, 0); app.dispose();
+  select(app, "default"); assert.equal(h.css(), ""); assert.equal(h.styles.size, 1); assert.equal(h.attributes.size, 0);
+  app.dispose(); app = h.boot(); assert.equal(h.css(), ""); assert.equal(h.styles.size, 1); app.dispose();assert.equal(h.styles.size,0);
 });
 
 test("malformed saved data falls back and storage failures remain visible", () => {

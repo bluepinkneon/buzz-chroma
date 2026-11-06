@@ -6,6 +6,7 @@ import { PRESETS, findPreset, applyPreset } from "./presets.js";
 import { LOCAL_LIMIT, LIBRARY_KEY, paletteSnapshot, paletteKey, themeSlug, isThemeName } from "./local-themes.js";
 import {deriveNeonHue,derivedNeonNeutral} from "./harmony.js";
 import {palettePreview} from "./palette-preview.js";
+import {sidebarIconCss} from "./sidebar-icon.js";
 
 export const inject = ["react", "pages"];
 const degree = (value) => ((Math.round(value) % 360) + 360) % 360;
@@ -153,6 +154,9 @@ export function apply(ctx) {
     const root = document.documentElement;
     const style = document.createElement("style");
     style.dataset.plugin = "com.ranveer.bluepinkneon";
+    const iconStyle=document.createElement("style");
+    iconStyle.dataset.plugin="com.ranveer.bluepinkneon";iconStyle.dataset.role="sidebar-icon";
+    iconStyle.textContent=sidebarIconCss(PLUGIN_ICON);document.head.appendChild(iconStyle);
     const previousAttribute = root.getAttribute("data-bluepinkneon");
     function restoreAttribute() {
       if (previousAttribute === null) root.removeAttribute("data-bluepinkneon");
@@ -184,7 +188,7 @@ export function apply(ctx) {
     observer?.observe(root, { attributes:true, attributeFilter:["data-color-mode"] });
     media?.addEventListener("change", refresh);
     renderTheme();
-    return () => { alive = false; observer?.disconnect(); media?.removeEventListener("change",refresh); style.remove(); restoreAttribute(); renderTheme = () => {}; listeners.clear(); overrides.clear(); };
+    return () => { alive = false; observer?.disconnect(); media?.removeEventListener("change",refresh); style.remove();iconStyle.remove(); restoreAttribute(); renderTheme = () => {}; listeners.clear(); overrides.clear(); };
   });
 
   function save(next) {
@@ -376,8 +380,8 @@ export function apply(ctx) {
     },
   }));
 
-  ctx.pages.register({ id: "themes", title: "Themes", primary: true, icon: PLUGIN_ICON,
-    component: function Themes() {
+  ctx.pages.register({ id: "themes", title: "Colors", primary: true, icon: PLUGIN_ICON,
+    component: function Colors() {
       const choice = activeChoice();
       const [, update] = React.useState(0);
       const [localName,setLocalName] = React.useState("");
@@ -404,7 +408,7 @@ export function apply(ctx) {
       return h("section", { className: "ui-card",
         style: { padding: "var(--space-panel-inset, 24px)", maxWidth: "640px" } },
         h("h1", null, "Color Overthinkers"),
-        h("p", null, "We’ve already overthought it for you."),
+        ...PLUGIN_COPY.map((paragraph,index)=>h("p",{key:index},paragraph)),
         h("label", { htmlFor: "bluepinkneon-choice" }, "Theme "),
         h("select", { id: "bluepinkneon-choice", value: choice.theme === "default" ? "default" : localTheme?`local:${localTheme.name}`:preset?.id??"custom", style: control,
           onChange: (event) => {

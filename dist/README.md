@@ -1,12 +1,13 @@
 # Color Overthinkers for Buzz
 
-<img src="icon.png" alt="Blue, pink and neon color wheel" width="96" height="96">
+<img src="icon.png" alt="Monochrome color palette icon" width="96" height="96">
 
 **We’ve already overthought it for you.**
 
-Choose one, two or three colors. Get a complete Buzz palette in **Dark**, **Light**, or
-**Auto**. Grayscale is monochrome with zero chroma. The repository is Buzz Chroma;
-the plugin keeps its original ID, so existing installations and preferences migrate.
+Controlled lightness, measured contrast, and a whole palette from up to three colors—built in OKLCH and checked with APCA and WCAG.
+
+Choose Dark, Light or Auto. Monochrome takes one color, bichrome two, and
+trichrome three. The original plugin ID and preferences stay unchanged.
 
 ## Install
 
@@ -16,7 +17,7 @@ Requires Buzz Desktop with API v1 external-plugin support.
 2. Enter `https://github.com/bluepinkneon/buzz-chroma`.
 3. Set the branch/reference to **main**, choose **Find**, then select **dist**.
 4. Review and install **Color Overthinkers**, then enable it.
-5. Close Settings and open **Themes**, directly below **Inbox**.
+5. Close Settings and open **Colors**, directly below **Inbox**.
 
 On macOS you can open the install review with:
 
@@ -31,7 +32,7 @@ repository, reference **main**, and folder **dist**, then **Find → review → 
 A GitHub install is pinned to the reviewed commit; pushing here does not hot-reload
 an installed copy. The new screen shows **Trichrome / Bichrome / Monochrome** and
 **Neon**. Reinstalling an old version tag keeps that old version. For a fixed
-release instead, select tag **v1.2.1** from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases).
+release instead, select tag **v1.2.2** from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases).
 
 Or download the folder ZIP from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases),
 extract it, and select it with **Add → Browse**. Existing folder installs can
@@ -113,7 +114,8 @@ while keeping your appearance preference.
   preference. If Buzz supplies no resolved mode, it follows the OS directly.
 - **More color options → Reset blue-pink-neon:** restores the original colors,
   trichrome mode, rotation, neutral flags, ground relationship and dark appearance.
-- **Buzz default**, or disabling the plugin, removes its owned style override.
+- **Buzz default** removes the palette override. The Colors icon keeps its
+  interface tint while the plugin is enabled; disabling removes both owned styles.
 
 The RGB controls select a hue or a neutral family; the generator owns
 lightness and chroma. Their displayed swatches round-trip without hue drift.
@@ -301,15 +303,33 @@ The host text/background graph also samples animated highlight composites.
 See [ALGORITHM.md](https://github.com/bluepinkneon/buzz-chroma/blob/main/ALGORITHM.md) for the constraints, numeric floors and limits.
 
 - `runtime.js`: controls, validated preferences, lifecycle and callable service.
+- `copy.json`: technical introduction shared with the Colors page and README.
 - `role-engine.js`: polarity-aware contrast solving and gamut mapping.
 - `role-map.js`: Buzz semantic role mapping and monochrome state cues.
 - `presets.js`: original character-inspired recipes.
 - `local-themes.js`: bounded local palette snapshots and names.
 - `harmony.js`: periodic two-input Neon derivation.
 - `palette-preview.js`: labeled palette, console and semantic-color previews.
+- `sidebar-icon.js`: scoped monochrome icon rendering across Buzz versions.
 - `vendor/bluepinkneon/`: unchanged original generator with hash provenance.
 - `shepherd-theme.css`: original 152-color snapshot.
 - `test/role-graph.json`: authored graph based on Buzz’s public contrast checks.
+
+## Icon source
+
+Both icon sizes use **icon.svg** as the single glyph source. The sidebar embeds
+that SVG and follows the text color. The plugin-details PNG is rendered from it
+at 512px in neutral gray `#8a8a8a`, on a transparent background.
+`tools/render-icon.html` renders the PNG using browser Canvas 2D;
+`icon.provenance.json` records the renderer/version and source/output hashes.
+The build verifies those hashes so the two assets cannot drift silently.
+
+## Changes in v1.2.2
+
+The **Colors** sidebar and plugin details share the same palette glyph.
+The monochrome sidebar icon also follows the text color on older Buzz versions
+that render page icons as images. Its scoped icon style stays active with Buzz’s
+default theme and is removed when the plugin is disabled. Other icons are untouched.
 
 ## Changes in v1.2.1
 
@@ -321,7 +341,7 @@ See [ALGORITHM.md](https://github.com/bluepinkneon/buzz-chroma/blob/main/ALGORIT
   combinations are rejected; derived neutral flags are available in snapshots.
 - Failed library saves remain visibly unsaved; stale windows refuse to overwrite
   another window’s saved themes. Future built-in names cannot lock local saves.
-- A theme-colored SVG outline in the sidebar and a transparent color-wheel icon
+- A theme-colored SVG outline in the sidebar and a transparent plugin icon
   in the plugin details.
 - Cleaner pickers/rotation, labeled palette and console previews, and current API
   reference and GitHub update instructions.

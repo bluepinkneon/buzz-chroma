@@ -1,0 +1,25 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Color Overthinkers icon renderer</title>
+<p>Choose the canonical icon.svg to render a transparent 512px plugin icon.</p>
+<input type="file" accept="image/svg+xml">
+<canvas width="512" height="512"></canvas>
+<a download="icon.png">Download icon.png</a>
+<script>
+async function renderIcon(source) {
+  const svg = new DOMParser().parseFromString(source, "image/svg+xml");
+  if (svg.querySelector("parsererror")) throw new Error("Invalid SVG");
+  svg.documentElement.setAttribute("color", "#8a8a8a");
+  const image = new Image();
+  image.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+  await image.decode();
+  const canvas = document.querySelector("canvas");
+  const context = canvas.getContext("2d");
+  context.clearRect(0, 0, 512, 512);
+  context.drawImage(image, 0, 0, 512, 512);
+  const png = canvas.toDataURL("image/png");
+  document.querySelector("a").href = png;
+  return png;
+}
+document.querySelector("input").onchange = async event => renderIcon(await event.target.files[0].text());
+</script>

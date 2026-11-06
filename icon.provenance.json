@@ -1,0 +1,12 @@
+{
+  "renderer": "Chromium Canvas 2D / tools/render-icon.html",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36",
+  "width": 512,
+  "height": 512,
+  "color": "#8a8a8a",
+  "transparent": true,
+  "files": {
+    "icon.svg": "1afd8fcc989e24ca8fe7d628c32b66bd7980ca4aca461cd24620b4398389f412",
+    "icon.png": "fbc7cc20a18ff0ae37b4d8bc2c36a6451fe2245ea8e6e9988583a9bbb88001fe"
+  }
+}
