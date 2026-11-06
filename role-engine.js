@@ -25,7 +25,7 @@ export function oklchHex(l,c,h) {
   const toByte=v=>Math.round(clamp(v<=.0031308?12.92*v:1.055*v**(1/2.4)-.055)*255);
   return "#"+linearRgb(l,c,h).map(v=>toByte(v).toString(16).padStart(2,"0")).join("");
 }
-function rgb(hex) { return [1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255); }
+function rgb(hex) { return Array.isArray(hex)?hex:[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255); }
 function linear(v) { return v<=.04045?v/12.92:((v+.055)/1.055)**2.4; }
 export function hexOklch(hex) {
   const [r,g,b]=rgb(hex).map(linear);
@@ -56,17 +56,24 @@ function measures(hex,backgrounds,polarity) {
   return {apca:Math.min(...backgrounds.map(bg=>sign*apca(hex,bg))),
     wcag:Math.min(...backgrounds.map(bg=>wcag(hex,bg)))};
 }
+function tint(foreground,background,opacity) {
+  const fg=rgb(foreground),bg=rgb(background);
+  // CSS color-mix keeps fractional channels. Do not quantize the composed
+  // background before measuring; doing so can hide a threshold miss.
+  return fg.map((value,index)=>value*opacity+bg[index]*(1-opacity));
+}
 // Polarity describes the BACKGROUND mode. "dark" solves light ink; "light" dark ink.
 export function solveInk(h,c,backgrounds,{preferred=75,minLc=75,minWcag=4.5,polarity="dark"}={}) {
-  backgrounds=[...new Set(backgrounds)];
+  const resolveBackgrounds=typeof backgrounds==="function"?backgrounds:()=>[...new Set(backgrounds)];
+  const assess=hex=>measures(hex,resolveBackgrounds(hex),polarity);
   const endpoint=oklchHex(polarity==="dark"?1:0,c,h);
-  const maximum=measures(endpoint,backgrounds,polarity);
+  const maximum=assess(endpoint);
   if(maximum.apca+1e-7<minLc||maximum.wcag+1e-7<minWcag)
     throw new Error("Infeasible ink floors: "+JSON.stringify({h,c,backgrounds,minLc,minWcag,maximum}));
   // If the preferred APCA target is impossible, the endpoint maximizes both
   // contrast measures in this polarity. Report that limitation explicitly.
   if(maximum.apca<preferred) return {hex:endpoint,...maximum,preferred,minLc,minWcag,preferredMet:false};
-  const good=l=>{const x=measures(oklchHex(l,c,h),backgrounds,polarity);
+  const good=l=>{const x=assess(oklchHex(l,c,h));
     return x.apca>=preferred&&x.wcag>=minWcag;};
   let lo=0,hi=1;
   for(let i=0;i<24;i++) {
@@ -74,7 +81,7 @@ export function solveInk(h,c,backgrounds,{preferred=75,minLc=75,minWcag=4.5,pola
     if(good(mid)===(polarity==="dark")) hi=mid; else lo=mid;
   }
   const hex=oklchHex(polarity==="dark"?hi:lo,c,h);
-  const actual=measures(hex,backgrounds,polarity);
+  const actual=assess(hex);
   if(actual.apca+1e-7<minLc||actual.wcag+1e-7<minWcag)
     throw new Error("Returned ink failed measured floors: "+JSON.stringify({hex,actual,minLc,minWcag}));
   return {hex,...actual,preferred,minLc,minWcag,preferredMet:actual.apca>=preferred};
@@ -103,7 +110,7 @@ export function createRoleEngine(originalColors={}) {
       base:[.135,.08],panel:[.20,.10],popover:[.20,.10],inset:[.09,.06],
       hover:[.235,.10],pressed:[.305,.10],selected:[.27,.10],own:[.235,.10],
       ownHover:[.27,.10],highlight:[.305,.10],ownHighlight:[.34,.10],controlSelected:[.34,.10],
-      prominent:[.50,.18],prominentHover:[.46,.18],prominentPressed:[.42,.18],
+      prominent:[.86,.18],prominentHover:[.90,.18],prominentPressed:[.94,.18],
     }:{
       base:[.995,.008],panel:[.985,.012],popover:[.985,.012],inset:[1,0],
       hover:[.95,.028],pressed:[.88,.040],selected:[.915,.036],own:[.95,.028],
@@ -138,10 +145,16 @@ export function createRoleEngine(originalColors={}) {
     add(inks,"selectedMetadata",2,["selected","highlight","controlSelected"],50,50);
     add(inks,"onOwn",1,ownBackgroundNames,90,75);
     add(inks,"ownMetadata",1,ownBackgroundNames,50,50);
-    add(inks,"onProminent",0,prominentNames,90,75,4.5,"dark",.05);
+    add(inks,"onProminent",0,prominentNames,90,75,4.5,isDark?"light":"dark",.05);
     add(borders,"standard",0,genericNames,0,0,1.5,appearance,.08);
     add(borders,"prominent",0,genericNames,30,30,3,appearance,.14);
     add(borders,"focus",1,genericNames,60,45,3,appearance,.18);
+    // Merged GitHub state stays categorical purple, including own messages;
+    // it must not inherit the user's primary/link hue.
+    for(const [name,names] of [["categoricalPurpleIcon",genericNames],["categoricalPurpleIconOwn",ownBackgroundNames]]) {
+      const solved=solveInk(307,.4,backgrounds(names),{preferred:45,minLc:45,minWcag:3,polarity:appearance});
+      inks[name]=solved.hex;checks["ink."+name]={...solved,backgroundNames:names};
+    }
     // Colored alerts are an explicit exception to decorative monochrome.
     for(const [name,anchor] of Object.entries(signalAnchors)) {
       const hue=anchor.h,cc=Math.min(anchor.c,.18);
@@ -152,11 +165,17 @@ export function createRoleEngine(originalColors={}) {
       const bgs=[fill,hover,pressed,...backgrounds(genericNames)];
       // Semantic text uses the host's Lc60 body floor with maximum available
       // chroma. Lc75 washed red into pink and light signals toward black.
-      const solved=solveInk(hue,.4,bgs,{preferred:60,minLc:60,minWcag:4.5,polarity:appearance});
+      // Profile availability labels use text-success/text-warning and tint
+      // their background with the same status ink. Solve the actual recipes.
+      const tintBases=name==="success"?backgrounds(["popover"]):name==="warning"?backgrounds(["base","panel","popover"]):[];
+      const tintAlphas=name==="success"?[.06,.10,.14]:[.12,.18,.24];
+      const signalBgs=hex=>[...bgs,...tintBases.flatMap(bg=>tintAlphas.map(alpha=>tint(hex,bg,alpha)))];
+      const solved=solveInk(hue,.4,signalBgs,{preferred:60,minLc:60,minWcag:4.5,polarity:appearance});
       const ownInk=solveInk(hue,.4,backgrounds(ownBackgroundNames),{preferred:45,minLc:45,minWcag:3,polarity:appearance});
       const icon=solveInk(hue,.4,bgs,{preferred:45,minLc:45,minWcag:3,polarity:appearance});
-      signals[name]={fill,hover,pressed,ink:solved.hex,ownInk:ownInk.hex,icon:icon.hex,border:icon.hex};
-      checks["signal."+name]={...solved,backgrounds:bgs};
+      const [callFill,callHover]=(isDark?[.86,.90]:[.47,.43]).map(L=>oklchHex(L,cc,hue));
+      signals[name]={fill,hover,pressed,callFill,callHover,ink:solved.hex,ownInk:ownInk.hex,icon:icon.hex,border:icon.hex};
+      checks["signal."+name]={...solved,backgrounds:signalBgs(solved.hex)};
       checks["signal."+name+".icon"]={...icon,backgrounds:bgs};
     }
     const pairs=[["panel","own"],["own","selected"],["hover","selected"],

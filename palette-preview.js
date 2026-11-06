@@ -15,7 +15,7 @@ export function palettePreview(h,colors,roles) {
       h('div',{'aria-label':`${label} shades`,style:{display:'grid',gridTemplateColumns:'repeat(12,minmax(0,1fr))',gap:'3px'}},
         ...Array.from({length:12},(_,step)=>h('div',{key:step,title:`${label} ${step} · ${colors[`--palette-${id}-${step}`]}`,'aria-label':`${label} ${step} ${colors[`--palette-${id}-${step}`]}`,style:{height:'28px',borderRadius:'3px',background:colors[`--palette-${id}-${step}`],border:'1px solid var(--border-standard)'}}))))),
     h('h3',null,'Console colors'),
-    h('p',null,'Normal and bright ANSI colors from the palette.'),
+    h('p',null,'Normal and bright ANSI exports. Buzz 0.7.9 keeps its terminal ANSI defaults; its background, text and selection follow this theme.'),
     ...['','bright-'].map(prefix=>h('div',{key:prefix||'normal','aria-label':prefix?'Bright console colors':'Normal console colors',style:{marginBottom:'12px'}},
       h('div',{style:{fontSize:'12px',color:'var(--text-metadata)',marginBottom:'6px'}},prefix?'Bright':'Normal'),
       h('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(64px,1fr))',gap:'8px'}},...ansi.map(name=>swatch(name,colors[`--ansi-${prefix}${name}`],prefix?`Bright ${name}`:name))))),

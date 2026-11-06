@@ -36,13 +36,14 @@ description=json.loads((root / "manifest.json").read_text())["description"]
 assert description.strip() and len(description.encode("utf-8"))<=280, "Buzz description must contain 1–280 UTF-8 bytes"
 assert technical_copy in (root / "README.md").read_text(), "README introduction differs from copy.json"
 prefix += "const PLUGIN_COPY = " + json.dumps([plugin_copy["tagline"],technical_copy]) + ";\n"
+prefix += "const PAGE_CSS = " + json.dumps((root / "colors-page.css").read_text()) + ";\n"
 prefix += "const ORIGINAL_COLORS = " + json.dumps(colors) + ";\n"
 prefix += "const TOKEN_REFS = " + json.dumps(refs) + ";\n"
 prefix += "const PLUGIN_ICON = " + json.dumps("data:image/svg+xml;base64," + base64.b64encode((root / "icon.svg").read_bytes()).decode()) + ";\n"
 with tempfile.TemporaryDirectory(prefix="buzz-chroma-build-") as temp:
     stage = Path(temp)
     shutil.copytree(root / "vendor", stage / "vendor")
-    for name in ["role-engine.js", "role-map.js", "presets.js", "local-themes.js", "harmony.js", "palette-preview.js", "sidebar-icon.js"]:
+    for name in ["role-engine.js", "role-map.js", "presets.js", "local-themes.js", "harmony.js", "palette-preview.js", "sidebar-icon.js", "terminal-theme.js"]:
         shutil.copy2(root / name, stage / name)
     shutil.copy2(root / "package.json", stage / "package.json")
     lock = root / "package-lock.json"

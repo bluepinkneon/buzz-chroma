@@ -37,7 +37,7 @@ export const PRESETS = Object.freeze([
   {
     "id": "black-widow",
     "hues": [
-      5,
+      356,
       285,
       195
     ],
@@ -296,7 +296,7 @@ export const PRESETS = Object.freeze([
   {
     "id": "ahsoka-tano",
     "hues": [
-      45,
+      56,
       200,
       270
     ],
@@ -414,7 +414,7 @@ export const PRESETS = Object.freeze([
   {
     "id": "motoko-kusanagi",
     "hues": [
-      310,
+      315,
       180,
       75
     ],

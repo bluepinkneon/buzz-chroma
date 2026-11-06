@@ -112,7 +112,7 @@ while keeping your appearance preference.
 - **Auto:** follows Buzz’s resolved appearance, including its System setting and
   OS day/night schedule. It does not impose a sunrise timer or change Buzz’s saved
   preference. If Buzz supplies no resolved mode, it follows the OS directly.
-- **More color options → Reset blue-pink-neon:** restores the original colors,
+- **Reset blue-pink-neon:** restores the original colors,
   trichrome mode, rotation, neutral flags, ground relationship and dark appearance.
 - **Buzz default** removes the palette override. The Colors icon keeps its
   interface tint while the plugin is enabled; disabling removes both owned styles.
@@ -134,22 +134,32 @@ the old rollback key.
 
 ## See what the controls generate
 
-Below the pickers and rotation bar:
+Controls and the live palette sit side by side in a wide window and stack in a
+narrow one. **Rotate +45°** and **Reset blue-pink-neon** stay visible.
 
 - **Palette:** eight named families, with twelve source shades in each. Hover a
   shade to see its name, index and hex value.
-- **Console colors:** all sixteen normal/bright ANSI colors, labeled with names
-  and hex values. This previews the source palette; it does not change a separate
-  terminal application.
+- **Console colors:** all sixteen normal/bright ANSI exports, labeled with names
+  and hex values. Buzz 0.7.9 keeps xterm’s ANSI colors; this preview does not set
+  its sixteen ANSI colors, indexed colors or explicit RGB escape sequences.
 - **Status and diffs:** the actual contrast-solved Buzz success/addition,
   danger/removal, warning and information inks, backgrounds and icon colors.
 
 Primary, Secondary, Neon and Ground follow your inputs through the original
 generator; neutral families use the contrast-solved gray ramp. Red, Green, Amber
-and Blue keep the original hand-tuned signal snapshot. ANSI colors reference
-those same source families. Buzz UI roles are separately solved for the selected Light/Dark appearance; raw ramps
+and Blue keep the original hand-tuned signal snapshot. ANSI magenta/cyan also
+retain their original anchors, so monochrome does not merge those named slots.
+Buzz UI roles are separately solved for the selected Light/Dark appearance; raw ramps
 are not a claim that every shade can be used as text on every background.
 Choosing **Buzz default** removes the plugin override and its generated preview.
+
+Buzz’s built-in terminal reads the generated panel, standard text and selection
+colors for its background, foreground, cursor and selection. The plugin publishes
+those actual values through the root style properties that Buzz watches, so an
+already-open terminal refreshes as the palette changes. Original inline values
+are restored on Buzz default or disable; another writer’s later values are kept.
+See the [host integration audit](https://github.com/bluepinkneon/buzz-chroma/blob/main/INTEGRATION.md)
+for the verified connections and limits.
 
 ## Save your own themes
 
@@ -181,7 +191,7 @@ The service has `version: 1` and four methods:
 |---|---|---|
 | `listPresets()` | A fresh array of all built-in recipes | No changes |
 | `getLook()` | A fresh snapshot of the currently displayed look | No changes |
-| `generateTheme(options = {})` | `Record<string, "#RRGGBB">` containing 149 Buzz CSS roles | Generates only; does not apply or save |
+| `generateTheme(options = {})` | `Record<string, "#RRGGBB">` containing Buzz semantic CSS roles | Generates only; does not apply or save |
 | `setLook(options)` | A callable live handle with `update(patch)` and `dispose()` | Applies a temporary look; does not save |
 
 Each new `setLook` and `generateTheme` request starts from the **saved user look**
@@ -300,6 +310,10 @@ Tests cover all 360 hue positions in trichrome, bichrome and monochrome, both ap
 neutral families, independent hue combinations, the circular seam, picker
 round-trips, storage migration, Auto changes, callable-service custody and cleanup.
 The host text/background graph also samples animated highlight composites.
+An independent host audit adds call/inverse and switch states, Todo/presence
+icons, self-tinted availability labels, and categorical GitHub icons. ANSI tests
+compare named slots across all presets, modes and sampled rotations; the host
+integration audit separately checks where those values are actually consumed.
 See [ALGORITHM.md](https://github.com/bluepinkneon/buzz-chroma/blob/main/ALGORITHM.md) for the constraints, numeric floors and limits.
 
 - `runtime.js`: controls, validated preferences, lifecycle and callable service.
@@ -311,9 +325,12 @@ See [ALGORITHM.md](https://github.com/bluepinkneon/buzz-chroma/blob/main/ALGORIT
 - `harmony.js`: periodic two-input Neon derivation.
 - `palette-preview.js`: labeled palette, console and semantic-color previews.
 - `sidebar-icon.js`: scoped monochrome icon rendering across Buzz versions.
+- `terminal-theme.js`: owned root values for Buzz’s terminal refresh observer.
+- `colors-page.css`: responsive controls and live-palette layout.
 - `vendor/bluepinkneon/`: unchanged original generator with hash provenance.
 - `shepherd-theme.css`: original 152-color snapshot.
-- `test/role-graph.json`: authored graph based on Buzz’s public contrast checks.
+- `test/role-graph.json`: authored graph based on Buzz’s public contrast checks
+  and the pinned installed-host consumer audit.
 
 ## Icon source
 
@@ -323,6 +340,20 @@ at 512px in neutral gray `#8a8a8a`, on a transparent background.
 `tools/render-icon.html` renders the PNG using browser Canvas 2D;
 `icon.provenance.json` records the renderer/version and source/output hashes.
 The build verifies those hashes so the two assets cannot drift silently.
+
+## Changes in v1.3.0
+
+- Responsive two-column settings with sticky controls and a live palette;
+  visible rotation/reset actions, plus narrow-window stacking.
+- Independent audits of actual Buzz 0.7.9 consumers: local light/dark islands,
+  legacy aliases, terminal refresh, raised composers, calls, switches, presence
+  and Todo states. The expanded role graph checks these real contexts.
+- Brighter dark-mode prominent controls with dark ink, so inverse labels and
+  incoming-call decisions retain contrast; light mode keeps dark fills/light ink.
+- Stable named ANSI colors through every color mode and rotation. These are
+  exports, not a replacement for Buzz’s xterm ANSI configuration.
+- Slightly separated Black Widow, Motoko and Ahsoka recipes to keep the catalog
+  distinguishable after the strong-control correction.
 
 ## Changes in v1.2.3
 

@@ -15,7 +15,13 @@
       "https://github.com/block/buzz-app/blob/a70907c98c7b67c513d3489f51b80d8057923d14/src/bundled/diffs/Diffs.module.css#L66-L97",
       "https://github.com/block/buzz-app/blob/a70907c98c7b67c513d3489f51b80d8057923d14/src/bundled/diffs/DiffViewer.tsx#L49-L55",
       "https://github.com/block/buzz-app/blob/a70907c98c7b67c513d3489f51b80d8057923d14/src/bundled/channels/ChannelTemplates.module.css#L59-L69"
-    ]
+    ],
+    "installedHost": {
+      "huddles": "https://github.com/block/buzz-app/blob/8ad1132677ead08d346e4f381522c7297baf0dd7/src/bundled/huddles/Huddles.module.css",
+      "request": "https://github.com/block/buzz-app/blob/8ad1132677ead08d346e4f381522c7297baf0dd7/src/bundled/huddles/HuddleRequestView.tsx",
+      "todos": "https://github.com/block/buzz-app/blob/8ad1132677ead08d346e4f381522c7297baf0dd7/src/bundled/todos/Todos.module.css",
+      "switch": "https://github.com/block/buzz-app/blob/8ad1132677ead08d346e4f381522c7297baf0dd7/src/shared/design-system/styles/components.css"
+    }
   },
   "thresholds": {
     "body": {
@@ -3795,6 +3801,216 @@
         "semantic state mark with accompanying shape or label"
       ],
       "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-inverse",
+      "background": "--affordance-prominent",
+      "target": "body",
+      "context": "installed 0.7.9 inverse badges and incoming call buttons"
+    },
+    {
+      "foreground": "--text-inverse",
+      "background": "--affordance-call-join",
+      "target": "body",
+      "context": "installed 0.7.9 inverse badges and incoming call buttons"
+    },
+    {
+      "foreground": "--text-inverse",
+      "background": "--affordance-call-join-hover",
+      "target": "body",
+      "context": "installed 0.7.9 inverse badges and incoming call buttons"
+    },
+    {
+      "foreground": "--text-inverse",
+      "background": "--affordance-call-decline",
+      "target": "body",
+      "context": "installed 0.7.9 inverse badges and incoming call buttons"
+    },
+    {
+      "foreground": "--text-inverse",
+      "background": "--affordance-call-decline-hover",
+      "target": "body",
+      "context": "installed 0.7.9 inverse badges and incoming call buttons"
+    },
+    {
+      "foreground": "--icon-status-progress",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--icon-status-progress",
+      "background": "--surface-popover",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--icon-status-progress",
+      "background": "--affordance-row-hover",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--icon-status-progress",
+      "background": "--surface-message-own",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--icon-status-complete",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--icon-status-complete",
+      "background": "--surface-popover",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--icon-status-complete",
+      "background": "--affordance-row-hover",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--icon-status-complete",
+      "background": "--surface-message-own",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--status-availability-online",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--status-availability-online",
+      "background": "--surface-popover",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--status-availability-online",
+      "background": "--affordance-row-hover",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--status-availability-online",
+      "background": "--surface-message-own",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--status-avatar-online",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--status-avatar-online",
+      "background": "--surface-popover",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--status-avatar-online",
+      "background": "--affordance-row-hover",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--status-avatar-online",
+      "background": "--surface-message-own",
+      "target": "nontext",
+      "context": "installed 0.7.9 todo and presence icons"
+    },
+    {
+      "foreground": "--affordance-call-join",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "context": "installed 0.7.9 incoming-call phone icons on glass and reduced-transparency glass"
+    },
+    {
+      "foreground": "--affordance-call-join",
+      "background": "--affordance-subtle-pressed",
+      "target": "nontext",
+      "context": "installed 0.7.9 incoming-call phone icons on glass and reduced-transparency glass"
+    },
+    {
+      "foreground": "--affordance-call-decline",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "context": "installed 0.7.9 incoming-call phone icons on glass and reduced-transparency glass"
+    },
+    {
+      "foreground": "--affordance-call-decline",
+      "background": "--affordance-subtle-pressed",
+      "target": "nontext",
+      "context": "installed 0.7.9 incoming-call phone icons on glass and reduced-transparency glass"
+    },
+    {
+      "foreground": "--text-call-leave",
+      "background": "--affordance-floating-control",
+      "target": "body",
+      "context": "installed 0.7.9 leave call text/icon"
+    },
+    {
+      "foreground": "--text-call-leave",
+      "background": "--affordance-floating-control-hover",
+      "target": "body",
+      "context": "installed 0.7.9 leave call text/icon"
+    },
+    {
+      "foreground": "--text-call-leave",
+      "background": "--affordance-danger-pressed",
+      "target": "body",
+      "context": "installed 0.7.9 leave call text/icon"
+    },
+    {
+      "foreground": "--icon-categorical-purple",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "context": "installed 0.7.9 categorical merged-PR icon stays purple on ordinary and own-message contexts"
+    },
+    {
+      "foreground": "--icon-categorical-purple",
+      "background": "--surface-popover",
+      "target": "nontext",
+      "context": "installed 0.7.9 categorical merged-PR icon stays purple on ordinary and own-message contexts"
+    },
+    {
+      "foreground": "--icon-categorical-purple",
+      "background": "--affordance-subtle-pressed",
+      "target": "nontext",
+      "context": "installed 0.7.9 categorical merged-PR icon stays purple on ordinary and own-message contexts"
+    },
+    {
+      "foreground": "--icon-categorical-purple",
+      "background": "--surface-control-selected",
+      "target": "nontext",
+      "context": "installed 0.7.9 categorical merged-PR icon stays purple on ordinary and own-message contexts"
+    },
+    {
+      "foreground": "--icon-categorical-purple-own",
+      "background": "--surface-message-own",
+      "target": "nontext",
+      "context": "installed 0.7.9 categorical merged-PR icon stays purple on ordinary and own-message contexts"
+    },
+    {
+      "foreground": "--icon-categorical-purple-own",
+      "background": "--surface-message-own-hover",
+      "target": "nontext",
+      "context": "installed 0.7.9 categorical merged-PR icon stays purple on ordinary and own-message contexts"
+    },
+    {
+      "foreground": "--icon-categorical-purple-own",
+      "background": "--affordance-message-own-highlight",
+      "target": "nontext",
+      "context": "installed 0.7.9 categorical merged-PR icon stays purple on ordinary and own-message contexts"
     }
   ],
   "overlays": [
@@ -5045,6 +5261,94 @@
         "ordinary underlined link hover outside message bubbles"
       ],
       "coverage": "host-supported"
+    },
+    {
+      "id": "status-availability-online-tinted-surface-inset",
+      "backdrop": "--surface-popover",
+      "layers": [
+        {
+          "fill": "--status-availability-online",
+          "opacity": "sample"
+        }
+      ],
+      "opacitySamples": [
+        0.06,
+        0.1,
+        0.14
+      ],
+      "foregrounds": [
+        "--text-success"
+      ],
+      "targets": {
+        "--text-success": "body"
+      },
+      "source": "installed 0.7.9 interaction-availability actual shared ink/tint recipe"
+    },
+    {
+      "id": "status-away-tinted-surface-base",
+      "backdrop": "--surface-base",
+      "layers": [
+        {
+          "fill": "--status-away",
+          "opacity": "sample"
+        }
+      ],
+      "opacitySamples": [
+        0.12,
+        0.18,
+        0.24
+      ],
+      "foregrounds": [
+        "--text-warning"
+      ],
+      "targets": {
+        "--text-warning": "body"
+      },
+      "source": "installed 0.7.9 interaction-availability actual shared ink/tint recipe"
+    },
+    {
+      "id": "status-away-tinted-surface-panel",
+      "backdrop": "--surface-panel",
+      "layers": [
+        {
+          "fill": "--status-away",
+          "opacity": "sample"
+        }
+      ],
+      "opacitySamples": [
+        0.12,
+        0.18,
+        0.24
+      ],
+      "foregrounds": [
+        "--text-warning"
+      ],
+      "targets": {
+        "--text-warning": "body"
+      },
+      "source": "installed 0.7.9 interaction-availability actual shared ink/tint recipe"
+    },
+    {
+      "id": "status-away-tinted-surface-popover",
+      "backdrop": "--surface-popover",
+      "layers": [
+        {
+          "fill": "--status-away",
+          "opacity": "sample"
+        }
+      ],
+      "opacitySamples": [
+        0.12,
+        0.18,
+        0.24
+      ],
+      "foregrounds": [
+        "--text-warning"
+      ],
+      "targets": {
+        "--text-warning": "body"
+      },
+      "source": "installed 0.7.9 interaction-availability actual shared ink/tint recipe"
     }
   ],
   "stateDistinctions": [

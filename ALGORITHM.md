@@ -30,7 +30,10 @@ coincidence. Tone and contrast still distinguish roles. One neutral seed lends
 the other seed’s hue to Neon; two neutral seeds keep Neon neutral. Hidden
 trichrome seeds survive mode switches.
 
-The original raw shades and 152 default token values remain exact. Visible UI
+The original raw shades and 152 default token values remain exact. ANSI magenta
+and cyan now stay anchored to those original colors across rotation and color
+modes, as do the four signal families; the names no longer collapse together in
+monochrome. Black/white tones still follow the selected source families. Visible UI
 roles intentionally change from v1 to satisfy the new contrast/state constraints;
 raw-token parity is not a claim of pixel-for-pixel visible parity. The original
 shade steps are deliberately not uniform: steps 0–7 use lightness
@@ -50,6 +53,16 @@ red, success/addition green, warning amber and information blue. Buzz’s diff
 viewer uses those same success/danger roles; it has no amber modification token.
 This intentionally supersedes the historical raw diff aliases
 for actual Buzz diff rendering, while leaving the historical palette data intact.
+
+Prominent controls use dark L .86/.90/.94 with dark ink, and light L
+.47/.43/.39 with light ink. These shared strong/inverse roles must also work for
+Buzz’s inverse badges and call decisions. The unchecked switch’s thumb is bound
+to standard ink over its subtle track. These actual host contexts are part of
+the test graph, including call fills that Buzz also uses as foreground icons.
+
+Explicit local `.dark`/`.light` contexts receive separately generated roles for
+their own polarity. The main page’s mode is not forced onto fixed dark media
+surfaces. Accent-preview subtrees remain host-owned.
 
 The state ladder uses equal requested lightness increments of .035:
 

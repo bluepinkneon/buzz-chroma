@@ -45,7 +45,7 @@ export function mapRoles({surfaces:s, inks:i, borders:b, signals:g}) {
   put(b.standard, "scrollbar-thumb-quiet");
   put(b.prominent, "status-offline");
   put(i.standard, "surface-inverse");
-  put(s.base, "text-inverse");
+  put(i.onProminent, "text-inverse");
   for (const [name, signal] of Object.entries(g)) {
     put(signal.ink, `text-${name}`);
     put(signal.icon, `icon-${name}`);
@@ -55,16 +55,47 @@ export function mapRoles({surfaces:s, inks:i, borders:b, signals:g}) {
     put(signal.pressed, `affordance-${name}-pressed`);
   }
   put(g.success.icon, "status-online");
+  put(g.danger.ink, "text-call-leave");
+  put(g.success.ink, "status-availability-online");
+  put(g.success.icon, "status-avatar-online icon-status-complete");
+  put(g.success.ink, "status-avatar-online-border");
+  put(g.warning.icon, "icon-status-progress");
+  put(g.success.callFill, "affordance-call-join");
+  put(g.success.callHover, "affordance-call-join-hover");
+  put(g.danger.callFill, "affordance-call-decline");
+  put(g.danger.callHover, "affordance-call-decline-hover");
   put(g.success.ownInk, "icon-success-own");
-  put(g.warning.icon, "status-away");
+  put(g.warning.ink, "status-away");
   put(g.success.border, "border-success-subtle");
-  put(i.linkOwn, "icon-categorical-purple-own");
+  put(i.categoricalPurpleIcon, "icon-categorical-purple");
+  put(i.categoricalPurpleIconOwn, "icon-categorical-purple-own");
   return out;
 }
 
-export function roleCss(roles, appearance, mode) {
-  const selector = ':root[data-bluepinkneon],:root[data-bluepinkneon] :is(.dark,.light,[data-color-mode],[data-accent],[data-color-level])';
-  return `${selector}{color-scheme:${appearance};${Object.entries(roles).map(([k,v])=>`${k}:${v}!important;`).join("")}}\n` +
+export function roleCss(roles, appearance, mode, scoped) {
+  const outsidePreview=':not(:where(:root[data-bluepinkneon] [data-accent],:root[data-bluepinkneon] [data-accent] *))';
+  const paint=(selector,values,polarity)=>`${selector}{color-scheme:${polarity};${Object.entries(values).map(([k,v])=>`${k}:${v}!important;`).join("")}`+
+    ["subtle","subtle-hover","subtle-pressed"].map(name=>`--chroma-${name}:${values[`--affordance-${name}`]}!important;`).join("")+
+    // The source snapshot has generic names too. Keep Buzz's legacy aliases
+    // connected to semantic roles, rather than the raw source ramp.
+    '--primary:var(--affordance-prominent)!important;--border:var(--border-standard)!important;--danger:var(--text-danger)!important;}\n';
+  let css=paint(':root[data-bluepinkneon]',roles,appearance);
+  // Media and popovers deliberately create opposite-polarity islands. Match
+  // their requested mode instead of flattening all islands to the root mode.
+  // Buzz appearance swatches deliberately preview other accents: leave those
+  // subtrees alone. Ordinary component-local semantic aliases remain local.
+  if(scoped)for(const polarity of ["dark","light"]) {
+    const opposite=polarity==="dark"?"light":"dark";
+    const selector=`:root[data-bluepinkneon] :is(.${polarity}:not([data-color-mode="${opposite}"]),[data-color-mode="${polarity}"])${outsidePreview}`;
+    css+=paint(selector,scoped[polarity],polarity);
+  }
+  return css +
+    // Raised composers rebind these roles locally in Buzz. Keep their local
+    // context, but take its three tones from the nearest generated polarity.
+    `:root[data-bluepinkneon] [data-composer-surface]${outsidePreview}{--affordance-subtle:var(--chroma-subtle)!important;--affordance-subtle-hover:var(--chroma-subtle-hover)!important;--affordance-subtle-pressed:var(--chroma-subtle-pressed)!important;}\n` +
+    // The public switch uses on-prominent for its thumb even while its track
+    // is subtle. Bind the unchecked thumb to its actual surface context.
+    `:root[data-bluepinkneon] .buzz-switch-control:not([data-checked])${outsidePreview}{--text-on-prominent:var(--text-standard)!important;}\n` +
     // Neutral and one-hue selected states retain a non-color cue. No geometry or
     // font-weight change; it is painted inside the existing control.
     (mode === "mono" ? ':root[data-bluepinkneon] :is(.navigation-item[data-selected],.buzz-tabs-tab[data-selected],.buzz-button[data-icon-variant="ghost"][data-selected],[aria-current="page"]){box-shadow:inset 3px 0 var(--border-focus)!important;}\n:root[data-bluepinkneon] [data-mention-kind][data-mention-self]{box-shadow:inset 0 0 0 1px currentColor!important;}' : "");

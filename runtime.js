@@ -7,6 +7,7 @@ import { LOCAL_LIMIT, LIBRARY_KEY, paletteSnapshot, paletteKey, themeSlug, isThe
 import {deriveNeonHue,derivedNeonNeutral} from "./harmony.js";
 import {palettePreview} from "./palette-preview.js";
 import {sidebarIconCss} from "./sidebar-icon.js";
+import {ownTerminalColors} from "./terminal-theme.js";
 
 export const inject = ["react", "pages"];
 const degree = (value) => ((Math.round(value) % 360) + 360) % 360;
@@ -73,6 +74,10 @@ function paletteFor(choice) {
     if (/^--palette-(contrast|warm|accent|cool)-/.test(name)) colors[name] = hex;
   }
   for (const [token, ref] of Object.entries(TOKEN_REFS)) colors[token] = colors[ref];
+  // ANSI names carry meanings independent of decorative hue and monochrome.
+  // Keep the original magenta/cyan anchors, just like red/green/yellow/blue.
+  for(const name of ["magenta","cyan","bright-magenta","bright-cyan"])
+    colors[`--ansi-${name}`]=ORIGINAL_COLORS[`--ansi-${name}`];
   return colors;
 }
 
@@ -135,7 +140,12 @@ export function apply(ctx) {
   const resolveAppearance = (value) => value !== "auto" ? value
     : ["light","dark"].includes(document.documentElement.getAttribute("data-color-mode")) ? document.documentElement.getAttribute("data-color-mode")
       : globalThis.matchMedia?.("(prefers-color-scheme: dark)").matches === false ? "light" : "dark";
-  const generateRoles = next => engine.generate({...next,hues:effectiveHues(next),monoHue:monoHue(next),neutral:monoIsNeutral(next),appearance:resolveAppearance(next.appearance)});
+  const generateRoles = (next,polarity=resolveAppearance(next.appearance)) => engine.generate({...next,hues:effectiveHues(next),monoHue:monoHue(next),neutral:monoIsNeutral(next),appearance:polarity});
+  const prepareRoles = next => {
+    const polarity=resolveAppearance(next.appearance),opposite=polarity==="dark"?"light":"dark";
+    const result=generateRoles(next,polarity);
+    return {polarity,roles:mapRoles(result),scoped:{[polarity]:mapRoles(result),[opposite]:mapRoles(generateRoles(next,opposite))}};
+  };
   try {
     const current = localStorage.getItem(storageKey);
     const raw = current ?? localStorage.getItem("com.ranveer.bluepinkneon:theme:v2");
@@ -152,6 +162,7 @@ export function apply(ctx) {
 
   ctx.effect(() => {
     const root = document.documentElement;
+    const terminalColors=ownTerminalColors(root.style);
     const style = document.createElement("style");
     style.dataset.plugin = "com.ranveer.bluepinkneon";
     const iconStyle=document.createElement("style");
@@ -169,31 +180,32 @@ export function apply(ctx) {
       if (active.theme === "bluepinkneon") {
         const vars = Object.entries(paletteFor(active)).map(([key, value]) => `${key}:${value};`).join("\n");
         let result;
-        try { result = prepared ?? generateRoles(active); }
+        try { result = prepared ?? prepareRoles(active); }
         catch (error) {
           warning = "Could not generate that palette. Keeping the last good appearance.";
           console.warn("[Color Overthinkers] palette-generation-failed", error);
           return;
         }
-        appearance = nextAppearance;
-        currentRoles = mapRoles(result);
-        const css = `:root[data-bluepinkneon]{${vars}}\n${roleCss(currentRoles, appearance, active.mode)}`;
+        appearance = result.polarity;
+        currentRoles = result.roles;
+        const css = `:root[data-bluepinkneon]{${vars}}\n${roleCss(currentRoles, appearance, active.mode,result.scoped)}`;
         if (style.textContent !== css) style.textContent = css;
         root.setAttribute("data-bluepinkneon", "");
         if (!style.isConnected) document.head.appendChild(style);
-      } else { appearance = nextAppearance; currentRoles=undefined;style.remove(); restoreAttribute(); }
+        terminalColors.apply(currentRoles);
+      } else { appearance = nextAppearance; currentRoles=undefined;style.remove(); restoreAttribute();terminalColors.restore(); }
     };
     const refresh = () => { renderTheme(); for (const listener of listeners) listener(); };
     const observer = typeof MutationObserver === "function" ? new MutationObserver(refresh) : null;
     observer?.observe(root, { attributes:true, attributeFilter:["data-color-mode"] });
     media?.addEventListener("change", refresh);
     renderTheme();
-    return () => { alive = false; observer?.disconnect(); media?.removeEventListener("change",refresh); style.remove();iconStyle.remove(); restoreAttribute(); renderTheme = () => {}; listeners.clear(); overrides.clear(); };
+    return () => { alive = false; observer?.disconnect(); media?.removeEventListener("change",refresh); style.remove();iconStyle.remove(); restoreAttribute();terminalColors.restore(); renderTheme = () => {}; listeners.clear(); overrides.clear(); };
   });
 
   function save(next) {
     let prepared;
-    try {if(next.theme==="bluepinkneon")prepared=generateRoles(next);}
+    try {if(next.theme==="bluepinkneon")prepared=prepareRoles(next);}
     catch(error){warning="Could not generate that palette. Keeping the last good appearance.";console.warn("[Color Overthinkers] palette-generation-failed",error);for(const listener of listeners)listener();return;}
     overrides.clear(); // A person changing the controls takes back ownership.
     if(next.localName&&!localThemes.some(theme=>theme.name===next.localName&&paletteKey(theme.look)===paletteKey(next)))next={...next,localName:null};
@@ -364,13 +376,13 @@ export function apply(ctx) {
     },
     setLook: (options) => {
       const next = apiChoice(options), key = Symbol();
-      const prepared=next.theme==="bluepinkneon"?generateRoles(next):undefined;
+      const prepared=next.theme==="bluepinkneon"?prepareRoles(next):undefined;
       overrides.set(key,next); renderTheme(prepared); for (const listener of listeners) listener();
       const dispose = () => { if (overrides.delete(key)) { renderTheme(); for (const listener of listeners) listener(); } };
       dispose.update = (options) => {
         if(!alive||!overrides.has(key))throw new Error("Look handle is inactive");
         const next=apiChoice(options,overrides.get(key));
-        const prepared=next.theme==="bluepinkneon"?generateRoles(next):undefined;
+        const prepared=next.theme==="bluepinkneon"?prepareRoles(next):undefined;
         const isTop=[...overrides.keys()].at(-1)===key;
         overrides.set(key,next);
         if(isTop){renderTheme(prepared);for(const listener of listeners)listener();}
@@ -380,7 +392,7 @@ export function apply(ctx) {
     },
   }));
 
-  ctx.pages.register({ id: "themes", title: "Colors", primary: true, icon: PLUGIN_ICON,
+  ctx.pages.register({ id: "themes", title: "Colors", primary: true, layout:"workspace", icon: PLUGIN_ICON,
     component: function Colors() {
       const choice = activeChoice();
       const [, update] = React.useState(0);
@@ -395,9 +407,9 @@ export function apply(ctx) {
       const hues = effectiveHues(choice);
       const preset = choice.localName ? null : findPreset(choice);
       const localTheme = localThemes.find(theme=>theme.name===choice.localName&&paletteKey(theme.look)===paletteKey(choice));
-      const control = { color: "var(--text-standard)", background: "var(--surface-panel)",
+      const control = { color: "var(--text-standard)", backgroundColor: "var(--surface-panel)",
         border: "1px solid var(--border-prominent)", borderRadius: "6px", padding: "8px" };
-      const buttonStyle = (selected) => ({ ...control, background: selected ? "var(--affordance-selected)" : control.background });
+      const buttonStyle = (selected) => ({ ...control, backgroundColor: selected ? "var(--affordance-selected)" : control.backgroundColor });
       const swatchStyle = { width: "64px", height: "40px", cursor: "pointer" };
       const setMode = (mode) => save({ ...choice, theme: "bluepinkneon", mode });
       const changeRange = (event) => {
@@ -405,11 +417,8 @@ export function apply(ctx) {
         if (!Number.isFinite(value) || value < 0 || value >= 360) return;
         save({ ...choice, theme: "bluepinkneon", rotation: degree(value) });
       };
-      return h("section", { className: "ui-card",
-        style: { padding: "var(--space-panel-inset, 24px)", maxWidth: "640px" } },
-        h("h1", null, "Color Overthinkers"),
-        ...PLUGIN_COPY.map((paragraph,index)=>h("p",{key:index},paragraph)),
-        h("label", { htmlFor: "bluepinkneon-choice" }, "Theme "),
+      const controls=h("aside",{className:"chroma-colors-controls","aria-label":"Colors settings"},
+        h("label", { htmlFor: "bluepinkneon-choice" }, "Preset"),
         h("select", { id: "bluepinkneon-choice", value: choice.theme === "default" ? "default" : localTheme?`local:${localTheme.name}`:preset?.id??"custom", style: control,
           onChange: (event) => {
             const id=event.target.value;
@@ -429,7 +438,7 @@ export function apply(ctx) {
           ...[["dark","Dark"],["light","Light"],["auto","Auto"]].map(([value,label])=>h("button",{key:value,type:"button","aria-pressed":choice.appearance===value,style:buttonStyle(choice.appearance===value),onClick:()=>save({...choice,appearance:value})},label))),
         h("p", null, choice.appearance === "auto" ? `Auto follows Buzz’s appearance · ${appearance}.` : `${appearance === "dark" ? "Dark" : "Light"} palette.`),
         h("fieldset", { "aria-label":"Palette controls",style: { marginTop: "20px", border: "none", padding: 0 } },
-          h("div", { style: { display: "flex", gap: "8px", marginBottom: "20px" } },
+          h("div", { className:"chroma-mode-group",style: { display: "flex", gap: "8px", marginBottom: "20px" } },
             ...[["color", "Trichrome"], ["duo","Bichrome"], ["mono", "Monochrome"]].map(([mode, label]) => h("button", {
               key: mode, type: "button", "aria-pressed": choice.mode === mode,
               style: buttonStyle(choice.mode === mode), onClick: () => setMode(mode),
@@ -458,10 +467,9 @@ export function apply(ctx) {
           h("input", { id: "bluepinkneon-rotation", type: "range", min: 0, max: 359, step: 1,
             value: choice.rotation, style: { width: "100%", accentColor: colors["--palette-primary-7"] },
             onChange: changeRange }),
-          h("details",{style:{marginTop:"8px"}},h("summary",null,"More color options"),h("button", { type: "button", style: control,
+          h("div",{className:"chroma-colors-actions"},h("button", { type: "button", style: control,
             onClick: () => save({ ...choice, theme: "bluepinkneon", rotation: degree(choice.rotation + 45) }) }, "Rotate +45°"),
-          h("button", { type: "button", style: {...control,marginLeft:"8px"}, onClick: () => save(defaults()) }, "Reset blue-pink-neon"))),
-        ...(choice.theme==="bluepinkneon"&&currentRoles?[palettePreview(h,colors,currentRoles)]:[]),
+          h("button", { type: "button", style: control, onClick: () => save(defaults()) }, "Reset blue-pink-neon"))),
         h("details",{style:{marginTop:"24px"}},h("summary",null,"Save your theme"),
         h("fieldset",{style:{marginTop:"12px",border:"1px solid var(--border-standard)",padding:"16px",borderRadius:"8px"}},
           h("legend",null,"Local themes"),
@@ -475,6 +483,12 @@ export function apply(ctx) {
           }},"Remove saved theme")]:[]),
           h("p",null,"Names use kebab-case. Saved only on this device; nothing is uploaded."))),
         h("p", { role: "status" }, warning || (libraryLocked?"The local theme library is unreadable. Saving stays locked until an explicit reset.":libraryDirty?"Theme library has changes saved only for this session. They may be lost when Buzz closes.":overrides.size ? "Another plugin is previewing a palette. Changing a control takes it back." : choice.theme === "bluepinkneon" ? "Palette active · saved on this device." : "Buzz default is active.")));
+      return h("section",{className:"chroma-colors-page"},
+        h("style",null,PAGE_CSS),
+        h("header",{className:"chroma-colors-header"},h("h1",null,"Color Overthinkers"),...PLUGIN_COPY.map((paragraph,index)=>h("p",{key:index},paragraph))),
+        h("div",{className:"chroma-colors-workspace"},controls,
+          h("div",{className:"chroma-colors-live-preview","aria-label":"Live palette preview"},
+            choice.theme==="bluepinkneon"&&currentRoles?palettePreview(h,colors,currentRoles):h("p",{className:"chroma-colors-empty"},"Buzz’s own appearance is active. Choose a preset or a color to preview your generated palette."))));
     },
   });
 }

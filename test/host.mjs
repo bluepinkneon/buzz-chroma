@@ -2,12 +2,15 @@ import * as plugin from "../dist/plugin.js";
 export function host(saved = new Map()) {
   const attributes = new Map();
   const styles = new Set();
+  const inline=new Map();
+  const rootStyle={getPropertyValue:key=>inline.get(key)?.value??"",getPropertyPriority:key=>inline.get(key)?.priority??"",setProperty:(key,value,priority="")=>inline.set(key,{value,priority}),removeProperty:key=>inline.delete(key)};
   globalThis.localStorage = { getItem: (key) => saved.get(key) ?? null, setItem: (key, value) => saved.set(key, value) };
   const mediaListeners = new Set(); const observers = new Set();
   globalThis.matchMedia = () => ({matches:true,addEventListener:(_key,fn)=>mediaListeners.add(fn),removeEventListener:(_key,fn)=>mediaListeners.delete(fn)});
   globalThis.MutationObserver = class { constructor(fn) { this.fn=fn; } observe() { observers.add(this); } disconnect() { observers.delete(this); } };
   globalThis.document = {
     documentElement: {
+      style:rootStyle,
       getAttribute: (key) => attributes.get(key) ?? null,
       setAttribute: (key, value) => attributes.set(key, value),
       removeAttribute: (key) => attributes.delete(key),
@@ -16,7 +19,7 @@ export function host(saved = new Map()) {
     createElement: () => ({ dataset: {}, isConnected: false, remove() { this.isConnected = false; styles.delete(this); } }),
   };
   return {
-    saved, attributes, styles, mediaListeners, observers,
+    saved, attributes, styles, mediaListeners, observers, rootStyle,
     mode(value) { attributes.set("data-color-mode",value); for(const o of observers) o.fn(); },
     css: () => [...styles].find(style=>style.dataset.role!=="sidebar-icon")?.textContent ?? "",
     boot() {
