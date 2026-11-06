@@ -303,7 +303,7 @@ The host text/background graph also samples animated highlight composites.
 See [ALGORITHM.md](https://github.com/bluepinkneon/buzz-chroma/blob/main/ALGORITHM.md) for the constraints, numeric floors and limits.
 
 - `runtime.js`: controls, validated preferences, lifecycle and callable service.
-- `copy.json`: technical introduction shared with the Colors page and README.
+- `copy.json`: introduction shared with the manifest, Colors page and README.
 - `role-engine.js`: polarity-aware contrast solving and gamut mapping.
 - `role-map.js`: Buzz semantic role mapping and monochrome state cues.
 - `presets.js`: original character-inspired recipes.
@@ -318,15 +318,28 @@ See [ALGORITHM.md](https://github.com/bluepinkneon/buzz-chroma/blob/main/ALGORIT
 ## Icon source
 
 Both icon sizes use **icon.svg** as the single glyph source. The sidebar embeds
-that SVG and follows the text color. The plugin-details PNG is rendered from it
+that SVG and follows the text color. The packaged PNG is rendered from it
 at 512px in neutral gray `#8a8a8a`, on a transparent background.
 `tools/render-icon.html` renders the PNG using browser Canvas 2D;
 `icon.provenance.json` records the renderer/version and source/output hashes.
 The build verifies those hashes so the two assets cannot drift silently.
 
+## Changes in v1.2.3
+
+- A simple palette glyph with three “thinking…” paint dots, shared by sidebar,
+  plugin card and details header while enabled.
+- Buzz 0.7.9 uses a generic icon for external plugins. A narrowly scoped,
+  lifecycle-owned compatibility style replaces only our own card/details glyph.
+  It uses that host’s verified data/ARIA hooks; it is not a public host icon API.
+  Disabling the plugin restores Buzz’s placeholder. Filtering our row out can
+  also restore the details placeholder.
+- The technical introduction now appears after the tagline in Buzz’s plugin
+  description as well as the Colors page and README.
+
 ## Changes in v1.2.2
 
-The **Colors** sidebar and plugin details share the same palette glyph.
+The packaged glyph and **Colors** sidebar share the same palette source.
+Buzz’s external-plugin card still uses its generic icon in this version.
 The monochrome sidebar icon also follows the text color on older Buzz versions
 that render page icons as images. Its scoped icon style stays active with Buzz’s
 default theme and is removed when the plugin is disabled. Other icons are untouched.

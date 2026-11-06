@@ -1,6 +1,6 @@
 {
   "id": "com.ranveer.bluepinkneon",
   "name": "Color Overthinkers",
-  "description": "We\u2019ve already overthought it for you.",
+  "description": "We’ve already overthought it for you.\n\nControlled lightness, measured contrast, and a whole palette from up to three colors—built in OKLCH and checked with APCA and WCAG.",
   "apiVersion": 1
 }

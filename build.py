@@ -29,9 +29,13 @@ for key, value in colors.items():
     if not key.startswith("--palette-"):
         refs[key] = next(k for k, v in palette_colors.items() if v == value)
 prefix = "// Color Overthinkers for Buzz — MIT. OKLCH palettes and measured APCA contrast.\n"
-technical_copy=json.loads((root / "copy.json").read_text())["technical"]
+plugin_copy=json.loads((root / "copy.json").read_text())
+technical_copy=plugin_copy["technical"]
+assert json.loads((root / "manifest.json").read_text())["description"]==plugin_copy["tagline"]+"\n\n"+technical_copy, "Manifest introduction differs from copy.json"
+description=json.loads((root / "manifest.json").read_text())["description"]
+assert description.strip() and len(description.encode("utf-8"))<=280, "Buzz description must contain 1–280 UTF-8 bytes"
 assert technical_copy in (root / "README.md").read_text(), "README introduction differs from copy.json"
-prefix += "const PLUGIN_COPY = " + json.dumps([json.loads((root / "manifest.json").read_text())["description"],technical_copy]) + ";\n"
+prefix += "const PLUGIN_COPY = " + json.dumps([plugin_copy["tagline"],technical_copy]) + ";\n"
 prefix += "const ORIGINAL_COLORS = " + json.dumps(colors) + ";\n"
 prefix += "const TOKEN_REFS = " + json.dumps(refs) + ";\n"
 prefix += "const PLUGIN_ICON = " + json.dumps("data:image/svg+xml;base64," + base64.b64encode((root / "icon.svg").read_bytes()).decode()) + ";\n"
