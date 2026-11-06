@@ -1,0 +1,16 @@
+{
+  "name": "buzz-chroma",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "python3 build.py",
+    "test": "node --test test/plugin.test.mjs",
+    "check": "python3 build.py && node --test test/plugin.test.mjs"
+  },
+  "dependencies": {
+    "culori": "4.0.2"
+  },
+  "version": "1.0.0",
+  "description": "Chroma: a color palette generator and theme selector for Buzz",
+  "license": "MIT"
+}

@@ -1,0 +1,6 @@
+{
+  "id": "com.ranveer.bluepinkneon",
+  "name": "Chroma",
+  "description": "Generate and rotate color palettes for Buzz. Three hue pickers, contrast-aware text ramps, and the original BluePinkNeon preset.",
+  "apiVersion": 1
+}

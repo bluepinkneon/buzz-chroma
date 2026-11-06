@@ -1,0 +1,19 @@
+{
+  "repository": "bluepinkneon/dotfiles",
+  "commit": "26c88548241d8f8b0e2469f4e13585986f5768de",
+  "license": "MIT; published by the original owner for this plugin",
+  "files": {
+    "palette.ts": {
+      "path": "packages/colors/src/palette.ts",
+      "sha256": "28038b889725e034cf994bd00b344778b4369fdb2312d0f4dd6206de26fdc725"
+    },
+    "okcolor.ts": {
+      "path": "packages/colors/src/okcolor.ts",
+      "sha256": "c0d810ab703897f8b560c03fb1b00fef863f379b0896f638a6a68dd84206ba26"
+    },
+    "apca-lookup.ts": {
+      "path": "packages/colors/src/apca-lookup.ts",
+      "sha256": "a4f2bc873d0c7ebc30977500b9bfc0c587f44021eb1fa5776dcaf69bf846821d"
+    }
+  }
+}
