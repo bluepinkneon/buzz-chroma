@@ -42,7 +42,15 @@ with tempfile.TemporaryDirectory(prefix="buzz-chroma-build-") as temp:
     else:
         install = "install"
     subprocess.run(["npm", install, "--ignore-scripts", "--no-audit", "--no-fund"], cwd=stage, check=True)
-    shutil.copy2(stage / "package-lock.json", lock)
+    # Keep dependency integrity without baking the builder's private registry
+    # endpoint into a public project. npm resolves via each builder's registry.
+    locked = json.loads((stage / "package-lock.json").read_text())
+    package = json.loads((root / "package.json").read_text())
+    locked.update(name=package["name"], version=package["version"])
+    locked["packages"][""].update(name=package["name"], version=package["version"])
+    for dependency in locked["packages"].values():
+        dependency.pop("resolved", None)
+    lock.write_text(json.dumps(locked, indent=2) + "\n")
     (dist / "THIRD-PARTY-NOTICES.txt").write_text(
         "culori 4.0.2 — bundled dependency\n\n" +
         (stage / "node_modules" / "culori" / "LICENSE").read_text())
