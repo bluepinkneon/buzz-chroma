@@ -51,6 +51,8 @@ hue. Signal roles are a deliberate exception: danger, warning, success and info
 retain hue anchors from the original hand-tuned signal ramps. Danger/removal is
 red, success/addition green, warning amber and information blue. Buzz’s diff
 viewer uses those same success/danger roles; it has no amber modification token.
+GitHub’s merged-state icons likewise retain categorical purple, with separate
+ordinary/own-message contrast solves even in neutral monochrome.
 This intentionally supersedes the historical raw diff aliases
 for actual Buzz diff rendering, while leaving the historical palette data intact.
 

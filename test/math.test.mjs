@@ -74,7 +74,14 @@ test("one-hue state ladder has even lightness steps, distinct competing states, 
       previous=s;
     }
     const gray=engine.generate({appearance,mode:"mono",neutral:true});
-    for(const group of [gray.surfaces,gray.inks,gray.borders])for(const hex of Object.values(group))assert(/^#([\da-f]{2})\1\1$/.test(hex),hex);
+    for(const group of [gray.surfaces,gray.inks,gray.borders])for(const [name,hex] of Object.entries(group)) {
+      // GitHub's merged state is a protected category, like signal colors.
+      if(name.startsWith("categoricalPurpleIcon"))continue;
+      assert(/^#([\da-f]{2})\1\1$/.test(hex),hex);
+    }
+    for(const name of ["categoricalPurpleIcon","categoricalPurpleIconOwn"]) {
+      const h=hexOklch(gray.inks[name]).h;assert(h>=290&&h<=325,`${name} must stay purple: ${h}`);
+    }
   }
 });
 
