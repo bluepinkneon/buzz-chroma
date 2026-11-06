@@ -62,3 +62,17 @@
 .chroma-status-tile code{font-size:10px}
 .chroma-status-dot{display:inline-block;flex:none;width:9px;height:9px;border-radius:50%}
 @container (max-width:500px){.chroma-console-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.chroma-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.chroma-extra-settings{margin-top:16px;display:grid;gap:12px}
+.chroma-extra-settings>details{padding:14px 16px;border:1px solid var(--border-standard);border-radius:12px;background:var(--surface-panel)}
+.chroma-extra-settings summary{cursor:pointer;font-size:13px;color:var(--text-subtle)}
+.chroma-extra-settings p{font-size:13px;line-height:1.5;color:var(--text-subtle)}
+.chroma-extra-settings label{display:grid;gap:8px;font-size:13px;margin:12px 0;max-width:480px}
+.chroma-extra-settings select{width:100%;font:inherit}
+.chroma-extra-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chroma-agent-access{padding:12px 0;border-bottom:1px solid var(--border-standard)}
+.chroma-extra-settings label.chroma-agent-toggle{display:flex;align-items:flex-start;gap:10px;max-width:none}
+.chroma-agent-toggle input{flex:none;margin:3px 0 0;width:16px;height:16px;accent-color:var(--affordance-accent)}
+.chroma-agent-detail{display:block;color:var(--text-subtle);font-size:12px;margin-top:4px}
+.chroma-agent-access p{margin:6px 0 0 26px;font-size:12px}
+.chroma-extra-settings .chroma-agent-warning{padding:10px;border-left:3px solid var(--border-warning);background:var(--affordance-warning);color:var(--text-warning);border-radius:3px}

@@ -10,6 +10,10 @@ import {sidebarIconCss} from "./sidebar-icon.js";
 import {ownTerminalColors} from "./terminal-theme.js";
 import {ownPaletteTransition} from "./palette-transition.js";
 import {hueDial} from "./hue-dial.js";
+import {createPaletteFade,fadeDuration,canFade} from "./palette-fade.js";
+import {ownAgentControls} from "./agent-tools.js";
+import {agentPreferences} from "./agent-preferences.js";
+import {agentSettings} from "./agent-settings.js";
 
 export const inject = ["react", "pages"];
 const degree = (value) => ((Math.round(value) % 360) + 360) % 360;
@@ -111,9 +115,9 @@ function readChoice(saved, legacy) {
 
 function readLocalEntry(entry) {
   if(!entry||typeof entry!=="object"||Array.isArray(entry)||Object.keys(entry).some(key=>!["name","look"].includes(key))||JSON.stringify(entry).length>2048||!isThemeName(entry.name))return null;
-  if(!entry.look||Object.keys(entry.look).some(key=>!["hues","rotation","neutrals","mode","monoHue","neutral","surfaceOffset","neutralGround"].includes(key)))return null;
-  const look=readChoice({...entry.look,theme:"bluepinkneon",appearance:"dark"},false);
-  return look?{name:entry.name,look:paletteSnapshot(look)}:null;
+  if(!entry.look||Object.keys(entry.look).some(key=>!["hues","rotation","neutrals","mode","monoHue","neutral","surfaceOffset","neutralGround","appearance"].includes(key)))return null;
+  const look=readChoice({...entry.look,theme:"bluepinkneon",appearance:entry.look.appearance??"dark"},false);
+  return look?{name:entry.name,look:{...paletteSnapshot(look),...(entry.look.appearance!==undefined?{appearance:look.appearance}:{})}}:null;
 }
 
 function readLibrary(raw) {
@@ -141,18 +145,36 @@ export function apply(ctx) {
   let renderTheme = () => {};
   const engine = createRoleEngine(ORIGINAL_COLORS);
   const overrides = new Map();
+  const fades = new Map();
+  const preparedCache = new Map();
+  const notify = () => {for(const listener of listeners)listener();};
   const activeChoice = () => [...overrides.values()].at(-1) ?? choice;
+  // Edits adopt an override's requested target, never a generated middle frame.
+  const editableChoice = () => fades.get([...overrides.keys()].at(-1))?.state().target ?? activeChoice();
+  let syncFadeGuard=()=>{};
   let appearance = "dark";
   let currentRoles;
   let alive = true;
-  const resolveAppearance = (value) => value !== "auto" ? value
-    : ["light","dark"].includes(document.documentElement.getAttribute("data-color-mode")) ? document.documentElement.getAttribute("data-color-mode")
+  let uiPreview = null;
+  const buzzAppearance = () => ["light","dark"].includes(document.documentElement.getAttribute("data-color-mode")) ? document.documentElement.getAttribute("data-color-mode")
       : globalThis.matchMedia?.("(prefers-color-scheme: dark)").matches === false ? "light" : "dark";
-  const generateRoles = (next,polarity=resolveAppearance(next.appearance)) => engine.generate({...next,hues:effectiveHues(next),monoHue:monoHue(next),neutral:monoIsNeutral(next),appearance:polarity});
+  const resolveAppearance = value => value === "auto" ? buzzAppearance() : value;
+  const generateRoles = (next,polarity=resolveAppearance(next.appearance)) => {
+    const result=engine.generate({...next,hues:effectiveHues(next),monoHue:monoHue(next),neutral:monoIsNeutral(next),appearance:polarity});
+    if(!result.measurements.passes)throw new Error("Could not satisfy the palette's contrast floors");
+    return result;
+  };
   const prepareRoles = next => {
     const polarity=resolveAppearance(next.appearance),opposite=polarity==="dark"?"light":"dark";
+    const neutralFlags=effectiveNeutrals(next);
+    const displayed=next.mode==="mono"?Array(3).fill(monoHue(next)):effectiveHues(next);
+    const key=JSON.stringify([polarity,next.mode,displayed.map((h,i)=>neutralFlags[i]?0:h),neutralFlags,
+      next.mode==="mono"?null:next.surfaceOffset,next.mode==="mono"?false:next.neutralGround]);
+    if(preparedCache.has(key)) {const hit=preparedCache.get(key);preparedCache.delete(key);preparedCache.set(key,hit);return hit;}
     const result=generateRoles(next,polarity);
-    return {polarity,roles:mapRoles(result),scoped:{[polarity]:mapRoles(result),[opposite]:mapRoles(generateRoles(next,opposite))}};
+    const prepared={polarity,roles:mapRoles(result),scoped:{[polarity]:mapRoles(result),[opposite]:mapRoles(generateRoles(next,opposite))}};
+    preparedCache.set(key,prepared);if(preparedCache.size>48)preparedCache.delete(preparedCache.keys().next().value);
+    return prepared;
   };
   try {
     const current = localStorage.getItem(storageKey);
@@ -172,34 +194,45 @@ export function apply(ctx) {
     const root = document.documentElement;
     const terminalColors=ownTerminalColors(root.style);
     const transition=ownPaletteTransition(document);
+    let releaseFadeGuard=null;
+    syncFadeGuard=()=>{
+      const running=fades.get([...overrides.keys()].at(-1))?.state().status==="fading";
+      if(running&&!releaseFadeGuard)releaseFadeGuard=transition.hold();
+      else if(!running&&releaseFadeGuard){releaseFadeGuard();releaseFadeGuard=null;}
+    };
     const style = document.createElement("style");
     style.dataset.plugin = "com.ranveer.bluepinkneon";
     const iconStyle=document.createElement("style");
     iconStyle.dataset.plugin="com.ranveer.bluepinkneon";iconStyle.dataset.role="sidebar-icon";
-    iconStyle.textContent=sidebarIconCss(PLUGIN_ICON);document.head.appendChild(iconStyle);
+    iconStyle.textContent=sidebarIconCss(PLUGIN_ICON,PLUGIN_NAME);document.head.appendChild(iconStyle);
     const previousAttribute = root.getAttribute("data-bluepinkneon");
     function restoreAttribute() {
       if (previousAttribute === null) root.removeAttribute("data-bluepinkneon");
       else root.setAttribute("data-bluepinkneon", previousAttribute);
     }
     const media = globalThis.matchMedia?.("(prefers-color-scheme: dark)");
+    const reduced = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)");
+    const visibility=()=>{for(const fade of fades.values())fade.visibility(Boolean(document.hidden));};
+    const reduce=()=>{if(reduced?.matches)for(const fade of fades.values())fade.reduce();};
+    document.addEventListener?.("visibilitychange",visibility);
+    reduced?.addEventListener("change",reduce);
     renderTheme = (prepared) => {
       const active = activeChoice();
-      const nextAppearance = resolveAppearance(active.appearance);
+      const nextAppearance = active.theme==="default"?buzzAppearance():resolveAppearance(active.appearance);
       if (active.theme === "bluepinkneon") {
         const vars = Object.entries(paletteFor(active)).map(([key, value]) => `${key}:${value};`).join("\n");
         let result;
         try { result = prepared ?? prepareRoles(active); }
         catch (error) {
           warning = "Could not generate that palette. Keeping the last good appearance.";
-          console.warn("[Color Overthinkers] palette-generation-failed", error);
+          console.warn("[Colors] palette-generation-failed", error);
           return;
         }
         appearance = result.polarity;
         currentRoles = result.roles;
         const css = `:root[data-bluepinkneon]{${vars}}\n${roleCss(currentRoles, appearance, active.mode,result.scoped)}`;
         if (style.textContent !== css || !style.isConnected) {transition.begin();style.textContent = css;}
-        root.setAttribute("data-bluepinkneon", "");
+        if(root.getAttribute("data-bluepinkneon")!=="")root.setAttribute("data-bluepinkneon", "");
         if (!style.isConnected) document.head.appendChild(style);
         terminalColors.apply(currentRoles);
       } else { appearance = nextAppearance; currentRoles=undefined;if(style.isConnected)transition.begin();style.remove(); restoreAttribute();terminalColors.restore(); }
@@ -209,13 +242,14 @@ export function apply(ctx) {
     observer?.observe(root, { attributes:true, attributeFilter:["data-color-mode"] });
     media?.addEventListener("change", refresh);
     renderTheme();
-    return () => { alive = false; observer?.disconnect(); media?.removeEventListener("change",refresh);if(style.isConnected)transition.begin(); style.remove();iconStyle.remove(); restoreAttribute();terminalColors.restore();transition.dispose(); renderTheme = () => {}; listeners.clear(); overrides.clear(); };
+    return () => { alive = false; for(const fade of fades.values())fade.dispose();fades.clear();syncFadeGuard();syncFadeGuard=()=>{};preparedCache.clear();document.removeEventListener?.("visibilitychange",visibility);reduced?.removeEventListener("change",reduce); observer?.disconnect(); media?.removeEventListener("change",refresh);if(style.isConnected)transition.begin(); style.remove();iconStyle.remove(); restoreAttribute();terminalColors.restore();transition.dispose(); renderTheme = () => {}; listeners.clear(); overrides.clear(); };
   });
 
   function save(next) {
     let prepared;
     try {if(next.theme==="bluepinkneon")prepared=prepareRoles(next);}
-    catch(error){warning="Could not generate that palette. Keeping the last good appearance.";console.warn("[Color Overthinkers] palette-generation-failed",error);for(const listener of listeners)listener();return;}
+    catch(error){warning="Could not generate that palette. Keeping the last good appearance.";console.warn("[Colors] palette-generation-failed",error);for(const listener of listeners)listener();return;}
+    for(const fade of fades.values())fade.dispose();fades.clear();syncFadeGuard();uiPreview=null;
     overrides.clear(); // A person changing the controls takes back ownership.
     if(next.localName&&!localThemes.some(theme=>theme.name===next.localName&&paletteKey(theme.look)===paletteKey(next)))next={...next,localName:null};
     choice = next; warning = "";
@@ -250,7 +284,7 @@ export function apply(ctx) {
 
   function saveLocalTheme(name) {
     if(libraryLocked)return;
-    if(activeChoice().theme!=="bluepinkneon") {warning="Choose a palette before saving it.";return;}
+    if(editableChoice().theme!=="bluepinkneon") {warning="Choose a palette before saving it.";return;}
     const base=themeSlug(name);
     if(!base) {warning="Use a theme name with letters a–z or numbers.";for(const listener of listeners)listener();return;}
     if(localThemes.length>=LOCAL_LIMIT) {warning=`You can save up to ${LOCAL_LIMIT} local themes. Remove one first.`;for(const listener of listeners)listener();return;}
@@ -258,7 +292,7 @@ export function apply(ctx) {
     while(localThemes.some(theme=>theme.name===unique)||PRESETS.some(preset=>preset.id===unique)) {
       const suffix="-"+index++;unique=base.slice(0,60-suffix.length).replace(/-+$/g,"")+suffix;
     }
-    const next={...activeChoice(),localName:unique};
+    const next={...editableChoice(),localName:unique};
     const persisted=saveLibrary([...localThemes,{name:unique,look:paletteSnapshot(next)}]);
     if(persisted==="refused")return;
     save(next);
@@ -274,12 +308,29 @@ export function apply(ctx) {
         catch {localThemes=[];libraryLocked=true;warning="Saved themes changed in another window and are still unreadable. Nothing was reset.";}
         for(const listener of listeners)listener();return;
       }
-      localStorage.setItem(LIBRARY_KEY,"[]");libraryRaw="[]";libraryDirty=false;localThemes=[];libraryLocked=false;save({...activeChoice(),localName:null});
+      localStorage.setItem(LIBRARY_KEY,"[]");libraryRaw="[]";libraryDirty=false;localThemes=[];libraryLocked=false;save({...editableChoice(),localName:null});
     } catch {warning="Could not reset the local library. Stored data was not changed.";for(const listener of listeners)listener();}
   }
 
+  function presetBackup() {
+    assertAlive();if(libraryLocked)throw new Error("The preset library is locked");
+    return JSON.stringify({format:"buzz-chroma-presets",version:1,presets:structuredClone(localThemes)},null,2);
+  }
+  function restorePresets(text) {
+    assertAlive();if(libraryLocked)throw new Error("The preset library is locked");
+    if(typeof text!=="string"||text.length>131200)throw new TypeError("Preset backup is too large");
+    let doc;try{doc=JSON.parse(text);}catch{throw new TypeError("Preset backup is not valid JSON");}
+    if(!doc||typeof doc!=="object"||Array.isArray(doc)||Object.keys(doc).some(k=>!["format","version","presets"].includes(k))||doc.format!=="buzz-chroma-presets"||doc.version!==1||!Array.isArray(doc.presets))throw new TypeError("Expected a Colors preset backup");
+    let incoming;try{incoming=readLibrary(JSON.stringify(doc.presets));}
+    catch{throw new TypeError("Preset backup contains an invalid or oversized library. Nothing was changed.");}
+    if(incoming.some(entry=>localThemes.some(existing=>existing.name===entry.name)))throw new TypeError("A preset with that name already exists. Nothing was overwritten.");
+    if(!incoming.length)return {added:0,persisted:true};
+    const result=saveLibrary([...localThemes,...incoming]);if(result==="refused")throw new Error(warning);
+    return {added:incoming.length,persisted:result==="saved"};
+  }
+
   function chooseColor(index, hex) {
-    const choice = activeChoice();
+    const choice = editableChoice();
     if (!/^#[0-9a-f]{6}$/i.test(hex)) return;
     hex = hex.toLowerCase();
     const hues = [...choice.hues];
@@ -298,7 +349,7 @@ export function apply(ctx) {
   }
 
   function chooseMonoColor(hex) {
-    const choice = activeChoice();
+    const choice = editableChoice();
     if (!/^#[0-9a-f]{6}$/i.test(hex)) return;
     hex = hex.toLowerCase();
     const hue = monoHue(choice);
@@ -329,7 +380,14 @@ export function apply(ctx) {
     const allowed = ["preset","colors","rotation","appearance","mode","monochrome","surfaceOffset","neutralGround"];
     if (Object.keys(options).some(key=>!allowed.includes(key))) throw new TypeError("Unknown theme option");
     let next = structuredClone(base); next.theme = "bluepinkneon";
-    if(options.preset!==undefined)next=applyPreset(next,options.preset);
+    if(options.preset!==undefined) {
+      if(typeof options.preset==="string"&&options.preset.startsWith("local:")) {
+        if(libraryLocked)throw new TypeError("Saved presets are unavailable while the library is locked");
+        const saved=localThemes.find(preset=>`local:${preset.name}`===options.preset);
+        if(!saved)throw new TypeError("Unknown saved preset");
+        next={...next,...structuredClone(saved.look),theme:"bluepinkneon",localName:saved.name};
+      } else next=applyPreset(next,options.preset);
+    }
     if(options.surfaceOffset!==undefined) {
       if(![0,90].includes(options.surfaceOffset))throw new TypeError("surfaceOffset must be 0 or 90");
       next.surfaceOffset=options.surfaceOffset;
@@ -379,44 +437,85 @@ export function apply(ctx) {
   function cleanLocalIdentity(next) {
     return next.localName&&!localThemes.some(theme=>theme.name===next.localName&&paletteKey(theme.look)===paletteKey(next))?{...next,localName:null}:next;
   }
-  if (typeof ctx.provide === "function") ctx.provide("chroma", Object.freeze({
-    version: 1,
-    listPresets: () => { if (!alive) throw new Error("Chroma is disabled"); return structuredClone(PRESETS); },
-    getLook: () => { if (!alive) throw new Error("Chroma is disabled");const next=activeChoice();return structuredClone({ ...next, preset:findPreset(next)?.id??"custom", effectiveHues:next.mode==="mono"?Array(3).fill(monoHue(next)):effectiveHues(next),effectiveNeutrals:effectiveNeutrals(next),resolvedAppearance: appearance }); },
-    generateTheme: (options = {}) => {
-      const next = apiChoice(options);
-      return structuredClone(mapRoles(generateRoles(next)));
+  function assertAlive() {if(!alive)throw new Error("Chroma is disabled");}
+  function requestLook(options,base) {
+    assertAlive();
+    if(!options||typeof options!=="object"||Array.isArray(options))throw new TypeError("Expected theme options");
+    const {fadeMs,...look}=options;
+    return {next:apiChoice(look,base),duration:fadeDuration(fadeMs)};
+  }
+  function makeLook(options) {
+    const {next,duration}=requestLook(options);
+    if(next.theme==="bluepinkneon")prepareRoles(next);
+    const previous=structuredClone(activeChoice()),key=Symbol();
+    const shouldFade=duration&&canFade(previous,next)&&!globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    overrides.set(key,shouldFade?previous:next);
+    const fade=createPaletteFade({read:()=>overrides.get(key),isTop:()=>[...overrides.keys()].at(-1)===key,
+      write:value=>{const fresh=value.theme==="bluepinkneon"?prepareRoles(value):undefined;overrides.set(key,value);if([...overrides.keys()].at(-1)===key)renderTheme(fresh);},
+      failed:error=>{warning="A color fade stopped. Keeping the last good palette.";console.warn("[Colors] fade-failed",error);},changed:()=>{syncFadeGuard();notify();}});
+    fades.set(key,fade);
+    try {fade.start(next,duration,{hidden:Boolean(document.hidden),reduced:!shouldFade});}
+    catch(error){fade.dispose();fades.delete(key);overrides.delete(key);throw error;}
+    if(shouldFade){renderTheme();notify();}
+    const dispose=()=>{
+      const wasTop=[...overrides.keys()].at(-1)===key;
+      fade.dispose();fades.delete(key);
+      if(overrides.delete(key)&&wasTop){syncFadeGuard();renderTheme();for(const f of fades.values())f.reveal(Boolean(document.hidden));notify();}
+    };
+    dispose.update=options=>{
+      assertAlive();if(!overrides.has(key))throw new Error("Look handle is inactive");
+      const {next,duration}=requestLook(options,fade.state().target??overrides.get(key));
+      if(next.theme==="bluepinkneon")prepareRoles(next);
+      fade.start(next,duration,{hidden:Boolean(document.hidden),covered:[...overrides.keys()].at(-1)!==key,
+        reduced:Boolean(globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches)});
+    };
+    dispose.dispose=dispose;dispose.transition=()=>fade.state();return Object.freeze(dispose);
+  }
+  const service=Object.freeze({
+    version:1,
+    listPresets:(options={})=>{
+      assertAlive();if(!options||typeof options!=="object"||Array.isArray(options)||Object.keys(options).some(k=>k!=="includeSaved")||options.includeSaved!==undefined&&typeof options.includeSaved!=="boolean")throw new TypeError("Expected optional includeSaved boolean");
+      if(options.includeSaved&&libraryLocked)throw new Error("The saved preset library is locked");
+      return structuredClone([...PRESETS,...(options.includeSaved?localThemes.map(preset=>({id:`local:${preset.name}`,name:displayName(preset.name),description:"Saved on this device",...preset.look,look:preset.look})):[])]);
     },
-    setLook: (options) => {
-      const next = apiChoice(options), key = Symbol();
-      const prepared=next.theme==="bluepinkneon"?prepareRoles(next):undefined;
-      overrides.set(key,next); renderTheme(prepared); for (const listener of listeners) listener();
-      const dispose = () => { if (overrides.delete(key)) { renderTheme(); for (const listener of listeners) listener(); } };
-      dispose.update = (options) => {
-        if(!alive||!overrides.has(key))throw new Error("Look handle is inactive");
-        const next=apiChoice(options,overrides.get(key));
-        const prepared=next.theme==="bluepinkneon"?prepareRoles(next):undefined;
-        const isTop=[...overrides.keys()].at(-1)===key;
-        overrides.set(key,next);
-        if(isTop){renderTheme(prepared);for(const listener of listeners)listener();}
-      };
-      dispose.dispose = dispose;
-      return Object.freeze(dispose);
+    getLook:()=>{assertAlive();const next=activeChoice();return structuredClone({...next,preset:findPreset(next)?.id??"custom",effectiveHues:next.mode==="mono"?Array(3).fill(monoHue(next)):effectiveHues(next),effectiveNeutrals:effectiveNeutrals(next),resolvedAppearance:appearance});},
+    generateTheme:(options={})=>structuredClone(mapRoles(generateRoles(apiChoice(options)))),
+    setLook:makeLook,
+    savePreset:(name,options)=>{
+      assertAlive();if(!isThemeName(name))throw new TypeError("Preset names must be kebab-case, at most 60 characters");
+      if(libraryLocked)throw new Error("The saved preset library is locked");
+      if(localThemes.length>=LOCAL_LIMIT)throw new Error("The saved preset library is full");
+      if(localThemes.some(p=>p.name===name)||PRESETS.some(p=>p.id===name))throw new TypeError("That preset name already exists; choose another name");
+      const next=apiChoice(options);if(next.theme!=="bluepinkneon")throw new TypeError("Save a generated palette, not Buzz default");
+      prepareRoles(next);
+      const result=saveLibrary([...localThemes,{name,look:{...paletteSnapshot(next),appearance:next.appearance}}]);
+      if(result==="refused")throw new Error(warning);
+      if(result==="session"){warning="Preset saved for this session only; device storage could not be written.";notify();}
+      return {id:`local:${name}`,persisted:result==="saved"};
     },
-  }));
+  });
+  if(typeof ctx.provide==="function")ctx.provide("chroma",service);
+  const agentAccess=ownAgentControls(ctx,service,()=>{if(alive)notify();});
+  const agentChoices=agentPreferences(agentAccess,{changed:notify});
+  ctx.effect(()=>{void agentChoices.start();return ()=>agentChoices.dispose();});
 
   ctx.pages.register({ id: "themes", title: "Colors", primary: true, layout:"workspace", icon: PLUGIN_ICON,
     component: function Colors() {
-      const choice = activeChoice();
+      const choice = editableChoice();
+      const fading=fades.get([...overrides.keys()].at(-1))?.state().status==="fading";
       const [, update] = React.useState(0);
       const [localName,setLocalName] = React.useState("");
+      const [backup,setBackup] = React.useState("");
+      const [backupNotice,setBackupNotice] = React.useState("");
+      const [previewPreset,setPreviewPreset] = React.useState("blue-pink-neon");
+      const [fadeSeconds,setFadeSeconds] = React.useState("5");
       React.useEffect(() => {
         const refresh = () => update((value) => value + 1);
         listeners.add(refresh);
         return () => listeners.delete(refresh);
       }, []);
       const h = React.createElement;
-      const colors = paletteFor(choice);
+      const colors = paletteFor(activeChoice());
       const hues = effectiveHues(choice);
       const candidate = choice.localName ? null : findPreset(choice);
       const preset = candidate&&PRESETS.includes(candidate)?candidate:null;
@@ -493,14 +592,35 @@ export function apply(ctx) {
             const persisted=saveLibrary(localThemes.filter(theme=>theme.name!==localTheme.name));if(persisted==="refused")return;save({...choice,localName:null});
             if(persisted==="session"){warning="Theme library changed for this session, but could not be saved on this device.";for(const listener of listeners)listener();}
           }},"Remove saved theme")]:[]),
-          h("p",null,"Saved only on this device; nothing is uploaded."))),
-        h("p", { role: "status" }, warning || (libraryLocked?"The local theme library is unreadable. Saving stays locked until an explicit reset.":libraryDirty?"Theme library has changes saved only for this session. They may be lost when Buzz closes.":overrides.size ? "Another plugin is previewing a palette. Changing a control takes it back." : choice.theme === "bluepinkneon" ? "Palette active · saved on this device." : "Buzz default is active.")));
+          h("p",null,"Saved only on this device; nothing is uploaded."),
+          h("details",null,h("summary",null,"Back up or restore presets"),
+            h("p",null,"Copy a JSON backup somewhere you keep your files. Import adds presets and refuses matching names."),
+            h("button",{type:"button",style:control,disabled:libraryLocked,onClick:async()=>{
+              try{const text=presetBackup();setBackup(text);if(globalThis.navigator?.clipboard?.writeText){await navigator.clipboard.writeText(text);setBackupNotice("Backup copied. Save it in a file for safekeeping.");}else setBackupNotice("Select and copy the backup text below, then save it in a file.");}
+              catch{setBackupNotice("Could not copy a backup. Stored presets were not changed.");}
+            }},"Copy preset backup"),
+            h("label",{style:{display:"grid",gap:"8px",marginTop:"12px"}},"Preset backup JSON",h("textarea",{"aria-label":"Preset backup JSON",value:backup,onChange:e=>setBackup(e.target.value),maxLength:131200,rows:5,style:{...control,width:"100%",fontFamily:"monospace",fontSize:"11px"}})),
+            h("button",{type:"button",style:{...control,marginTop:"8px"},disabled:libraryLocked||!backup.trim(),onClick:()=>{try{const r=restorePresets(backup);setBackupNotice(r.persisted?`Imported ${r.added} preset(s).`:`Imported ${r.added} preset(s) for this session; device storage could not be written.`);}catch(error){setBackupNotice(error.message);}}},"Import preset backup"),
+            h("p",{role:"status"},backupNotice)))),
+        h("p", { role: "status" }, warning || (libraryLocked?"The local theme library is unreadable. Saving stays locked until an explicit reset.":libraryDirty?"Theme library has changes saved only for this session. They may be lost when Buzz closes.":fading?"Fading to the target look. Color values settle when the fade ends.":overrides.size ? "A temporary palette is active. Changing a control takes it back." : choice.theme === "bluepinkneon" ? "Palette active · saved on this device." : "Buzz default is active.")));
       return h("section",{className:"chroma-colors-page"},
         h("style",null,PAGE_CSS),
-        h("header",{className:"chroma-colors-header"},h("h1",null,"Color Overthinkers"),...PLUGIN_COPY.map((paragraph,index)=>h("p",{key:index},paragraph))),
+        h("header",{className:"chroma-colors-header"},h("h1",null,PLUGIN_NAME),...PLUGIN_COPY.map((paragraph,index)=>h("p",{key:index},paragraph))),
         h("div",{className:"chroma-colors-workspace"},controls,
           h("div",{className:"chroma-colors-live-preview","aria-label":"Live palette preview"},
-            choice.theme==="bluepinkneon"&&currentRoles?palettePreview(h,colors,currentRoles):h("p",{className:"chroma-colors-empty"},"Buzz’s own appearance is active. Choose a preset or a color to preview your generated palette."))));
+            choice.theme==="bluepinkneon"&&currentRoles?palettePreview(h,colors,currentRoles,{fading}):h("p",{className:"chroma-colors-empty"},"Buzz’s own appearance is active. Choose a preset or a color to preview your generated palette."))),
+        h("div",{className:"chroma-extra-settings"},
+          h("details",null,h("summary",null,"Color fades"),
+            h("p",null,"Preview a preset with a gentle fade. Changing a color or the dial takes control back."),
+            h("label",null,"Fade to preset",h("select",{"aria-label":"Fade to preset",value:previewPreset,style:control,onChange:e=>setPreviewPreset(e.target.value)},
+              ...service.listPresets({includeSaved:!libraryLocked}).sort((a,b)=>compareNames(a.id.replace(/^local:/,""),b.id.replace(/^local:/,""))).map(p=>h("option",{key:p.id,value:p.id},displayName(p.id.replace(/^local:/,""))+(p.id.startsWith("local:")?" (saved)":""))))),
+            h("label",null,"Fade time (seconds)",h("input",{type:"number",min:0,max:300,step:1,"aria-label":"Fade time in seconds",value:fadeSeconds,style:control,onChange:e=>setFadeSeconds(e.target.value)})),
+            h("div",{className:"chroma-extra-actions"},h("button",{type:"button",style:control,onClick:()=>{try{if(!fadeSeconds.trim())throw new TypeError("Choose a fade time between 0 and 300 seconds.");const next=service.setLook({preset:previewPreset,fadeMs:Number(fadeSeconds)*1000});uiPreview?.dispose();uiPreview=next;}catch(error){warning=error.message;notify();}}},"Preview fade"),
+              h("button",{type:"button",style:control,disabled:!uiPreview,onClick:()=>{uiPreview?.dispose();uiPreview=null;notify();}},"End preview"),
+              h("button",{type:"button",style:control,disabled:!overrides.size,onClick:()=>save(structuredClone(editableChoice()))},"Keep target look")),
+            h("p",null,"Dark/Light, mode and neutral-family changes switch atomically to preserve legibility. Reduced motion disables animated fades.")),
+          agentSettings(h,{state:agentAccess.getState(),enabled:agentChoices.get(),notice:agentChoices.notice(),
+            onToggle:(key,value)=>{void agentChoices.set({[key]:value}).catch(()=>{warning="Could not update agent access. Try again from the connection controls.";notify();});}})));
     },
   });
 }

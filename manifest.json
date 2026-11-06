@@ -1,6 +1,19 @@
 {
   "id": "com.ranveer.bluepinkneon",
-  "name": "Color Overthinkers",
-  "description": "We’ve already overthought it for you.\n\nControlled lightness, measured contrast, and a whole palette from up to three colors—built in OKLCH and checked with APCA and WCAG.",
-  "apiVersion": 1
+  "name": "Colors",
+  "description": "Say it with color.\n\nControlled lightness, measured contrast, and a whole palette from up to three colors—built in OKLCH and checked with APCA and WCAG.",
+  "apiVersion": 1,
+  "host": {
+    "mcp": true,
+    "processes": [
+      {
+        "id": "agent-access",
+        "program": "buzz-agent-command",
+        "bundled": true,
+        "args": [
+          "--advertise"
+        ]
+      }
+    ]
+  }
 }

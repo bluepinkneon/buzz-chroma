@@ -1,4 +1,4 @@
-# Color Overthinkers: the math
+# Colors: the math
 
 ## Two layers, one palette
 
@@ -200,3 +200,33 @@ Whole-degree hue choices bound the hue domain. Equal hue angles are retained;
 per-degree perceived distance is not guaranteed identical. Auto follows Buzz’s
 resolved light/dark mode, using the OS preference only if the host supplies none.
 It never writes Buzz’s mode preference or imposes a separate day/night clock.
+
+## Finite fades
+
+A fade operates on input hues, not on independently interpolated CSS colors. For
+progress `p` in `[0,1]`, cosine easing is `(1-cos(pi*p))/2`. Each displayed seed
+follows the shortest circular arc from its last committed value to the target;
+the stored rotation is handled separately so cancelling seed/rotation changes
+do not create a full visible turn. Bichrome still derives Neon from its two
+seeds at every sample. Endpoints retain the exact requested state.
+
+Every changed sample runs the existing light/dark role solver. There is no
+cross-palette sRGB or OKLab interpolation, which can lose contrast even when
+both endpoints pass. Sampling is bounded to twelve commits per second and a
+48-entry LRU holds the prepared polarity maps. CSS transitions are suppressed
+through the finite fade, so host hover animations do not lag behind the inks.
+
+Discrete topology changes (mode, appearance preference, neutral flags or ground
+relationship) are atomic. Reduced motion and hiding the window finish at the
+target. A covered older handle pauses instead of producing invisible palettes.
+The visible owner can be interrupted from its last committed key, and disposing
+a hidden handle does not repaint or interrupt the current owner. UI edits adopt
+the target, never persist an interpolated frame, and invalidate all temporary
+handles.
+
+The finite fade is one operation, not an internal sequence format. Agents own
+external waits and loops. The tool adapter also bounds resolved-polarity cuts;
+there is no rapid full-window blinking option. Numeric graph checks cover
+1,176 fade samples across the visible catalog, all three color modes and both
+polarities, alongside the static hue and overlay sweeps. They establish the
+checked role floors, not universal perceptual comfort.

@@ -13,6 +13,15 @@ test("palette commit guard is bounded, restarts frames and restores foreign flag
   guard.begin();h.flushFrames();assert.equal(h.attributes.get(key),"foreign");
   guard.begin();guard.dispose();assert.equal(h.frames.size,0);assert.equal(h.attributes.get(key),"foreign");assert.equal(h.styles.size,0);
 });
+test("a fade holds one transition guard without per-frame attribute churn",()=>{
+  const h=host(),root=document.documentElement;let writes=0;
+  const set=root.setAttribute;root.setAttribute=(...args)=>{writes++;set(...args);};
+  const guard=ownPaletteTransition(document),release=guard.hold();
+  for(let frame=0;frame<120;frame++)guard.begin();
+  assert.equal(writes,1);assert.equal(h.frames.size,0);assert(h.attributes.has(key));
+  release();assert.equal(h.frames.size,1);h.flushFrames();assert(!h.attributes.has(key));
+  release();assert.equal(h.frames.size,0);guard.dispose();
+});
 test("shipped palette changes guard the complete commit and clean up on default and disable",()=>{
   const h=host(),app=h.boot(),api=app.services.get("chroma");h.flushFrames();
   api.setLook({appearance:"light"});assert(h.attributes.has(key));assert.equal(h.frames.size,1);

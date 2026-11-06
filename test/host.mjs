@@ -1,8 +1,9 @@
 import * as plugin from "../dist/plugin.js";
-export function host(saved = new Map()) {
+export function host(saved = new Map(), extra = {}) {
   const attributes = new Map();
   const styles = new Set();
-  const frames=new Map();let nextFrame=0;
+  const frames=new Map();let nextFrame=0,time=0;
+  Object.defineProperty(globalThis.performance,"now",{configurable:true,value:()=>time});
   globalThis.requestAnimationFrame=fn=>{const id=++nextFrame;frames.set(id,fn);return id;};
   globalThis.cancelAnimationFrame=id=>frames.delete(id);
   globalThis.getComputedStyle=()=>({backgroundColor:""});
@@ -11,9 +12,18 @@ export function host(saved = new Map()) {
   const rootStyle={getPropertyValue:key=>inline.get(key)?.value??"",getPropertyPriority:key=>inline.get(key)?.priority??"",setProperty:(key,value,priority="")=>inline.set(key,{value,priority}),removeProperty:key=>inline.delete(key)};
   globalThis.localStorage = { getItem: (key) => saved.get(key) ?? null, setItem: (key, value) => saved.set(key, value) };
   const mediaListeners = new Set(); const observers = new Set();
-  globalThis.matchMedia = () => ({matches:true,addEventListener:(_key,fn)=>mediaListeners.add(fn),removeEventListener:(_key,fn)=>mediaListeners.delete(fn)});
+  const mediaQueries=new Map();
+  globalThis.matchMedia = query => {
+    if(!mediaQueries.has(query))mediaQueries.set(query,{matches:query.includes('color-scheme'),
+      addEventListener:(_key,fn)=>mediaListeners.add(fn),removeEventListener:(_key,fn)=>mediaListeners.delete(fn)});
+    return mediaQueries.get(query);
+  };
   globalThis.MutationObserver = class { constructor(fn) { this.fn=fn; } observe() { observers.add(this); } disconnect() { observers.delete(this); } };
+  const documentListeners=new Map();
   globalThis.document = {
+    hidden:false,
+    addEventListener:(key,fn)=>{if(!documentListeners.has(key))documentListeners.set(key,new Set());documentListeners.get(key).add(fn);},
+    removeEventListener:(key,fn)=>documentListeners.get(key)?.delete(fn),
     documentElement: {
       style:rootStyle,
       getBoundingClientRect:()=>({}),
@@ -25,7 +35,10 @@ export function host(saved = new Map()) {
     createElement: () => ({ dataset: {}, isConnected: false, remove() { this.isConnected = false; styles.delete(this); } }),
   };
   return {
-    saved, attributes, styles, mediaListeners, observers, rootStyle, frames,flushFrames,
+    saved, attributes, styles, mediaListeners, observers, rootStyle, frames,flushFrames,documentListeners,
+    advance(ms){time+=ms;const pending=[...frames];frames.clear();for(const [,fn] of pending)fn(time);},
+    visibility(hidden){document.hidden=hidden;for(const fn of documentListeners.get('visibilitychange')??[])fn();},
+    reduced(value){matchMedia('(prefers-reduced-motion: reduce)').matches=value;for(const fn of mediaListeners)fn();},
     mode(value) { attributes.set("data-color-mode",value); for(const o of observers) o.fn(); },
     css: () => {flushFrames();return [...styles].find(style=>!style.dataset.role)?.textContent ?? "";},
     boot() {
@@ -44,6 +57,7 @@ export function host(saved = new Map()) {
         },
         effect: (fn) => cleanups.push(fn()),
         pages: { register: (value) => { page = value; } },
+        ...extra,
       });
       return { services, title:page.title, icon:page.icon, tree: () => {hookIndex=0;return page.component();}, dispose: () => cleanups.reverse().forEach((fn) => fn?.()) };
     },

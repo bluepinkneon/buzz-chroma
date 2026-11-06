@@ -1,15 +1,15 @@
-# Color Overthinkers for Buzz
+# Colors for Buzz
 
 <img src="icon.png" alt="Monochrome color palette icon" width="96" height="96">
 
-**We’ve already overthought it for you.**
+**Say it with color.**
 
 Controlled lightness, measured contrast, and a whole palette from up to three colors—built in OKLCH and checked with APCA and WCAG.
 
 Choose Dark, Light or Auto. Monochrome takes one color, bichrome two, and
 trichrome three. The original plugin ID and preferences stay unchanged.
 
-![Color Overthinkers preset preview](https://github.com/bluepinkneon/buzz-chroma/releases/download/v1.3.1/color-overthinkers-preview.gif)
+![Colors preset preview](https://github.com/bluepinkneon/buzz-chroma/releases/download/v1.3.1/color-overthinkers-preview.gif)
 
 <details>
 <summary>Play the full 46-second introduction</summary>
@@ -32,7 +32,7 @@ Requires Buzz Desktop with API v1 external-plugin support.
 1. Open **Settings → Manage plugins → Add**.
 2. Enter `https://github.com/bluepinkneon/buzz-chroma`.
 3. Set the branch/reference to **main**, choose **Find**, then select **dist**.
-4. Review and install **Color Overthinkers**, then enable it.
+4. Review and install **Colors**, then enable it.
 5. Close Settings and open **Colors**, directly below **Inbox**.
 
 On macOS you can open the install review with:
@@ -43,7 +43,7 @@ open 'buzz://plugin-install?repository=bluepinkneon%2Fbuzz-chroma&ref=main&path=
 
 ### Update an existing GitHub install
 
-Open **Settings → Manage plugins → Color Overthinkers → Update**. Use the same
+Open **Settings → Manage plugins → Colors → Update**. Use the same
 repository, reference **main**, and folder **dist**, then **Find → review → Update**.
 A GitHub install is pinned to the reviewed commit; pushing here does not hot-reload
 an installed copy. The new screen shows **Trichrome / Bichrome / Monochrome** and
@@ -201,30 +201,146 @@ refuses to overwrite it; reload the plugin before saving again.
 Up to 50 themes are stored in the device’s localStorage. Nothing is uploaded.
 Disabling the plugin keeps them; clearing app/site data can remove them.
 
+## Gentle fades and agent expression
+
+Colors can be a subtle companion to a conversation: a calm working atmosphere,
+a celebratory moment, a Christmassy palette, or a brief attention cue when an
+agent needs your input. Error details still belong in the conversation; color is
+an additional expression, not the only message.
+
+One call selects **one look**. For a sequence, the caller sets a look, waits, then
+sets the next one. Colors has no background playlist or internal loop. The agent
+can save a recipe once and reuse its `local:<name>` ID.
+
+Expand **Color fades** below the controls to preview a preset, choose a duration,
+end the preview, or **Keep target look** as your saved choice. Manual edits take
+over and invalidate temporary handles. They use the requested target, never an
+intermediate animation frame.
+
+A fade follows the shortest circular path for the displayed input hues with
+cosine easing. At most twelve samples per second regenerate the complete
+contrast-solved palette. Finished CSS colors are never blended independently
+of their text. Identical samples are skipped and the generated-role cache is
+bounded. The final frame exactly matches an immediate call for the same target.
+Mode, appearance and neutral-family/ground changes switch atomically. Reduced
+motion or a hidden window finishes the target immediately. Covered older
+handles pause until revealed. These are gentle color changes, not a strobe mode.
+
+```js
+const live = ctx.chroma.setLook({
+  colors: ["#d62828", "#167a43", "#efc66c"],
+  mode: "trichrome", appearance: "dark", rotation: 0, fadeMs: 5000,
+});
+live.update({ rotation: 30, fadeMs: 5000 }); // interrupts from the last painted look
+live.transition(); // {status:"fading", fadeMs, elapsedMs, target}, or {status:"idle"}
+live.dispose(); // restores the previous live handle or saved user look
+```
+
+### Reusable local presets and backup
+
+```js
+const result = ctx.chroma.savePreset("christmas", {
+  colors: ["#d62828", "#167a43", "#efc66c"],
+  mode: "trichrome", appearance: "auto", rotation: 0,
+});
+// {id:"local:christmas", persisted:true}; false means session-only storage.
+const available = ctx.chroma.listPresets({ includeSaved: true });
+const live = ctx.chroma.setLook({ preset: result.id, fadeMs: 5000 });
+```
+
+Names are kebab-case, at most 60 characters. Creation refuses an existing name,
+a built-in name, or a full/locked library; it never overwrites or deletes a
+preset. A stale or unreadable storage comparison refuses the write. A quota
+failure reports `persisted:false`; it does not claim a durable save. API saves
+include the requested appearance; older UI saves retain their original
+keep-current-appearance behavior.
+
+**Save your theme → Back up or restore presets** provides JSON export/import.
+Save a copy of the JSON somewhere you keep your files. Import validates the
+whole library before adding entries and refuses duplicate names. There is no
+cloud synchronization. Clearing Buzz’s app data can remove device-local presets.
+Older plugin versions may refuse libraries with newly added settings; keep a
+backup before downgrading and do not reset a refused library to recover it.
+
+## Tools for agents
+
+The same color controls are exposed as four tools. Their descriptions encourage
+subtle expression: mood, focus, celebration, a festive atmosphere, and brief
+attention or error cues alongside a clear conversational message.
+
+Open **Colors → Agent expression** to opt in. Both connections start **off** on
+an existing installation:
+
+- **Local agents:** Buzz advertises a plugin-owned MCP connection on this
+  computer. Agents such as Shepherd discover the tools through Buzz’s bundled
+  helper. Other processes running as your OS user can use that connection too.
+- **Buzz agents:** adds the four tools to Buzz’s native agent registry. **Buzz
+  0.7.9 starts every Codex agent in a fresh thread when tools are added or removed.**
+  Enable or disable this between tasks. This is global to Buzz agents, not a
+  connection to one selected model.
+
+| Tool | Input | Result |
+|---|---|---|
+| `chroma_get_look` | `{}` | `{look, palette?}`; generated colors are omitted while Buzz Default is active |
+| `chroma_set_look` | Look options with optional `fadeMs`, or `{look: snapshot, fadeMs?}` | `{look, transition}`; applies one temporary look and returns without waiting for the fade |
+| `chroma_save_preset` | `{name, look}` | Creates one local preset; reports its ID and whether storage persisted |
+| `chroma_list_presets` | `{}` | Built-ins and saved `local:<name>` presets |
+
+`look` cannot be combined with patch fields in the setter. Each transport owns
+one live setter handle, replacing it only after the new request validates.
+Disabling a connection releases its temporary look. No tool deletes or
+replaces a saved preset. Rapid light/dark cuts are rate-limited; a refused call
+reports `retryAfterMs`. A fade remains asynchronous, so it does not hold a tool
+request open for its duration.
+
+On macOS, with **Let local agents control colors** enabled:
+
+```sh
+/Applications/Buzz.app/Contents/Resources/bin/buzz-agent-command tools
+/Applications/Buzz.app/Contents/Resources/bin/buzz-agent-command call chroma_get_look '{}'
+/Applications/Buzz.app/Contents/Resources/bin/buzz-agent-command call chroma_set_look '{"colors":["#d62828","#167a43","#efc66c"],"mode":"trichrome","appearance":"dark","rotation":0,"fadeMs":5000}'
+/Applications/Buzz.app/Contents/Resources/bin/buzz-agent-command call chroma_save_preset '{"name":"christmas","look":{"colors":["#d62828","#167a43","#efc66c"],"mode":"trichrome","appearance":"dark","rotation":0}}'
+/Applications/Buzz.app/Contents/Resources/bin/buzz-agent-command call chroma_set_look '{"preset":"local:christmas","fadeMs":5000}'
+```
+
+For a brief attention cue, first keep the result of `chroma_get_look`, choose a
+look, wait in the agent, then restore with
+`chroma_set_look({look: previous.look, fadeMs: 2000})`. The same pattern can build
+a sequence of festive presets; no sequence engine or LLM runs inside Colors.
+Your manual color controls cancel temporary handles. Brightness, contrast and
+protected signal colors continue to be generated by the same engine.
+
+Buzz owns the local server, authorization and helper advertisement. The plugin
+stores only the two opt-in booleans, never connection credentials. Sharing ends
+when disabled, unloaded, or Buzz quits. The helper requires loopback access;
+agent sandboxes that block local network access cannot reach it. This connection
+is separate from Buzz’s external-app read/post approval.
+
 ## Callable API for other Buzz plugins
 
 This is an in-process Cordis service named **chroma**, not an HTTP endpoint.
 Require it with `export const inject = ["chroma"]`, then use `ctx.chroma`.
-The service has `version: 1` and four methods:
+The service has `version: 1` and five methods:
 
 | Method | Returns | Effect |
 |---|---|---|
-| `listPresets()` | A fresh array of the 28 visible built-in recipes | No changes |
+| `listPresets({ includeSaved = false } = {})` | A fresh array of built-in recipes, optionally including local saves | No changes |
 | `getLook()` | A fresh snapshot of the currently displayed look | No changes |
 | `generateTheme(options = {})` | `Record<string, "#RRGGBB">` containing Buzz semantic CSS roles | Generates only; does not apply or save |
-| `setLook(options)` | A callable live handle with `update(patch)` and `dispose()` | Applies a temporary look; does not save |
+| `setLook(options)` | A callable live handle with `update(patch)`, `transition()` and `dispose()` | Applies or fades to one temporary look; does not save |
+| `savePreset(name, look)` | `{ id: "local:<name>", persisted: boolean }` | Creates a local preset without applying it |
 
 Each new `setLook` and `generateTheme` request starts from the **saved user look**
 for omitted fields, independently of other temporary handles. A handle’s
-`update` starts from that handle’s own current state. To deliberately copy a
+`update` starts from that handle’s own target while a fade is running, or its current state otherwise. To deliberately copy a
 visible temporary look, pass `getLook()` as a complete snapshot.
 
 ### Write a consumer plugin
 
-1. Install and enable **Color Overthinkers** first. Its **Colors** page below
+1. Install and enable **Colors** first. Its **Colors** page below
    Inbox is where you choose the saved look; other plugins use the service below.
 2. Create a folder containing these two files. Use a different manifest ID from
-   Color Overthinkers so Buzz installs it as a separate plugin.
+   Colors so Buzz installs it as a separate plugin.
 
 `manifest.json`:
 
@@ -232,7 +348,7 @@ visible temporary look, pass `getLook()` as a complete snapshot.
 {
   "id": "example.chroma-demo",
   "name": "Chroma API Demo",
-  "description": "Try a temporary palette through Color Overthinkers.",
+  "description": "Try a temporary palette through Colors.",
   "apiVersion": 1
 }
 ```
@@ -280,10 +396,11 @@ For pages, React, events and packaging, see the official
 
 | Option | Values / behavior |
 |---|---|
-| `preset` | A built-in ID from `listPresets()`. Sets its palette, ground relationship, recommended mode and recommended appearance. Legacy IDs remain accepted. |
+| `preset` | A built-in or `local:<name>` ID. Built-ins restore their recommended look; API-saved local presets restore their stored appearance too. Legacy IDs remain accepted. |
 | `mode` | `monochrome`, `bichrome`, `trichrome`. Snapshot IDs `mono`, `duo`, `color` also work; `dichrome` aliases bichrome. |
 | `colors` | Six-digit hex inputs: one for monochrome, two for bichrome, three for trichrome. All modes also accept a complete three-seed array. |
 | `rotation` | Any finite number, normalized to a whole degree modulo 360. |
+| `fadeMs` | `setLook`/`update` only: `0` for an immediate change, or an integer from `1000` to `300000` for a finite fade. Default `0`. |
 | `appearance` | `dark`, `light`, `auto`. Auto follows Buzz’s resolved mode, with an OS fallback. |
 | `monochrome` | A single hex override that enters monochrome. Do not combine it with an explicit non-mono mode. If `colors` is also supplied, it must be the full three-seed array. |
 | `surfaceOffset` | `0` for a primary-colored ground, `90` for the original quarter-wheel ground. Omitted values keep the base recipe. |
@@ -310,16 +427,16 @@ live.dispose();                     // returns undefined; idempotent
 The newest **live handle by creation order** wins. Updating an older handle does
 not raise its priority. Disposing a middle handle leaves the newest unchanged;
 disposing the newest reveals the previous live handle, then the saved user look.
-A UI change takes ownership: it saves the visible look with the person’s edit,
+A UI change takes ownership: it saves the requested target with the person’s edit (the visible look when no fade is running),
 cancels all temporary handles, and prevents old handles from being revived.
 `update` on a disposed/cancelled handle throws. Disabling the provider removes
 its service and deactivates consumers that require it; it does not uninstall them.
-All four methods throw after disable; old disposers remain harmless.
+All five methods throw after disable; old disposers remain harmless.
 
 All API inputs are validated. Unknown fields, unsupported modes, malformed colors,
 non-finite angles and conflicting options throw before changing the look. Returned
 arrays/objects and accepted snapshots are isolated from caller mutation. External
-overrides never write preferences or the local theme library.
+look overrides never write preferences or the local theme library; `savePreset` is the explicit create-only library operation.
 
 ### Snapshot and preset records
 
@@ -406,6 +523,16 @@ at 512px in neutral gray `#8a8a8a`, on a transparent background.
 `tools/render-icon.html` renders the PNG using browser Canvas 2D;
 `icon.provenance.json` records the renderer/version and source/output hashes.
 The build verifies those hashes so the two assets cannot drift silently.
+
+## Changes in v1.5.0
+
+- Four opt-in agent tools for reading, applying, saving and listing looks. Their
+  descriptions explain colors as subtle mood and attention cues.
+- Finite input-hue fades through the existing contrast solver, interruption from
+  the last painted look, reduced-motion handling, and manual takeover.
+- API access to local presets plus validated JSON backup/import. API saves retain
+  appearance; existing UI saves keep their previous behavior.
+- Saved palette colors, character recipes and protected signal anchors are unchanged.
 
 ## Changes in v1.4.1
 

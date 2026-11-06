@@ -45,8 +45,10 @@ thumb, because Buzz otherwise reuses the prominent ink over a subtle track.
 Tests include both switch states, call fills as both buttons and phone icons,
 Todo status icons, and tinted availability labels.
 During a palette commit, an owned flag briefly suppresses CSS transitions until
-the new fills and inks are painted together. It clears after two animation
-frames, preserving normal hover/motion transitions between palette changes.
+the new fills and inks are painted together. For a finite fade the guard stays held across its samples, then clears after two animation
+frames; ordinary hover/motion transitions return afterward. A hidden window or
+reduced-motion preference commits the target without a running animation. The
+terminal receives at most twelve changed palette samples per second.
 Merged-PR icons retain a fixed categorical purple, with separate contrast solves
 for ordinary and own-message backgrounds; decorative hue rotation does not
 turn them into a different GitHub state.

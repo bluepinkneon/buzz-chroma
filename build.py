@@ -28,13 +28,14 @@ refs = {}
 for key, value in colors.items():
     if not key.startswith("--palette-"):
         refs[key] = next(k for k, v in palette_colors.items() if v == value)
-prefix = "// Color Overthinkers for Buzz — MIT. OKLCH palettes and measured APCA contrast.\n"
+prefix = "// Colors for Buzz — MIT. OKLCH palettes and measured APCA contrast.\n"
 plugin_copy=json.loads((root / "copy.json").read_text())
 technical_copy=plugin_copy["technical"]
 assert json.loads((root / "manifest.json").read_text())["description"]==plugin_copy["tagline"]+"\n\n"+technical_copy, "Manifest introduction differs from copy.json"
 description=json.loads((root / "manifest.json").read_text())["description"]
 assert description.strip() and len(description.encode("utf-8"))<=280, "Buzz description must contain 1–280 UTF-8 bytes"
-assert technical_copy in (root / "README.md").read_text(), "README introduction differs from copy.json"
+assert all(paragraph in (root / "README.md").read_text() for paragraph in [plugin_copy["tagline"],technical_copy]), "README introduction differs from copy.json"
+prefix += "const PLUGIN_NAME = " + json.dumps(json.loads((root / "manifest.json").read_text())["name"]) + ";\n"
 prefix += "const PLUGIN_COPY = " + json.dumps([plugin_copy["tagline"],technical_copy]) + ";\n"
 prefix += "const PAGE_CSS = " + json.dumps((root / "colors-page.css").read_text()) + ";\n"
 prefix += "const ORIGINAL_COLORS = " + json.dumps(colors) + ";\n"
@@ -43,7 +44,7 @@ prefix += "const PLUGIN_ICON = " + json.dumps("data:image/svg+xml;base64," + bas
 with tempfile.TemporaryDirectory(prefix="buzz-chroma-build-") as temp:
     stage = Path(temp)
     shutil.copytree(root / "vendor", stage / "vendor")
-    for name in ["role-engine.js", "role-map.js", "presets.js", "local-themes.js", "harmony.js", "palette-preview.js", "sidebar-icon.js", "terminal-theme.js", "palette-transition.js", "hue-dial.js"]:
+    for name in ["role-engine.js", "role-map.js", "presets.js", "local-themes.js", "harmony.js", "palette-preview.js", "sidebar-icon.js", "terminal-theme.js", "palette-transition.js", "hue-dial.js", "palette-fade.js", "agent-tools.js", "agent-preferences.js", "agent-settings.js"]:
         shutil.copy2(root / name, stage / name)
     shutil.copy2(root / "package.json", stage / "package.json")
     lock = root / "package-lock.json"
