@@ -100,21 +100,21 @@ export function createRoleEngine(originalColors={}) {
     const S=isDark?{
       base:[.135,.08],panel:[.20,.10],popover:[.20,.10],inset:[.09,.06],
       hover:[.235,.10],pressed:[.305,.10],selected:[.27,.10],own:[.235,.10],
-      ownHover:[.27,.10],highlight:[.305,.10],ownHighlight:[.34,.10],
+      ownHover:[.27,.10],highlight:[.305,.10],ownHighlight:[.34,.10],controlSelected:[.34,.10],
       prominent:[.50,.18],prominentHover:[.46,.18],prominentPressed:[.42,.18],
     }:{
       base:[.995,.008],panel:[.985,.012],popover:[.985,.012],inset:[1,0],
       hover:[.95,.028],pressed:[.88,.040],selected:[.915,.036],own:[.95,.028],
-      ownHover:[.915,.036],highlight:[.88,.040],ownHighlight:[.845,.045],
+      ownHover:[.915,.036],highlight:[.88,.040],ownHighlight:[.845,.045],controlSelected:[.845,.045],
       prominent:[.47,.18],prominentHover:[.43,.18],prominentPressed:[.39,.18],
     };
-    const primaryNames=new Set(["selected","highlight","prominent","prominentHover","prominentPressed"]);
+    const primaryNames=new Set(["selected","controlSelected","highlight","prominent","prominentHover","prominentPressed"]);
     const ownNames=new Set(["own","ownHover","ownHighlight"]);
     const surfaces=Object.fromEntries(Object.entries(S).map(([name,[L,C]])=>{
       const index=ownNames.has(name)?1:0;
       return [name,color(index,L,C,primaryNames.has(name)||ownNames.has(name)?0:90)];
     }));
-    const genericNames=["base","panel","popover","inset","hover","pressed","selected","highlight"];
+    const genericNames=["base","panel","popover","inset","hover","pressed","selected","highlight","controlSelected","ownHighlight"];
     const ownBackgroundNames=["own","ownHover","ownHighlight"];
     const prominentNames=["prominent","prominentHover","prominentPressed"];
     const backgrounds=names=>names.map(name=>surfaces[name]);
@@ -131,9 +131,9 @@ export function createRoleEngine(originalColors={}) {
     add(inks,"disabled",2,genericNames,50,50);
     add(inks,"link",0,genericNames,80,60);
     add(inks,"linkOwn",0,ownBackgroundNames,80,60);
-    add(inks,"onSelected",0,["selected","highlight"],90,75);
-    add(inks,"selectedSubtle",2,["selected","highlight"],65,60);
-    add(inks,"selectedMetadata",2,["selected","highlight"],50,50);
+    add(inks,"onSelected",0,["selected","highlight","controlSelected"],90,75);
+    add(inks,"selectedSubtle",2,["selected","highlight","controlSelected"],65,60);
+    add(inks,"selectedMetadata",2,["selected","highlight","controlSelected"],50,50);
     add(inks,"onOwn",1,ownBackgroundNames,90,75);
     add(inks,"ownMetadata",1,ownBackgroundNames,50,50);
     add(inks,"onProminent",0,prominentNames,90,75,4.5,"dark",.05);
@@ -143,13 +143,19 @@ export function createRoleEngine(originalColors={}) {
     // Colored alerts are an explicit exception to decorative monochrome.
     for(const [name,anchor] of Object.entries(signalAnchors)) {
       const hue=anchor.h,cc=Math.min(anchor.c,.18);
-      const Ls=isDark?[.24,.28,.32]:[.955,.925,.895];
+      // Amber and red are neighbors. A slightly deeper light amber wash keeps
+      // warning distinct from pale red after gamut mapping and quantization.
+      const Ls=isDark?[.24,.28,.32]:name==="warning"?[.93,.90,.87]:[.955,.925,.895];
       const [fill,hover,pressed]=Ls.map(L=>oklchHex(L,Math.min(cc,isDark?.12:.045),hue));
-      const bgs=[fill,hover,pressed,...backgrounds([...genericNames,...ownBackgroundNames])];
-      const solved=solveInk(hue,cc,bgs,{preferred:75,minLc:75,minWcag:4.5,polarity:appearance});
-      const border=solveInk(hue,cc,bgs,{preferred:30,minLc:30,minWcag:3,polarity:appearance});
-      signals[name]={fill,hover,pressed,ink:solved.hex,border:border.hex};
+      const bgs=[fill,hover,pressed,...backgrounds(genericNames)];
+      // Semantic text uses the host's Lc60 body floor with maximum available
+      // chroma. Lc75 washed red into pink and light signals toward black.
+      const solved=solveInk(hue,.4,bgs,{preferred:60,minLc:60,minWcag:4.5,polarity:appearance});
+      const ownInk=solveInk(hue,.4,backgrounds(ownBackgroundNames),{preferred:45,minLc:45,minWcag:3,polarity:appearance});
+      const icon=solveInk(hue,.4,bgs,{preferred:45,minLc:45,minWcag:3,polarity:appearance});
+      signals[name]={fill,hover,pressed,ink:solved.hex,ownInk:ownInk.hex,icon:icon.hex,border:icon.hex};
       checks["signal."+name]={...solved,backgrounds:bgs};
+      checks["signal."+name+".icon"]={...icon,backgrounds:bgs};
     }
     const pairs=[["panel","own"],["own","selected"],["hover","selected"],
       ["ownHover","ownHighlight"],["panel","hover"],

@@ -29,6 +29,13 @@ test("host contrast graph passes every hue in both appearances and monochrome, i
       let bg=resolve(o.backdrop);for(const l of o.layers)bg=over(resolve(l.fill),bg,l.opacity==="sample"?alpha:l.opacity);
       for(const fg of o.foregrounds)check(fg,bg,o.targets[fg],`${o.id}@${alpha}`);
     }
+    for(const group of graph.stateDistinctions) {
+      const names=["normal","hover","pressed","selected","received","own","highlight","ordinary","self","mine"].filter(k=>group[k]);
+      for(let a=0;a<names.length;a++)for(let b=a+1;b<names.length;b++) {
+        const delta=deltaE(roles[group[names[a]]],roles[group[names[b]]]);
+        assert(delta>=3,`${JSON.stringify(options)} ${group.id} ${names[a]}/${names[b]} delta=${delta}`);
+      }
+    }
     assert(generated.measurements.passes);
   }
   for(const appearance of ["dark","light"]) {
@@ -83,6 +90,15 @@ test("semantic fills keep standard red/green/amber meanings independently of rot
     for(let hue=0;hue<360;hue++) {
       const result=engine.generate({appearance,mode:"mono",monoHue:hue});
       for(const role of ["danger","success","warning","info"])assert.equal(result.signals[role].fill,reference[role].fill);
+      for(const [role,lo,hi,minC] of [["danger",15,35,appearance==="light"?.15:.095],["success",135,165,.1],["warning",60,90,.08]]) {
+        const ink=hexOklch(result.signals[role].ink);
+        assert(ink.h>=lo&&ink.h<=hi&&ink.c>=minC,`${appearance} ${hue} ${role}: ${JSON.stringify(ink)}`);
+      }
+      for(const [a,b] of [["danger","warning"],["danger","success"],["success","warning"]])assert(deltaE(result.signals[a].ink,result.signals[b].ink)>8);
+      for(const role of ["danger","warning","success","info"])for(const bg of Object.values(result.surfaces)) {
+        if([result.surfaces.prominent,result.surfaces.prominentHover,result.surfaces.prominentPressed].includes(bg))continue;
+        assert(wcag(result.signals[role].icon,bg)>=3);
+      }
       // The same measured separation floor as competing UI states. Light fills
       // are intentionally pastel, and labels/icons retain the signal meaning.
       for(const [a,b] of [["danger","success"],["danger","warning"],["success","warning"]])assert(deltaE(result.signals[a].fill,result.signals[b].fill)>3);

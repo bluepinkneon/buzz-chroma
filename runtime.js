@@ -123,7 +123,9 @@ export function apply(ctx) {
       appearance = resolveAppearance(active.appearance);
       if (active.theme === "bluepinkneon") {
         const vars = Object.entries(paletteFor(active)).map(([key, value]) => `${key}:${value};`).join("\n");
-        const result = engine.generate({ ...active, hues: effectiveHues(active), monoHue: monoHue(active), appearance });
+        let result;
+        try { result = engine.generate({ ...active, hues: effectiveHues(active), monoHue: monoHue(active), appearance }); }
+        catch { warning = "Could not generate that palette. Keeping the last good appearance."; return; }
         currentRoles = mapRoles(result);
         const css = `:root[data-bluepinkneon]{${vars}}\n${roleCss(currentRoles, appearance, active.mode)}`;
         if (style.textContent !== css) style.textContent = css;
@@ -174,7 +176,7 @@ export function apply(ctx) {
     const shown = (choice.neutral ? neutralRamp() : generatePalette(hue))[7];
     if (hex === shown) return;
     const selected = hueFromSwatch(hex, 7, hue);
-    save({ ...choice, theme: "bluepinkneon", mode: "mono", monoHue: selected ?? hue, rotation:0, neutral: selected === null });
+    save({ ...choice, theme: "bluepinkneon", mode: "mono", monoHue: degree((selected ?? hue)-choice.rotation), neutral: selected === null });
   }
 
   // The same controls, available to other trusted Buzz plugins. Overrides are
@@ -246,7 +248,7 @@ export function apply(ctx) {
         const value = Number(event.target.value);
         if (!Number.isFinite(value) || value < 0 || value >= 360) return;
         save({ ...choice, theme: "bluepinkneon", ...(mono
-          ? { monoHue: degree(value), rotation:0, neutral: false } : { rotation: degree(value) }) });
+          ? { monoHue: degree(value-choice.rotation), neutral: false } : { rotation: degree(value) }) });
       };
       return h("section", { className: "ui-card",
         style: { padding: "var(--space-panel-inset, 24px)", maxWidth: "640px" } },

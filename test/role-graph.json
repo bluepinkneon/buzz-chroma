@@ -5117,6 +5117,21 @@
     {
       "id": "keyboard-focus",
       "existingCue": "visible focus outline separate from pointer hover and persistent selection"
+    },
+    {
+      "id": "chrome-hover-selected",
+      "hover": "--affordance-chrome-hover",
+      "selected": "--bg-chrome-selected"
+    },
+    {
+      "id": "sidebar-hover-selected",
+      "hover": "--affordance-sidebar-hover",
+      "selected": "--affordance-navigation-selected"
+    },
+    {
+      "id": "mention-hover",
+      "normal": "--affordance-mention",
+      "hover": "--affordance-mention-hover"
     }
   ],
   "coverage": {

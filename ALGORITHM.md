@@ -12,7 +12,9 @@ The original three inputs were Anchor, ANSI Index (role-to-wheel permutation),
 and Brand Index (position/shade). Three independent hue controls are a simpler
 adapter model, not the same three original inputs.
 
-The original raw shades and 152 default token values remain exact. The original
+The original raw shades and 152 default token values remain exact. Visible UI
+roles intentionally change from v1 to satisfy the new contrast/state constraints;
+raw-token parity is not a claim of pixel-for-pixel visible parity. The original
 shade steps are deliberately not uniform: steps 0–7 use lightness
 .045/.09/.135/.20/.28/.36/.44/.618, and text shades 8–10 use hue-adaptive APCA tables.
 The .618 choice is aesthetic, not an accessibility theorem. The old sRGB-clamped
@@ -39,9 +41,11 @@ The state ladder uses equal requested lightness increments of .035:
 | Hover / own message | .235 | .950 |
 | Selected / own hover | .270 | .915 |
 | Pressed / highlight | .305 | .880 |
-| Own highlight | .340 | .845 |
+| Own highlight / control selected | .340 | .845 |
 
 Separate components may share a tone; competing states within a component do not.
+Controls use rest/hover/pressed/selected tones at dark L .235/.270/.305/.340
+and light L .950/.915/.880/.845. Navigation uses panel/hover/selected.
 Primary and secondary hues can add further separation. In monochrome, selected
 navigation adds an inset cue, links remain underlined and reactions keep rings.
 Equal requested L does not mean exact perceptual equality after gamut mapping
@@ -63,7 +67,11 @@ returned hex against every background in that ink’s context.
 | Supporting text | 65 | 60 |
 | Metadata | 50 | 50 |
 | Links | 80 | 60 |
-| Semantic signal text | 75 | 75 |
+| Semantic signal text | 60 | 60 |
+
+Signal inks maximize available chroma at their fixed hue, keeping red/green
+recognizable instead of washing them toward gray to chase Lc75. The own-message
+success icon has its own non-text solve.
 
 Readable text also requires WCAG contrast≥4.5. Meaningful non-text boundaries use
 3:1; decorative hairlines are not claimed to meet that threshold. If the preferred

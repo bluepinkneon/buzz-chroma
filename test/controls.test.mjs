@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {host,input,click,rotate,variables} from "./host.mjs";
+import {host,input,click,rotate,variables,find} from "./host.mjs";
 
 test("picker round-trips every rendered swatch without drifting across all 360 hues", () => {
   const h=host(), app=h.boot();
@@ -74,4 +74,13 @@ test("API monochrome rotation changes the generated palette, and legacy ignores 
   const restored=host(new Map([["com.ranveer.bluepinkneon:theme:v2",old]])).boot();
   assert.equal(restored.services.get("chroma").getLook().appearance,"dark");
   assert.deepEqual(restored.services.get("chroma").getLook().neutrals,[false,false,false]);restored.dispose();
+});
+
+test("monochrome picker and hue slider preserve the full-color rotation",()=>{
+  const h=host(),app=h.boot();rotate(app,129);const original=h.css();
+  click(app,"Monochrome");
+  input(app,"Monochrome hue").props.onChange({target:{value:"#ff7b00"}});
+  find(app.tree(),n=>n.props?.id==="bluepinkneon-mono-hue").props.onChange({target:{value:"270"}});
+  assert.equal(app.services.get("chroma").getLook().rotation,129);
+  click(app,"Full color");assert.equal(h.css(),original);app.dispose();
 });

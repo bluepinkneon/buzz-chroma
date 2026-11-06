@@ -8,9 +8,11 @@ export function mapRoles({surfaces:s, inks:i, borders:b, signals:g}) {
   put(s.popover, "surface-popover surface-elevated-glass bg-float bg-glass-secondary affordance-navigation-quiet");
   put(s.inset, "surface-inset");
   put(s.hover, "bg-glass-primary-hover bg-glass-secondary-hover affordance-subtle affordance-backdrop-hover affordance-row-hover affordance-chrome affordance-panel-hover affordance-floating-control affordance-reaction surface-message-hover");
-  put(s.pressed, "affordance-subtle-pressed affordance-backdrop-pressed affordance-floating-control-pressed");
+  put(s.pressed, "affordance-backdrop-pressed affordance-subtle-pressed affordance-floating-control-pressed");
   put(s.selected, "affordance-subtle-hover affordance-chrome-hover affordance-floating-hover affordance-floating-control-hover");
-  put(s.selected, "bg-chrome-selected affordance-selected surface-navigation-selected affordance-navigation-selected surface-row-selected-detail surface-control-selected affordance-popover-selected affordance-floating-selected affordance-sidebar-hover affordance-accent affordance-mention");
+  put(s.controlSelected, "bg-chrome-selected affordance-selected surface-control-selected affordance-popover-selected affordance-floating-selected");
+  put(s.selected, "surface-navigation-selected affordance-navigation-selected surface-row-selected-detail affordance-accent affordance-mention");
+  put(s.hover, "affordance-sidebar-hover");
   put(s.highlight, "affordance-accent-hover affordance-mention-hover");
   put(s.highlight, "affordance-message-highlight surface-message-highlight");
   put(s.own, "surface-message-own");
@@ -45,14 +47,16 @@ export function mapRoles({surfaces:s, inks:i, borders:b, signals:g}) {
   put(i.standard, "surface-inverse");
   put(s.base, "text-inverse");
   for (const [name, signal] of Object.entries(g)) {
-    put(signal.ink, `text-${name} icon-${name}`);
+    put(signal.ink, `text-${name}`);
+    put(signal.icon, `icon-${name}`);
     put(signal.border, `border-${name}`);
     put(signal.fill, `affordance-${name}`);
     put(signal.hover, `affordance-${name}-hover`);
     put(signal.pressed, `affordance-${name}-pressed`);
   }
-  put(g.success.ink, "status-online icon-success-own");
-  put(g.warning.ink, "status-away");
+  put(g.success.icon, "status-online");
+  put(g.success.ownInk, "icon-success-own");
+  put(g.warning.icon, "status-away");
   put(g.success.border, "border-success-subtle");
   put(i.linkOwn, "icon-categorical-purple-own");
   return out;

@@ -77,13 +77,17 @@ disposing it restores the previous active caller, then the saved user palette.
 Overrides do not write preferences. Changing a UI control cancels all external
 overrides. Disabling the provider removes the service and its dependent plugins.
 Invalid values throw before changing the theme. Rotation accepts any finite
-angle and normalizes to whole degrees; colors are six-digit hexadecimal.
+angle and normalizes to whole degrees; colors are six-digit hexadecimal. Explicit
+colors/monochrome supply base hues; rotation is then added to those hues.
 
 `getLook()` returns a copy of the active settings and resolved appearance.
 `generateTheme(options)` returns a copy of generated Buzz CSS role colors without
 applying them. `version` is `1`. These functions give no access to messages,
 accounts, the filesystem, or the network. Plugins share the app’s trusted
 JavaScript context; this is not a security sandbox.
+
+The original hue palette stays intact as source data. The visible UI is a new
+contrast-checked adaptation; it is intentionally not a pixel-for-pixel v1 skin.
 
 ## Math and checks
 
