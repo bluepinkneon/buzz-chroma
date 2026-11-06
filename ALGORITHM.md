@@ -87,6 +87,25 @@ popovers, own-message contexts, links, mentions, reactions and signal colors.
 Arrival highlights animate an opaque overlay to transparent: we test the peak,
 backing and intermediate alpha composites, including nested mentions/reactions.
 
+## Preset relationships
+
+Each recipe contains three hue anchors and a ground relationship: either primary
++90° (the original `blue-pink-neon`) or primary +0° (a ground in the primary’s
+color family). This is data supplied to the same gamut/contrast engine, not a
+second shade algorithm. It keeps `daredevil` red instead of olive and lets its
+automatic monochrome version follow its red primary.
+
+The relationship is stored and rotates with the hue anchors, so leaving the exact
+preset does not introduce a special-case cliff. Old saved settings default to 90°.
+The API exposes this field and accepts only 0 or 90. Character recipes may recommend
+color or monochrome; explicit API mode overrides the recommendation. Light/Dark/
+Auto is independent. A custom monochrome override persists until reset or a new
+preset is selected; **Use primary hue** restores the link.
+
+Red and green character palettes can deliberately share a hue with danger and
+success. Those signal hues remain fixed; host labels, icons and diff +/- marks
+carry meaning alongside color. Decorative colors are not an exclusive signal code.
+
 ## Stable picks and migration
 
 A displayed raw step7 swatch is inverted through a 360-entry table of the same
@@ -100,9 +119,19 @@ and leaves v2 storage untouched. v3 records explicit palette/neutral/appearance
 choices. Invalid JSON or values show a fallback warning. New semantic signals do
 not rotate, eliminating the old exact-preset cliff and success/danger collisions.
 
+## Local themes
+
+The local library is separate from the active preference. A saved record contains
+a capped kebab-case name and the palette settings, without a forced appearance.
+It is bounded to 50 entries, 60 name characters, 2,048 characters per stored entry
+and 131,072 characters for the library. It uses the shared preference validator,
+rejects foreign fields and leaves invalid stored data untouched. Duplicate saves
+receive new names rather than overwriting a built-in or another user theme.
+Deleting a theme never removes the currently applied colors.
+
 ## Validation and limits
 
-`npm run check` includes 1,954 full generated configurations and 1,113,780 role
+`npm run check` includes 2,194 full generated configurations and 1,250,580 role
 contrast measurements, including all 360 rotations and monochrome hues in both
 appearances plus independent hue/neutral-mask combinations. It also checks
 picker idempotence, mode transitions, storage, service cleanup, equal state steps

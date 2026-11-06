@@ -87,7 +87,7 @@ export function createRoleEngine(originalColors={}) {
   }));
   return {generate(options) {
     const {hues=[224,359,179],neutrals=[false,false,false],mode="color",monoHue,
-      neutral=false,appearance="dark"}=options;
+      neutral=false,appearance="dark",surfaceOffset=90}=options;
     if(!["dark","light"].includes(appearance)||!["color","mono"].includes(mode))
       throw new Error("Invalid mode or appearance");
     const isDark=appearance==="dark";
@@ -112,7 +112,7 @@ export function createRoleEngine(originalColors={}) {
     const ownNames=new Set(["own","ownHover","ownHighlight"]);
     const surfaces=Object.fromEntries(Object.entries(S).map(([name,[L,C]])=>{
       const index=ownNames.has(name)?1:0;
-      return [name,color(index,L,C,primaryNames.has(name)||ownNames.has(name)?0:90)];
+      return [name,color(index,L,C,primaryNames.has(name)||ownNames.has(name)?0:surfaceOffset)];
     }));
     const genericNames=["base","panel","popover","inset","hover","pressed","selected","highlight","controlSelected","ownHighlight"];
     const ownBackgroundNames=["own","ownHover","ownHighlight"];

@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import {createHash} from "node:crypto";
 import * as plugin from "../dist/plugin.js";
 
 import {host,find,input,rotate,click,select,variables} from "./host.mjs";
@@ -10,6 +11,8 @@ test("default theme preserves every original color without importing layout toke
   const original = variables(readFileSync(new URL("../shepherd-theme.css", import.meta.url), "utf8"));
   assert.equal(original.size, 152);
   assert.deepEqual(variables(h.css()), original);
+  // Full visible CSS parity with the published v1.1.0 default, not just raw tokens.
+  assert.equal(createHash("sha256").update(h.css()).digest("hex"),"bd567296ed79c12b506f7cf69203cd1a64d81c7d9bf5827e2abe49591aac14c7");
   assert(!h.css().includes("--space-1:"));
   assert.deepEqual(Object.keys(plugin).sort(), ["apply", "inject"]);
   app.dispose();
@@ -18,13 +21,13 @@ test("default theme preserves every original color without importing layout toke
 test("all three hue controls, rotation wrapping, and reset affect the active theme", () => {
   const h = host(); const app = h.boot(); const original = h.css();
   for (const name of ["Primary", "Secondary", "Text"]) {
-    click(app, "Reset BluePinkNeon");
+    click(app, "Reset blue-pink-neon");
     input(app, name).props.onChange({ target: { value: "#ff7b00" } });
     assert.notEqual(h.css(), original, name);
   }
   rotate(app, 359); click(app, "Rotate +45°");
   assert.equal(JSON.parse([...h.saved.values()][0]).rotation, 44);
-  click(app, "Reset BluePinkNeon"); assert.equal(h.css(), original);
+  click(app, "Reset blue-pink-neon"); assert.equal(h.css(), original);
   app.dispose();
 });
 

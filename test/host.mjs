@@ -21,18 +21,22 @@ export function host(saved = new Map()) {
     css: () => [...styles][0]?.textContent ?? "",
     boot() {
       let page; const services = new Map();
-      const cleanups = [];
+      const cleanups = [], hooks=[];let hookIndex=0;
       plugin.apply({
         provide: (name,value) => { services.set(name,value); cleanups.push(()=>services.delete(name)); },
         react: {
-          useState: () => [0, () => {}],
-          useEffect: (fn) => cleanups.push(fn()),
+          useState: initial => {
+            const index=hookIndex++;
+            if(!hooks[index])hooks[index]={value:initial};
+            return [hooks[index].value,next=>{hooks[index].value=typeof next==="function"?next(hooks[index].value):next;}];
+          },
+          useEffect: fn => {const index=hookIndex++;if(!hooks[index]){hooks[index]={effect:true};cleanups.push(fn());}},
           createElement: (tag, props, ...children) => ({ tag, props, children }),
         },
         effect: (fn) => cleanups.push(fn()),
         pages: { register: (value) => { page = value; } },
       });
-      return { services, tree: () => page.component(), dispose: () => cleanups.reverse().forEach((fn) => fn?.()) };
+      return { services, tree: () => {hookIndex=0;return page.component();}, dispose: () => cleanups.reverse().forEach((fn) => fn?.()) };
     },
   };
 }

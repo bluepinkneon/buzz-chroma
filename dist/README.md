@@ -14,19 +14,79 @@ Requires Buzz Desktop with API v1 external-plugin support.
 
 1. Open **Settings → Manage plugins → Add**.
 2. Enter `https://github.com/bluepinkneon/buzz-chroma`.
-3. Select tag **v1.1.0**, choose **Find**, then select **dist**.
+3. Select tag **v1.2.0**, choose **Find**, then select **dist**.
 4. Review and install **Color Overthinkers**, then enable it.
 5. Close Settings and open **Themes**, directly below **Inbox**.
 
 On macOS you can open the install review with:
 
 ```sh
-open 'buzz://plugin-install?repository=bluepinkneon%2Fbuzz-chroma&ref=v1.1.0&path=dist'
+open 'buzz://plugin-install?repository=bluepinkneon%2Fbuzz-chroma&ref=v1.2.0&path=dist'
 ```
 
 Or download the folder ZIP from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases),
 extract it, and select it with **Add → Browse**. Existing folder installs can
 reload the updated source through Manage plugins.
+
+## Character palettes
+
+`blue-pink-neon` is Ranveer’s original. The other 39 are character-inspired,
+with a mix of comics, film, books, games and animation. Names use kebab-case:
+`daredevil` is one word; `blue-pink-neon` keeps the three words.
+
+<details>
+<summary>All 40 palettes and their default looks</summary>
+
+| Palette | Default | Color idea |
+|---|---|---|
+| `blue-pink-neon` | three colors | Ranveer’s original: blue, pink and neon. |
+| `daredevil` | three colors | Crimson, violet and gold. |
+| `spider-man` | three colors | Comic-book red, electric blue and gold. |
+| `black-widow` | monochrome | Crimson monochrome; violet and ice in full color. |
+| `black-panther` | three colors | Royal violet, gold and ice. |
+| `storm` | monochrome | Storm-cloud indigo monochrome; lightning gold and sea glass in full color. |
+| `john-wick` | three colors | Midnight violet, neon cyan and gold. |
+| `miyamoto-musashi` | monochrome | Ink-indigo monochrome; cedar and bamboo green in full color. |
+| `sherlock-holmes` | monochrome | Sepia monochrome; ink blue and bottle green in full color. |
+| `trinity` | monochrome | Jade monochrome; ultraviolet and gold in full color. |
+| `neo` | monochrome | Phosphor-green monochrome; blue and gold in full color. |
+| `aragorn` | three colors | Forest green, weathered gold and steel blue. |
+| `lara-croft` | three colors | Expedition teal, sandstone and orchid. |
+| `wonder-woman` | three colors | Royal blue, crimson and gold. |
+| `katniss-everdeen` | three colors | Woodland green, ember and cold silver-blue. |
+| `princess-leia` | three colors | Indigo, rose and mint. |
+| `ripley` | three colors | Industrial teal, warning amber and deep violet. |
+| `geralt-of-rivia` | monochrome | Steel-blue monochrome; crimson and gold in full color. |
+| `wolverine` | three colors | Battle yellow, cobalt blue and claw-mark red. |
+| `batman` | neutral monochrome | Charcoal monochrome; midnight blue, signal gold and teal in full color. |
+| `superman` | three colors | Sky blue, cape red and sunlit gold. |
+| `harley-quinn` | three colors | Scarlet, hot pink and electric cyan. |
+| `deadpool` | three colors | Mercenary red, steel blue and mint. |
+| `joker` | three colors | Acid green, theatrical violet and brass. |
+| `doctor-strange` | three colors | Mystic blue, cloak red and spell gold. |
+| `ahsoka-tano` | three colors | Warm copper, saber cyan and indigo. |
+| `obi-wan-kenobi` | monochrome | Desert-sepia monochrome; saber blue and sage in full color. |
+| `darth-vader` | neutral monochrome | Charcoal monochrome; saber red, cold blue and ember in full color. |
+| `frodo-baggins` | three colors | Shire green, weathered leather and twilight blue. |
+| `gandalf` | neutral monochrome | Gray monochrome; smoke blue, fire gold and sage in full color. |
+| `legolas` | three colors | Woodland green, pale gold and clear blue. |
+| `hermione-granger` | three colors | Scholarly crimson, parchment gold and ink blue. |
+| `howl` | three colors | Enchanted violet, rose and starlight gold. |
+| `san` | three colors | War-paint red, deep forest and cold sky. |
+| `motoko-kusanagi` | three colors | Cybernetic violet, neon teal and amber. |
+| `totoro` | neutral monochrome | Soft gray monochrome; forest, earth and rain-blue in full color. |
+| `chun-li` | three colors | Royal blue, gold and a pink spark. |
+| `link` | three colors | Hero green, relic gold and open-sky blue. |
+| `zelda` | three colors | Royal violet, sacred gold and jade. |
+| `samus-aran` | three colors | Armor orange, cosmic violet and visor green. |
+
+</details>
+
+Some open in monochrome, others in full color. Every palette supports both,
+plus Light/Dark/Auto. Monochrome follows the primary hue automatically. Pick a
+custom monochrome hue, or choose **Use primary hue** to link it again. Selecting
+a built-in palette restores its recommended color mode and hue relationships,
+while keeping your appearance preference.
 
 ## Make a palette
 
@@ -38,7 +98,7 @@ reload the updated source through Manage plugins.
 - **Auto:** follows Buzz’s resolved appearance, including its System setting and
   OS day/night schedule. It does not impose a sunrise timer or change Buzz’s saved
   preference. If Buzz supplies no resolved mode, it follows the OS directly.
-- **Reset BluePinkNeon:** resets the three hues, rotation and dark appearance.
+- **Reset blue-pink-neon:** resets the three hues, rotation and dark appearance.
 - **Buzz default**, or disabling the plugin, removes its owned style override.
 
 The three RGB controls select a hue or a neutral family; the generator owns
@@ -55,6 +115,18 @@ also retain an inset stripe; links keep Buzz’s underlines and reactions its ri
 Preferences are local to this device. Older preferences migrate without deleting
 the old rollback key.
 
+## Save your own themes
+
+Enter a name under **Save your theme**, then choose **Save locally**. The name
+becomes kebab-case. Saved themes appear in the selector under **Saved on this
+device**, and survive app restarts. They restore color/monochrome settings while
+keeping your current Light/Dark/Auto preference. Duplicate names receive a
+suffix; built-ins and earlier saves are never overwritten. **Remove saved theme**
+removes the local copy and keeps the current colors as an unsaved look.
+
+Up to 50 themes are stored in the device’s localStorage. Nothing is uploaded.
+Disabling the plugin keeps them; clearing app/site data can remove them.
+
 ## Let another Buzz plugin change the theme
 
 The lifecycle-owned Cordis service is named **chroma**. Consumer example:
@@ -63,7 +135,8 @@ The lifecycle-owned Cordis service is named **chroma**. Consumer example:
 export const inject = ["chroma"];
 export function apply(ctx) {
   ctx.effect(() => ctx.chroma.setLook({
-    colors: ["#0099dd", "#dd4083", "#95fae4"],
+    preset: "john-wick", // optional built-in ID
+    // colors: ["#0099dd", "#dd4083", "#95fae4"],
     rotation: 45,
     appearance: "auto", // dark | light | auto
     mode: "color",      // color | monochrome
@@ -82,7 +155,13 @@ colors/monochrome supply base hues when an explicit rotation is included.
 Without an explicit angle, a monochrome color renders as picked while preserving
 the saved full-color rotation, matching the UI.
 
-`getLook()` returns a copy of the active settings and resolved appearance.
+`listPresets()` returns a copy of the built-in catalog. `getLook()` returns a
+copy of the active settings and resolved appearance. A complete `getLook()`
+snapshot can be passed back to `setLook()` without changing its colors.
+`surfaceOffset` is the relationship recipe, either `0` (primary-colored ground)
+or `90` (the original quarter-wheel ground). It is returned in snapshots and may
+be supplied explicitly. Colors-only calls retain the current recipe. A preset
+sets its recipe first; explicit options then override it.
 `generateTheme(options)` returns a copy of generated Buzz CSS role colors without
 applying them. `version` is `1`. These functions give no access to messages,
 accounts, the filesystem, or the network. Plugins share the app’s trusted
@@ -111,6 +190,8 @@ See [ALGORITHM.md](ALGORITHM.md) for the constraints, numeric floors and limits.
 - `runtime.js`: controls, validated preferences, lifecycle and callable service.
 - `role-engine.js`: polarity-aware contrast solving and gamut mapping.
 - `role-map.js`: Buzz semantic role mapping and monochrome state cues.
+- `presets.js`: original character-inspired recipes.
+- `local-themes.js`: bounded local palette snapshots and names.
 - `vendor/bluepinkneon/`: unchanged original generator with hash provenance.
 - `shepherd-theme.css`: original 152-color snapshot.
 - `test/role-graph.json`: authored graph based on Buzz’s public contrast checks.
@@ -121,7 +202,8 @@ This is an opt-in CSS color override, not a Buzz core change. Buzz keeps its
 spacing, typography and layout. New host roles may require updates; contrast
 checks cover the documented graph, not every future plugin or arbitrary CSS.
 The code makes no network requests. It saves only namespaced theme preferences
-under `com.ranveer.bluepinkneon:theme:v3`. External plugins are reviewed by Buzz.
+under `com.ranveer.bluepinkneon:theme:v3` and a bounded local library under
+`com.ranveer.bluepinkneon:presets:v1`. External plugins are reviewed by Buzz.
 
 MIT. The original palette generator is published by its owner. Bundled culori
 is MIT; its notice is included. Independent plugin, without marketplace endorsement.

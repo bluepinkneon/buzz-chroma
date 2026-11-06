@@ -4,6 +4,7 @@ import {readFileSync} from "node:fs";
 import {createRoleEngine,deltaE,hexOklch,oklchHex,apca,wcag} from "../role-engine.js";
 import {mapRoles} from "../role-map.js";
 import {parse,over,measure} from "./measure.mjs";
+import {PRESETS} from "../presets.js";
 const graph=JSON.parse(readFileSync(new URL("./role-graph.json",import.meta.url),"utf8"));
 const original=Object.fromEntries([...readFileSync(new URL("../shepherd-theme.css",import.meta.url),"utf8").matchAll(/(--[\w-]+):\s*(#[\da-f]{6});/gi)].map(m=>[m[1],m[2]]));
 const engine=createRoleEngine(original);
@@ -46,6 +47,11 @@ test("host contrast graph passes every hue in both appearances and monochrome, i
     verify({appearance,mode:"mono",neutral:true});
     // Independent hues and all per-picker neutral masks (deterministic).
     for(let n=0;n<256;n++)verify({appearance,mode:"color",hues:[n*137%360,n*53%360,n*199%360],neutrals:[!!(n&1),!!(n&2),!!(n&4)]});
+    for(const preset of PRESETS) {
+      verify({appearance,mode:"color",hues:preset.hues,surfaceOffset:preset.surfaceOffset});
+      verify({appearance,mode:"mono",hues:preset.hues,monoHue:preset.hues[0],surfaceOffset:preset.surfaceOffset});
+      verify({appearance,mode:"mono",hues:preset.hues,neutral:true,surfaceOffset:preset.surfaceOffset});
+    }
   }
   console.log(JSON.stringify({configs,contrastChecks:checks,minBody,minMetadata:minMeta,minReadableWcag:minWcag}));
 });
