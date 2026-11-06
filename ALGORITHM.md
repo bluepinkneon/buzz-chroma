@@ -1,6 +1,6 @@
-# How Chroma generates colors
+# How OKLCHAPCA generates colors
 
-Chroma uses the original BluePinkNeon OKLCH generator. OKLCH separates perceived
+OKLCHAPCA uses the original BluePinkNeon OKLCH generator. OKLCH separates perceived
 lightness (`L`), chroma (`C`, color intensity) and hue (`h`, an angle).
 
 ## The original hue wheel
