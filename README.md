@@ -31,7 +31,7 @@ repository, reference **main**, and folder **dist**, then **Find → review → 
 A GitHub install is pinned to the reviewed commit; pushing here does not hot-reload
 an installed copy. The new screen shows **Trichrome / Bichrome / Monochrome** and
 **Neon**. Reinstalling an old version tag keeps that old version. For a fixed
-release instead, select a tag from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases).
+release instead, select tag **v1.2.1** from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases).
 
 Or download the folder ZIP from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases),
 extract it, and select it with **Add → Browse**. Existing folder installs can
@@ -142,8 +142,10 @@ Below the pickers and rotation bar:
 - **Status and diffs:** the actual contrast-solved Buzz success/addition,
   danger/removal, warning and information inks, backgrounds and icon colors.
 
-The source ramps and console colors are the original generator’s output. Buzz UI
-roles are separately solved for the selected Light/Dark appearance; raw ramps
+Primary, Secondary, Neon and Ground follow your inputs through the original
+generator; neutral families use the contrast-solved gray ramp. Red, Green, Amber
+and Blue keep the original hand-tuned signal snapshot. ANSI colors reference
+those same source families. Buzz UI roles are separately solved for the selected Light/Dark appearance; raw ramps
 are not a claim that every shade can be used as text on every background.
 Choosing **Buzz default** removes the plugin override and its generated preview.
 
@@ -211,7 +213,7 @@ export function apply(ctx) {
 | `colors` | Six-digit hex inputs: one for monochrome, two for bichrome, three for trichrome. All modes also accept a complete three-seed array. |
 | `rotation` | Any finite number, normalized to a whole degree modulo 360. |
 | `appearance` | `dark`, `light`, `auto`. Auto follows Buzz’s resolved mode, with an OS fallback. |
-| `monochrome` | A single hex override that enters monochrome. Do not combine it with an explicit non-mono mode or a one-color `colors` array. |
+| `monochrome` | A single hex override that enters monochrome. Do not combine it with an explicit non-mono mode. If `colors` is also supplied, it must be the full three-seed array. |
 | `surfaceOffset` | `0` for a primary-colored ground, `90` for the original quarter-wheel ground. Omitted values keep the base recipe. |
 
 A preset is applied first, then explicit options override it. RGB inputs choose

@@ -28,6 +28,8 @@ test('all emitted mode IDs can be used in patches; coercible values and contradi
     {mode:'monochrome',colors:['#0099dd'],monochrome:'#cc2233'}]){
     assert.throws(()=>api.setLook(bad),TypeError);assert.equal(h.css(),before);
   }
+  const duo=api.setLook({preset:'daredevil'}),duoCss=h.css();
+  assert.throws(()=>duo.update({colors:['#0099dd','#dd4083'],monochrome:'#cc2233'}),TypeError);assert.equal(h.css(),duoCss);duo.dispose();
   app.dispose();
 });
 

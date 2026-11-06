@@ -315,7 +315,7 @@ export function apply(ctx) {
       next.mode=modes[options.mode];
     }
     let monoInput=options.monochrome;
-    if(monoInput!==undefined&&((options.mode!==undefined&&next.mode!=="mono")||options.colors?.length===1))throw new TypeError("Choose monochrome or one-color input, without a conflicting mode");
+    if(monoInput!==undefined&&((options.mode!==undefined&&next.mode!=="mono")||(options.colors!==undefined&&(!Array.isArray(options.colors)||options.colors.length!==3))))throw new TypeError("A monochrome override accepts only a mono mode and an optional full three-seed array");
     if (options.colors !== undefined) {
       const sizes=next.mode==="mono"?[1,3]:next.mode==="duo"?[2,3]:[3];
       if (!Array.isArray(options.colors) || !sizes.includes(options.colors.length) || !Array.from(options.colors).every(hex=>typeof hex === "string" && /^#[0-9a-f]{6}$/i.test(hex))) throw new TypeError("colors must contain #RRGGBB values for the selected mode");
@@ -391,7 +391,6 @@ export function apply(ctx) {
       const hues = effectiveHues(choice);
       const preset = choice.localName ? null : findPreset(choice);
       const localTheme = localThemes.find(theme=>theme.name===choice.localName&&paletteKey(theme.look)===paletteKey(choice));
-      const paletteName = localTheme?.name ?? preset?.id ?? "custom";
       const control = { color: "var(--text-standard)", background: "var(--surface-panel)",
         border: "1px solid var(--border-prominent)", borderRadius: "6px", padding: "8px" };
       const buttonStyle = (selected) => ({ ...control, background: selected ? "var(--affordance-selected)" : control.background });
