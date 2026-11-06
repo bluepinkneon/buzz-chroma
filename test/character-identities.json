@@ -59,7 +59,7 @@
       "blue",
       "neutral"
     ],
-    "ground": "red",
+    "ground": "neutral",
     "mode": "color",
     "appearance": "dark",
     "source": "https://www.marvel.com/articles/comics/which-spider-man-suit-best-fits-your-mood"
@@ -87,7 +87,7 @@
     ],
     "ground": "red",
     "mode": "color",
-    "appearance": "dark",
+    "appearance": "light",
     "source": "https://www.dc.com/characters/wonder-woman"
   },
   {
@@ -126,7 +126,7 @@
     ],
     "ground": "violet",
     "mode": "color",
-    "appearance": "dark",
+    "appearance": "light",
     "source": "https://www.dc.com/blog/2021/09/24/laughing-in-fear-twelve-moments-that-defined-the-joker"
   },
   {

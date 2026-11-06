@@ -52,7 +52,7 @@ const RECIPES = Object.freeze([
       true
     ],
     "surfaceOffset": 0,
-    "neutralGround": false,
+    "neutralGround": true,
     "defaultMode": "color",
     "defaultAppearance": "dark",
     "defaultNeutral": false,
@@ -260,7 +260,7 @@ const RECIPES = Object.freeze([
     "surfaceOffset": 0,
     "neutralGround": false,
     "defaultMode": "color",
-    "defaultAppearance": "dark",
+    "defaultAppearance": "light",
     "defaultNeutral": false,
     "description": "Classic crimson armor, royal blue and golden insignia."
   },
@@ -447,7 +447,7 @@ const RECIPES = Object.freeze([
     "surfaceOffset": 0,
     "neutralGround": false,
     "defaultMode": "color",
-    "defaultAppearance": "dark",
+    "defaultAppearance": "light",
     "defaultNeutral": false,
     "description": "Classic purple suit, green hair and chalk-white face paint."
   },

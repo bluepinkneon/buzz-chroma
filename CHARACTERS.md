@@ -21,7 +21,7 @@ scheme, and bichrome derives its third hue; neither adds a separate outfit palet
 | `harley-quinn` | [Modern pink/blue hair, pale makeup and black stagewear](https://www.dc.com/blog/2024/02/12/a-dangerous-desire-could-the-joker-and-harley-ever-work) | pink, blue, neutral; neutral ground | light · trichrome |
 | `hermione-granger` | [Black school robes and Gryffindor scarlet/gold](https://www.harrypotter.com/house/gryffindor) | red, yellow, neutral; neutral ground | dark · trichrome |
 | `john-wick` | [Chapter 4 black tailoring and violet/blue night lighting](https://www.lionsgate.com/movies/john-wick-chapter-4) | violet, blue, neutral; neutral ground | dark · trichrome |
-| `joker` | [Classic purple suit, green hair, white face](https://www.dc.com/blog/2021/09/24/laughing-in-fear-twelve-moments-that-defined-the-joker) | violet, green, neutral; violet ground | dark · trichrome |
+| `joker` | [Classic purple suit, green hair, white face](https://www.dc.com/blog/2021/09/24/laughing-in-fear-twelve-moments-that-defined-the-joker) | violet, green, neutral; violet ground | light · trichrome |
 | `lara-croft` | [Classic teal top and brown leather](https://www.tombraider.com/news/cosplay/tomb-raider-ii-cosplay-guides) | teal, sepia, neutral; teal ground | auto · trichrome |
 | `link` | [Classic green tunic, brown boots and white undershirt](https://www.nintendo.com/us/amiibo/detail/toon-link-the-wind-waker-amiibo-30th-anniversary-series/) | green, sepia, neutral; green ground | light · trichrome |
 | `miyamoto-musashi` | [Musashi’s ink-wash painting, paper and wood](https://www.shimada-museum.net/eng.html) | neutral, sepia, neutral; neutral ground | light · trichrome |
@@ -30,11 +30,25 @@ scheme, and bichrome derives its third hue; neither adds a separate outfit palet
 | `samus-aran` | [Classic Varia suit: orange, red and green](https://www.nintendo.com/us/store/products/metroid-duffel-bag-126914/) | rust, red, green; rust ground | dark · trichrome |
 | `sekiro` | [Wolf’s rust coat, charcoal wraps and steel blade](https://www.sekirothegame.com/) | rust, neutral, neutral; rust ground | dark · trichrome |
 | `sherlock-holmes` | [Victorian ink and sepia print interpretation](https://www.gutenberg.org/cache/epub/66991/pg66991-images.html) | sepia, neutral, neutral; sepia ground | light · monochrome |
-| `spider-man` | [Classic red-and-blue suit with white eye lenses](https://www.marvel.com/articles/comics/which-spider-man-suit-best-fits-your-mood) | red, blue, neutral; red ground | dark · trichrome |
+| `spider-man` | [Classic red-and-blue suit with white eye lenses](https://www.marvel.com/articles/comics/which-spider-man-suit-best-fits-your-mood) | red, blue, neutral; neutral ground | dark · trichrome |
 | `superman` | [Classic blue uniform, red cape, yellow shield](https://www.dc.com/characters/superman) | blue, red, yellow; blue ground | light · trichrome |
 | `wolverine` | [Classic yellow-and-blue suit with red belt](https://www.marvel.com/articles/comics/wolverine-logan-james-howlett-every-costume-list) | yellow, blue, red; yellow ground | dark · trichrome |
-| `wonder-woman` | [Classic red, blue and gold uniform](https://www.dc.com/characters/wonder-woman) | red, yellow, blue; red ground | dark · trichrome |
+| `wonder-woman` | [Classic red, blue and gold uniform](https://www.dc.com/characters/wonder-woman) | red, yellow, blue; red ground | light · trichrome |
 | `zelda` | [The Wind Waker pink-and-white royal dress and gold](https://www.nintendo.com/us/amiibo/detail/toon-zelda-the-wind-waker-amiibo-30th-anniversary-series/) | pink, yellow, neutral; neutral ground | light · trichrome |
+
+Spider-Man uses a charcoal webbing ground, red actions/selection and blue own-message
+surfaces, so one suit color does not tint the whole room. Wonder Woman and Joker
+recommend Light to keep their multiple signature colors visible. Wolverine keeps
+his yellow-dominant Dark suit; Doctor Strange keeps a midnight-blue tunic with
+cloak/gold accents. These are deliberate balance choices, not a rule that every
+character must have equal quantities of each color.
+
+`test/character-balance.test.mjs` checks a resting-chat surrogate: representative
+role-area weights multiplied by rendered OKLCH chroma, grouped near each seed hue.
+Each signature family in those three recommended looks must retain at least 20%
+of the modeled color presence; Spider-Man is checked in both appearances. This is
+a regression heuristic, not an assertion about every window, message mix, actual
+pixel proportion, or human perception. Contrast is checked independently.
 
 Neutral seeds keep white, silver and charcoal neutral rather than forcing an
 unrelated third hue into body text. In neutral-ground recipes the Primary accent

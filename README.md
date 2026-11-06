@@ -86,7 +86,7 @@ mode or appearance without changing its stored colors.
 | `harley-quinn` | light · trichrome | Modern pink-and-blue hair, pale makeup and black stagewear. |
 | `hermione-granger` | dark · trichrome | Black Hogwarts robes with Gryffindor scarlet and gold. |
 | `john-wick` | dark · trichrome | Black tailoring with violet and blue Chapter 4 night lighting. |
-| `joker` | dark · trichrome | Classic purple suit, green hair and chalk-white face paint. |
+| `joker` | light · trichrome | Classic purple suit, green hair and chalk-white face paint. |
 | `lara-croft` | auto · trichrome | Classic teal top, brown leather and neutral stone. |
 | `link` | light · trichrome | Classic green tunic, brown leather boots and a white undershirt. |
 | `miyamoto-musashi` | light · trichrome | Sumi ink, pale paper and the warm wood of Musashi’s brushwork. |
@@ -98,7 +98,7 @@ mode or appearance without changing its stored colors.
 | `spider-man` | dark · trichrome | Classic red-and-blue suit with white eye lenses. |
 | `superman` | light · trichrome | Classic blue suit, red cape and yellow S shield. |
 | `wolverine` | dark · trichrome | Classic battle yellow, cobalt blue and the red X-Men belt. |
-| `wonder-woman` | dark · trichrome | Classic crimson armor, royal blue and golden insignia. |
+| `wonder-woman` | light · trichrome | Classic crimson armor, royal blue and golden insignia. |
 | `zelda` | light · trichrome | The Wind Waker’s pink-and-white royal dress with gold trim. |
 
 </details>
@@ -406,6 +406,15 @@ at 512px in neutral gray `#8a8a8a`, on a transparent background.
 `tools/render-icon.html` renders the PNG using browser Canvas 2D;
 `icon.provenance.json` records the renderer/version and source/output hashes.
 The build verifies those hashes so the two assets cannot drift silently.
+
+## Changes in v1.4.1
+
+- Rebalanced Spider-Man: charcoal webbing ground, red controls and blue own-message
+  accents, with neutral reading ink. One suit color no longer fills the canvas.
+- Wonder Woman and Joker recommend Light to show their signature colors together.
+  Other modes and appearances remain available from the same color recipes.
+- A modeled color-presence regression complements the contrast checks. Re-select
+  a preset after updating to adopt its revised recommendation.
 
 ## Changes in v1.4.0
 
