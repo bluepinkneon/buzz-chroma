@@ -95,7 +95,7 @@ export function createRoleEngine(originalColors={}) {
   }));
   return {generate(options) {
     const {hues=[224,359,179],neutrals=[false,false,false],mode="color",monoHue,
-      neutral=false,appearance="dark",surfaceOffset=90}=options;
+      neutral=false,appearance="dark",surfaceOffset=90,neutralGround=false}=options;
     if(!["dark","light"].includes(appearance)||!["color","duo","mono"].includes(mode))
       throw new Error("Invalid mode or appearance");
     const isDark=appearance==="dark";
@@ -121,6 +121,7 @@ export function createRoleEngine(originalColors={}) {
     const ownNames=new Set(["own","ownHover","ownHighlight"]);
     const surfaces=Object.fromEntries(Object.entries(S).map(([name,[L,C]])=>{
       const index=ownNames.has(name)?1:0;
+      if(neutralGround&&!mono&&!primaryNames.has(name)&&!ownNames.has(name))return [name,oklchHex(L,0,0)];
       return [name,color(index,L,C,primaryNames.has(name)||ownNames.has(name)?0:surfaceOffset)];
     }));
     const genericNames=["base","panel","popover","inset","hover","pressed","selected","highlight","controlSelected","ownHighlight"];
@@ -146,7 +147,7 @@ export function createRoleEngine(originalColors={}) {
     add(inks,"onOwn",1,ownBackgroundNames,90,75);
     add(inks,"ownMetadata",1,ownBackgroundNames,50,50);
     add(inks,"onProminent",0,prominentNames,90,75,4.5,isDark?"light":"dark",.05);
-    add(borders,"standard",0,genericNames,0,0,1.5,appearance,.08);
+    add(borders,"standard",0,genericNames,0,0,1.5,appearance,neutralGround&&!mono?0:.08);
     add(borders,"prominent",0,genericNames,30,30,3,appearance,.14);
     add(borders,"focus",1,genericNames,60,45,3,appearance,.18);
     // Merged GitHub state stays categorical purple, including own messages;

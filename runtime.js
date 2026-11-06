@@ -2,7 +2,7 @@ import { generatePalette, generateGrayscalePalette } from "./vendor/bluepinkneon
 import { hexToOklch, oklchToHex, solveApcaLightness } from "./vendor/bluepinkneon/okcolor.ts";
 import { createRoleEngine } from "./role-engine.js";
 import { mapRoles, roleCss } from "./role-map.js";
-import { PRESETS, findPreset, applyPreset } from "./presets.js";
+import { PRESETS, getPreset, findPreset, applyPreset } from "./presets.js";
 import { LOCAL_LIMIT, LIBRARY_KEY, paletteSnapshot, paletteKey, themeSlug, isThemeName } from "./local-themes.js";
 import {deriveNeonHue,derivedNeonNeutral} from "./harmony.js";
 import {palettePreview} from "./palette-preview.js";
@@ -18,7 +18,7 @@ const nameOrder = new Intl.Collator("en",{sensitivity:"base",numeric:true});
 const compareNames = (a,b) => nameOrder.compare(displayName(a),displayName(b)) || a.localeCompare(b,"en");
 const displayedPresets = [...PRESETS].sort((a,b)=>compareNames(a.id,b.id));
 const defaults = () => ({ theme: "bluepinkneon", hues: [224, 359, 179], rotation: 0,
-  mode: "color", monoHue: null, neutral: false, neutrals: [false,false,false], appearance: "dark",surfaceOffset:90,localName:null });
+  mode: "color", monoHue: null, neutral: false, neutrals: [false,false,false], appearance: "dark",surfaceOffset:90,neutralGround:false,localName:null });
 const seedHues = (choice) => choice.hues.map((hue) => degree(hue + choice.rotation));
 const effectiveHues = (choice) => {const hues=seedHues(choice);return choice.mode==="duo"?[hues[0],hues[1],deriveNeonHue(hues[0],hues[1],choice.neutrals)]:hues;};
 const monoHue = (choice) => degree((choice.monoHue ?? choice.hues[0]) + choice.rotation);
@@ -71,7 +71,7 @@ function paletteFor(choice) {
     ? (monoIsNeutral(choice) ? neutralRamp() : generatePalette(monoHue(choice))) : null;
   const colors = {};
   for (const [name, hue, index] of [["primary",primary,0],["shadow",degree(primary+choice.surfaceOffset),0],["secondary",secondary,1],["light",text,2]]) {
-    const neutral=choice.mode==="duo"&&index===2?derivedNeonNeutral(choice.neutrals):choice.neutrals[index];
+    const neutral=name==="shadow"&&choice.neutralGround?true:choice.mode==="duo"&&index===2?derivedNeonNeutral(choice.neutrals):choice.neutrals[index];
     (mono || (neutral ? neutralRamp() : generatePalette(hue))).forEach((hex, step) => { colors[`--palette-${name}-${step}`] = hex; });
   }
   // Semantic signals are protected roles, independent of decorative rotation.
@@ -99,17 +99,19 @@ function readChoice(saved, legacy) {
   if (!legacy && (saved.appearance !== undefined && !["dark","light","auto"].includes(saved.appearance)
     || saved.neutrals !== undefined && (!Array.isArray(saved.neutrals) || saved.neutrals.length !== 3 || !Array.from(saved.neutrals).every(v=>typeof v === "boolean"))
     || saved.surfaceOffset !== undefined && ![0,90].includes(saved.surfaceOffset)
+    || saved.neutralGround !== undefined && typeof saved.neutralGround !== "boolean"
     || saved.localName != null && !isThemeName(saved.localName))) return null;
   return { ...defaults(), theme: saved.theme, hues, rotation: degree(saved.rotation),
     appearance: legacy ? "dark" : saved.appearance ?? "dark", neutrals: legacy ? [false,false,false] : [...(saved.neutrals ?? [false,false,false])],
     surfaceOffset:legacy?90:saved.surfaceOffset??90,
+    neutralGround:legacy?false:saved.neutralGround??false,
     localName:legacy?null:saved.localName??null,
     ...(legacy ? {} : { mode: saved.mode, neutral: saved.neutral, monoHue: saved.monoHue === null ? null : degree(saved.monoHue) }) };
 }
 
 function readLocalEntry(entry) {
   if(!entry||typeof entry!=="object"||Array.isArray(entry)||Object.keys(entry).some(key=>!["name","look"].includes(key))||JSON.stringify(entry).length>2048||!isThemeName(entry.name))return null;
-  if(!entry.look||Object.keys(entry.look).some(key=>!["hues","rotation","neutrals","mode","monoHue","neutral","surfaceOffset"].includes(key)))return null;
+  if(!entry.look||Object.keys(entry.look).some(key=>!["hues","rotation","neutrals","mode","monoHue","neutral","surfaceOffset","neutralGround"].includes(key)))return null;
   const look=readChoice({...entry.look,theme:"bluepinkneon",appearance:"dark"},false);
   return look?{name:entry.name,look:paletteSnapshot(look)}:null;
 }
@@ -314,9 +316,9 @@ export function apply(ctx) {
     // A full getLook() snapshot is also a valid request. Metadata is read-only;
     // palette fields go through the same validator as saved user preferences.
     if(Object.hasOwn(options,"theme")&&Object.hasOwn(options,"hues")) {
-      const keys=["theme","hues","rotation","mode","monoHue","neutral","neutrals","appearance","surfaceOffset","localName","preset","resolvedAppearance","effectiveHues","effectiveNeutrals"];
+      const keys=["theme","hues","rotation","mode","monoHue","neutral","neutrals","appearance","surfaceOffset","neutralGround","localName","preset","resolvedAppearance","effectiveHues","effectiveNeutrals"];
       if(Object.keys(options).some(key=>!keys.includes(key)))throw new TypeError("Unknown snapshot field");
-      if(options.preset!==undefined&&(typeof options.preset!=="string"||!(options.preset==="custom"||PRESETS.some(preset=>preset.id===options.preset))))throw new TypeError("Invalid snapshot preset metadata");
+      if(options.preset!==undefined&&(typeof options.preset!=="string"||!(options.preset==="custom"||getPreset(options.preset))))throw new TypeError("Invalid snapshot preset metadata");
       if(options.resolvedAppearance!==undefined&&!["dark","light"].includes(options.resolvedAppearance))throw new TypeError("Invalid snapshot appearance metadata");
       if(options.effectiveHues!==undefined&&(!Array.isArray(options.effectiveHues)||options.effectiveHues.length!==3||!Array.from(options.effectiveHues).every(h=>Number.isInteger(h)&&h>=0&&h<360)))throw new TypeError("Invalid snapshot hue metadata");
       if(options.effectiveNeutrals!==undefined&&(!Array.isArray(options.effectiveNeutrals)||options.effectiveNeutrals.length!==3||!Array.from(options.effectiveNeutrals).every(n=>typeof n==="boolean")))throw new TypeError("Invalid snapshot neutral metadata");
@@ -324,13 +326,17 @@ export function apply(ctx) {
       if(!restored)throw new TypeError("Invalid theme snapshot");
       return cleanLocalIdentity(restored);
     }
-    const allowed = ["preset","colors","rotation","appearance","mode","monochrome","surfaceOffset"];
+    const allowed = ["preset","colors","rotation","appearance","mode","monochrome","surfaceOffset","neutralGround"];
     if (Object.keys(options).some(key=>!allowed.includes(key))) throw new TypeError("Unknown theme option");
     let next = structuredClone(base); next.theme = "bluepinkneon";
     if(options.preset!==undefined)next=applyPreset(next,options.preset);
     if(options.surfaceOffset!==undefined) {
       if(![0,90].includes(options.surfaceOffset))throw new TypeError("surfaceOffset must be 0 or 90");
       next.surfaceOffset=options.surfaceOffset;
+    }
+    if(options.neutralGround!==undefined) {
+      if(typeof options.neutralGround!=="boolean")throw new TypeError("neutralGround must be boolean");
+      next.neutralGround=options.neutralGround;
     }
     if (options.mode !== undefined) {
       const modes={color:"color",trichrome:"color",duo:"duo",bichrome:"duo",dichrome:"duo",mono:"mono",monochrome:"mono"};
@@ -412,7 +418,8 @@ export function apply(ctx) {
       const h = React.createElement;
       const colors = paletteFor(choice);
       const hues = effectiveHues(choice);
-      const preset = choice.localName ? null : findPreset(choice);
+      const candidate = choice.localName ? null : findPreset(choice);
+      const preset = candidate&&PRESETS.includes(candidate)?candidate:null;
       const localTheme = localThemes.find(theme=>theme.name===choice.localName&&paletteKey(theme.look)===paletteKey(choice));
       const control = { color: "var(--text-standard)", backgroundColor: "var(--surface-panel)",
         border: "1px solid var(--border-prominent)", borderRadius: "6px", padding: "8px" };

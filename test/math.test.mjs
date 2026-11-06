@@ -43,16 +43,18 @@ test("host contrast graph passes every hue in both appearances and monochrome, i
     for(let h=0;h<360;h++) {
       verify({appearance,hues:[h,(h+135)%360,(h+315)%360],mode:"color"});
       verify({appearance,hues:[h,(h+135)%360,0],mode:"duo"});
+      verify({appearance,hues:[h,(h+135)%360,(h+315)%360],mode:"color",neutralGround:true});
+      verify({appearance,hues:[h,(h+135)%360,0],mode:"duo",neutralGround:true});
       verify({appearance,monoHue:h,mode:"mono"});
     }
     verify({appearance,mode:"mono",neutral:true});
     // Independent hues and all per-picker neutral masks (deterministic).
-    for(let n=0;n<256;n++)for(const mode of ["color","duo"])verify({appearance,mode,hues:[n*137%360,n*53%360,n*199%360],neutrals:[!!(n&1),!!(n&2),!!(n&4)]});
+    for(let n=0;n<256;n++)for(const mode of ["color","duo"])for(const neutralGround of [false,true])verify({appearance,mode,neutralGround,hues:[n*137%360,n*53%360,n*199%360],neutrals:[!!(n&1),!!(n&2),!!(n&4)]});
     for(const preset of PRESETS) {
-      verify({appearance,mode:"color",hues:preset.hues,neutrals:preset.neutrals,surfaceOffset:preset.surfaceOffset});
-      verify({appearance,mode:"duo",hues:preset.hues,neutrals:preset.neutrals,surfaceOffset:preset.surfaceOffset});
-      verify({appearance,mode:"mono",hues:preset.hues,monoHue:preset.hues[0],neutral:preset.defaultNeutral||preset.neutrals?.[0]||false,surfaceOffset:preset.surfaceOffset});
-      verify({appearance,mode:"mono",hues:preset.hues,neutral:true,surfaceOffset:preset.surfaceOffset});
+      verify({appearance,mode:"color",hues:preset.hues,neutrals:preset.neutrals,surfaceOffset:preset.surfaceOffset,neutralGround:preset.neutralGround});
+      verify({appearance,mode:"duo",hues:preset.hues,neutrals:preset.neutrals,surfaceOffset:preset.surfaceOffset,neutralGround:preset.neutralGround});
+      verify({appearance,mode:"mono",hues:preset.hues,monoHue:preset.hues[0],neutral:preset.defaultNeutral||preset.neutrals?.[0]||false,surfaceOffset:preset.surfaceOffset,neutralGround:preset.neutralGround});
+      verify({appearance,mode:"mono",hues:preset.hues,neutral:true,surfaceOffset:preset.surfaceOffset,neutralGround:preset.neutralGround});
     }
   }
   console.log(JSON.stringify({configs,contrastChecks:checks,minBody,minMetadata:minMeta,minReadableWcag:minWcag}));

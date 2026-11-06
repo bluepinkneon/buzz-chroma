@@ -5,7 +5,7 @@ export const LIBRARY_KEY = "com.ranveer.bluepinkneon:presets:v1";
 export const isThemeName = name => typeof name==="string"&&name.length<=60&&/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name);
 export function paletteSnapshot(choice) {
   return {hues:[...choice.hues],rotation:choice.rotation,neutrals:[...choice.neutrals],
-    mode:choice.mode,monoHue:choice.monoHue,neutral:choice.neutral,surfaceOffset:choice.surfaceOffset};
+    mode:choice.mode,monoHue:choice.monoHue,neutral:choice.neutral,surfaceOffset:choice.surfaceOffset,neutralGround:choice.neutralGround??false};
 }
 export const paletteKey = choice => JSON.stringify(paletteSnapshot(choice));
 export function themeSlug(name) {

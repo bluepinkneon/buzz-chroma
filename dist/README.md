@@ -22,7 +22,8 @@ https://github.com/user-attachments/assets/a42c7ad7-cde1-43d4-a351-2ff9753cb342
 
 A silent tour of character palettes, Mono/Bi/Tri, Light/Dark/Auto, circular hue
 rotation, local saves and the live plugin API. The preview uses synthetic content
-and the v1.3.1 plugin. The color engine and callable API are unchanged.
+and the v1.3.1 plugin. The current release refines the character recipes and their
+recommended modes; this recording shows the earlier catalog.
 
 ## Install
 
@@ -55,67 +56,66 @@ reload the updated source through Manage plugins.
 
 ## Character palettes
 
-`blue-pink-neon` is Ranveer’s original. The other 41 are character-inspired,
-with a mix of comics, film, books, games and animation. The picker sorts readable
-names alphabetically: **Black Widow**, **Blue Pink Neon**, **Daredevil**.
-Internal IDs stay in kebab-case, as shown below, so saved themes and API calls
-keep working. Saved local themes also use readable labels and their own sorted group.
+`blue-pink-neon` is Ranveer’s original. The other 27 are a focused selection of
+recognizable characters from comics, film, books and games. Names are readable
+and alphabetically sorted in the picker; internal IDs stay in kebab-case.
+Saved local themes have their own alphabetically sorted group.
+
+Each character has **one color recipe**, a specific visual reference, and a
+recommended appearance and color mode. Ezio starts with white/silver ground and
+crimson accents in Light/Bichrome; Batman and Black Widow start in Dark. Selecting
+a preset restores that complete recommended look. You can then choose any other
+mode or appearance without changing its stored colors.
 
 <details>
-<summary>All 42 palettes and their default looks</summary>
+<summary>All 28 palettes and their recommended looks</summary>
 
-| Palette | Default | Color idea |
+| Palette | Recommended look | Color idea |
 |---|---|---|
-| `blue-pink-neon` | trichrome | Ranveer’s original: blue, pink and neon. |
-| `daredevil` | bichrome | Crimson, violet and gold. |
-| `spider-man` | trichrome | Comic-book red, electric blue and gold. |
-| `black-widow` | bichrome | Crimson and charcoal bichrome; ice in trichrome. |
-| `black-panther` | trichrome | Royal violet, gold and ice. |
-| `storm` | monochrome | Storm-cloud indigo monochrome; lightning gold and sea glass in trichrome. |
-| `john-wick` | trichrome | Midnight violet, neon cyan and gold. |
-| `miyamoto-musashi` | monochrome | Ink-indigo monochrome; cedar and bamboo green in trichrome. |
-| `sherlock-holmes` | monochrome | Sepia monochrome; ink blue and bottle green in trichrome. |
-| `trinity` | monochrome | Jade monochrome; ultraviolet and gold in trichrome. |
-| `neo` | monochrome | Phosphor-green monochrome; blue and gold in trichrome. |
-| `aragorn` | trichrome | Ranger green, worn burgundy and steel blue. |
-| `lara-croft` | trichrome | Expedition teal, sandstone and orchid. |
-| `wonder-woman` | trichrome | Royal blue, crimson and gold. |
-| `katniss-everdeen` | trichrome | Mockingjay gold, ember and cold silver-blue. |
-| `princess-leia` | trichrome | Indigo, rose and mint. |
-| `ripley` | trichrome | Industrial teal, warning amber and deep violet. |
-| `geralt-of-rivia` | monochrome | Steel-blue monochrome; crimson and gold in trichrome. |
-| `wolverine` | trichrome | Battle yellow, cobalt blue and claw-mark red. |
-| `batman` | bichrome | Charcoal and signal gold, with a matching reading-ink tint. |
-| `superman` | trichrome | Sky blue, cape red and sunlit gold. |
-| `harley-quinn` | trichrome | Scarlet, hot pink and electric cyan. |
-| `deadpool` | trichrome | Mercenary red, steel blue and mint. |
-| `joker` | trichrome | Acid green, theatrical violet and brass. |
-| `doctor-strange` | trichrome | Mystic violet, cloak red and spell gold. |
-| `ahsoka-tano` | trichrome | Warm copper, saber cyan and indigo. |
-| `obi-wan-kenobi` | trichrome | Desert ochre, saber blue and sage. |
-| `darth-vader` | bichrome | Charcoal and saber red, with a matching reading-ink tint. |
-| `frodo-baggins` | trichrome | Shire-leaf green, weathered leather and twilight blue. |
-| `gandalf` | bichrome | Soft gray and icy blue, with a matching reading-ink tint. |
-| `legolas` | trichrome | Woodland green, pale gold and clear blue. |
-| `hermione-granger` | trichrome | Scholarly crimson, parchment gold and ink blue. |
-| `howl` | trichrome | Enchanted violet, rose and starlight gold. |
-| `san` | trichrome | War-paint red, deep forest and cold sky. |
-| `motoko-kusanagi` | trichrome | Cybernetic orchid, neon teal and amber. |
-| `totoro` | bichrome | Soft gray and forest green, with a matching reading-ink tint. |
-| `chun-li` | trichrome | Royal blue, gold and a pink spark. |
-| `link` | trichrome | Champion teal, relic gold and open-sky blue. |
-| `zelda` | trichrome | Royal indigo, sacred gold and jade. |
-| `samus-aran` | trichrome | Armor orange, cosmic violet and visor green. |
-| `sekiro` | trichrome | Weathered rust, steel silver and temple jade. |
-| `ezio-auditore` | trichrome | Aged gold, Assassin crimson and silver-white ink. |
+| `batman` | dark · bichrome | Charcoal Batsuit with the golden Bat-Signal. |
+| `black-panther` | dark · bichrome | T’Challa’s black suit, violet vibranium energy and silver details. |
+| `black-widow` | dark · trichrome | Black tactical suit, scarlet hourglass and copper-red hair. |
+| `blue-pink-neon` | dark · trichrome | Ranveer’s original: blue, pink and neon. |
+| `chun-li` | light · trichrome | Classic blue qipao, gold trim and white boots. |
+| `daredevil` | dark · monochrome | Classic crimson suit, charcoal details and silver-white highlights. |
+| `darth-vader` | dark · trichrome | Black armor, red lightsaber and silver helmet highlights. |
+| `deadpool` | dark · trichrome | Red suit panels, black tactical gear and white eye lenses. |
+| `doctor-strange` | dark · trichrome | Blue tunic, red Cloak of Levitation and the golden Eye of Agamotto. |
+| `ezio-auditore` | light · bichrome | Brotherhood’s white robes, silver armor and crimson sash. |
+| `gandalf` | dark · trichrome | Gandalf the Grey’s wool robes, wooden staff and silver hair. |
+| `harley-quinn` | light · trichrome | Modern pink-and-blue hair, pale makeup and black stagewear. |
+| `hermione-granger` | dark · trichrome | Black Hogwarts robes with Gryffindor scarlet and gold. |
+| `john-wick` | dark · trichrome | Black tailoring with violet and blue Chapter 4 night lighting. |
+| `joker` | dark · trichrome | Classic purple suit, green hair and chalk-white face paint. |
+| `lara-croft` | auto · trichrome | Classic teal top, brown leather and neutral stone. |
+| `link` | light · trichrome | Classic green tunic, brown leather boots and a white undershirt. |
+| `miyamoto-musashi` | light · trichrome | Sumi ink, pale paper and the warm wood of Musashi’s brushwork. |
+| `neo` | dark · monochrome | Matrix phosphor green, black leather and green code. |
+| `princess-leia` | light · monochrome | A New Hope’s white gown and silver belt, without invented accents. |
+| `samus-aran` | dark · trichrome | Classic Varia armor: orange body, red helmet and green visor. |
+| `sekiro` | dark · trichrome | Wolf’s weathered rust coat, charcoal wrappings and steel blade. |
+| `sherlock-holmes` | light · monochrome | Victorian sepia, dark ink and pale paper. |
+| `spider-man` | dark · trichrome | Classic red-and-blue suit with white eye lenses. |
+| `superman` | light · trichrome | Classic blue suit, red cape and yellow S shield. |
+| `wolverine` | dark · trichrome | Classic battle yellow, cobalt blue and the red X-Men belt. |
+| `wonder-woman` | dark · trichrome | Classic crimson armor, royal blue and golden insignia. |
+| `zelda` | light · trichrome | The Wind Waker’s pink-and-white royal dress with gold trim. |
 
 </details>
 
-Some open in monochrome, others in bichrome or trichrome. Every palette supports
-all three modes, plus Light/Dark/Auto. Monochrome follows Primary automatically. Pick a
-custom monochrome hue, or open **Monochrome options → Use primary hue** to link it again. Selecting
-a built-in palette restores its recommended color mode and hue relationships,
-while keeping your appearance preference.
+Light and dark solve brightness and contrast from the same seeds. Monochrome is
+an intentional one-hue reduction; bichrome derives Neon from two seeds; trichrome
+uses all three. Neutral reading surfaces let a black or white outfit retain its
+signature accent without tinting the whole app. See the
+[character references and curation notes](https://github.com/bluepinkneon/buzz-chroma/blob/main/CHARACTERS.md) for the chosen versions.
+
+Monochrome follows Primary automatically. Pick a custom monochrome hue, or choose
+**Monochrome options → Use primary hue** to link it again. An explicit API mode or
+appearance overrides a preset’s recommendation.
+
+Existing saved colors are preserved. Re-select a preset to adopt its revised
+recipe. Fourteen retired picker entries remain callable by their old API IDs and
+in snapshots, so existing integrations keep working.
 
 ## Make a palette
 
@@ -209,7 +209,7 @@ The service has `version: 1` and four methods:
 
 | Method | Returns | Effect |
 |---|---|---|
-| `listPresets()` | A fresh array of all built-in recipes | No changes |
+| `listPresets()` | A fresh array of the 28 visible built-in recipes | No changes |
 | `getLook()` | A fresh snapshot of the currently displayed look | No changes |
 | `generateTheme(options = {})` | `Record<string, "#RRGGBB">` containing Buzz semantic CSS roles | Generates only; does not apply or save |
 | `setLook(options)` | A callable live handle with `update(patch)` and `dispose()` | Applies a temporary look; does not save |
@@ -264,7 +264,7 @@ export function apply(ctx) {
 
 3. In Buzz, choose **Settings → Manage plugins → Add → Browse**, select your
    folder, then review and install it. Enabling this demo applies John Wick,
-   changes it to bichrome and rotates it 45°. Disabling the demo disposes its
+   then switches to bichrome with two custom colors and rotates it 45°. Disabling the demo disposes its
    handle and restores the previous live look or saved look. No preferences
    are saved by these calls.
 
@@ -280,13 +280,14 @@ For pages, React, events and packaging, see the official
 
 | Option | Values / behavior |
 |---|---|
-| `preset` | A built-in ID from `listPresets()`. Sets its palette, ground relationship and recommended mode; retains appearance. |
+| `preset` | A built-in ID from `listPresets()`. Sets its palette, ground relationship, recommended mode and recommended appearance. Legacy IDs remain accepted. |
 | `mode` | `monochrome`, `bichrome`, `trichrome`. Snapshot IDs `mono`, `duo`, `color` also work; `dichrome` aliases bichrome. |
 | `colors` | Six-digit hex inputs: one for monochrome, two for bichrome, three for trichrome. All modes also accept a complete three-seed array. |
 | `rotation` | Any finite number, normalized to a whole degree modulo 360. |
 | `appearance` | `dark`, `light`, `auto`. Auto follows Buzz’s resolved mode, with an OS fallback. |
 | `monochrome` | A single hex override that enters monochrome. Do not combine it with an explicit non-mono mode. If `colors` is also supplied, it must be the full three-seed array. |
 | `surfaceOffset` | `0` for a primary-colored ground, `90` for the original quarter-wheel ground. Omitted values keep the base recipe. |
+| `neutralGround` | Boolean. Keeps generic reading surfaces and standard hairlines neutral while Primary actions and Secondary own messages retain their hues. Monochrome ignores it. Omitted values keep the base recipe. |
 
 A preset is applied first, then explicit options override it. RGB inputs choose
 a hue or neutral family, not exact output brightness. Without an explicit
@@ -330,7 +331,7 @@ overrides never write preferences or the local theme library.
 | `hues`, `rotation`, `neutrals` | Three stored seed angles, shared rotation, and per-seed neutral flags |
 | `mode` | Stable snapshot ID `color`, `duo` or `mono` |
 | `monoHue`, `neutral` | Optional unrotated mono override (`null` links Primary), and neutral-gray choice |
-| `appearance`, `surfaceOffset`, `localName` | Appearance preference, ground relationship, saved local name or `null` |
+| `appearance`, `surfaceOffset`, `neutralGround`, `localName` | Appearance preference, ground relationship, neutral-ground flag, saved local name or `null` |
 | `preset` | Underlying recipe ID at zero rotation, or `custom`; it identifies palette seeds, not the selected mode |
 | `effectiveHues`, `effectiveNeutrals` | Three resulting hues and neutral flags after mode/rotation derivation; hue is irrelevant for a neutral family |
 | `resolvedAppearance` | Last applied `dark` or `light` appearance |
@@ -350,8 +351,8 @@ live.dispose();
 ```
 
 Each `listPresets()` entry contains `id`, `description`, three `hues`, three
-`neutrals`, `surfaceOffset`, `defaultMode` (`color`/`duo`/`mono`) and
-`defaultNeutral` (currently always `false`). Mutating the returned catalog never changes built-ins.
+`neutrals`, `surfaceOffset`, `neutralGround`, `defaultMode` (`color`/`duo`/`mono`),
+`defaultAppearance` (`dark`/`light`/`auto`) and `defaultNeutral` (currently always `false`). Mutating the returned catalog never changes built-ins.
 The API grants no messages, account, filesystem or network access. Buzz plugins
 share a trusted JavaScript context; the service is not a security sandbox.
 
@@ -367,13 +368,17 @@ uses culori 4.0.2 in an automatically removed temporary directory, and checks in
 the result under `dist/`. Installers do not need build tools.
 
 Tests cover all 360 hue positions in trichrome, bichrome and monochrome, both appearances,
-neutral families, independent hue combinations, the circular seam, picker
+neutral families, neutral-ground schemes, independent hue combinations, the circular seam, picker
 round-trips, storage migration, Auto changes, callable-service custody and cleanup.
 The host text/background graph also samples animated highlight composites.
 An independent host audit adds call/inverse and switch states, Todo/presence
 icons, self-tinted availability labels, and categorical GitHub icons. ANSI tests
 compare named slots across all presets, modes and sampled rotations; the host
 integration audit separately checks where those values are actually consumed.
+Every visible character is also checked in all three modes and all three appearance
+preferences, including both Auto outcomes. Sourced color-family briefs check the
+rendered signature colors; reference images and rendered contact sheets guide the
+aesthetic review rather than arbitrary hue-spacing or catalog-uniqueness rules.
 See [ALGORITHM.md](https://github.com/bluepinkneon/buzz-chroma/blob/main/ALGORITHM.md) for the constraints, numeric floors and limits.
 
 - `runtime.js`: controls, validated preferences, lifecycle and callable service.
@@ -401,6 +406,18 @@ at 512px in neutral gray `#8a8a8a`, on a transparent background.
 `tools/render-icon.html` renders the PNG using browser Canvas 2D;
 `icon.provenance.json` records the renderer/version and source/output hashes.
 The build verifies those hashes so the two assets cannot drift silently.
+
+## Changes in v1.4.0
+
+- Re-curated 28 recognizable character looks against specific outfit/art references.
+  Ezio uses white/silver and red; extraneous mint, violet and gold accents are removed
+  where the character does not support them.
+- Presets now include a recommended Light/Dark/Auto appearance as well as a color
+  mode. Explicit API options still win; saved local themes keep your current appearance.
+- Neutral-ground recipes separate the outfit’s neutral base from its signature accent
+  through the same gamut and contrast engine. Original Blue Pink Neon is unchanged.
+- All mode/appearance combinations are checked from one shared recipe. Retired
+  preset IDs and existing saved colors remain supported.
 
 ## Changes in v1.3.2
 
@@ -466,6 +483,10 @@ default theme and is removed when the plugin is disabled. Other icons are untouc
   version 1.2.3 added the scoped enabled-plugin compatibility treatment.
 - Cleaner pickers/rotation, labeled palette and console previews, and current API
   reference and GitHub update instructions.
+
+Versions before 1.4.0 do not accept `neutralGround` in local-library entries.
+A downgrade may refuse that library and lock writes; do not reset it to downgrade.
+Upgrade forward to read it again.
 
 Version 1.1.0 cannot read bichrome settings in the v3 preference key; downgrading
 falls back to its default palette. Upgrade forward for all three modes. Older v2

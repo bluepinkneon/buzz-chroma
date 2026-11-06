@@ -1,0 +1,366 @@
+[
+  {
+    "id": "blue-pink-neon",
+    "variant": "Ranveer’s original",
+    "colors": [
+      "blue",
+      "pink",
+      "teal"
+    ],
+    "ground": "violet",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://github.com/bluepinkneon/buzz-chroma/blob/main/ALGORITHM.md"
+  },
+  {
+    "id": "batman",
+    "variant": "Black-and-yellow Bat-Symbol",
+    "colors": [
+      "yellow",
+      "neutral",
+      "neutral"
+    ],
+    "ground": "neutral",
+    "mode": "duo",
+    "appearance": "dark",
+    "source": "https://shop.dc.com/products/batman-logo-embroidered-patch"
+  },
+  {
+    "id": "black-widow",
+    "variant": "Black tactical suit, scarlet hourglass and copper-red hair",
+    "colors": [
+      "red",
+      "rust",
+      "neutral"
+    ],
+    "ground": "neutral",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://www.marvel.com/characters/black-widow-natasha-romanova/in-comics"
+  },
+  {
+    "id": "daredevil",
+    "variant": "Classic red suit",
+    "colors": [
+      "red",
+      "neutral",
+      "neutral"
+    ],
+    "ground": "red",
+    "mode": "mono",
+    "appearance": "dark",
+    "source": "https://www.marvel.com/articles/gear/the-design-elements-at-work-in-sideshow-collectibles-daredevil-sixth-scale-figure"
+  },
+  {
+    "id": "spider-man",
+    "variant": "Classic red-and-blue suit with white eye lenses",
+    "colors": [
+      "red",
+      "blue",
+      "neutral"
+    ],
+    "ground": "red",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://www.marvel.com/articles/comics/which-spider-man-suit-best-fits-your-mood"
+  },
+  {
+    "id": "superman",
+    "variant": "Classic blue uniform, red cape, yellow shield",
+    "colors": [
+      "blue",
+      "red",
+      "yellow"
+    ],
+    "ground": "blue",
+    "mode": "color",
+    "appearance": "light",
+    "source": "https://www.dc.com/characters/superman"
+  },
+  {
+    "id": "wonder-woman",
+    "variant": "Classic red, blue and gold uniform",
+    "colors": [
+      "red",
+      "yellow",
+      "blue"
+    ],
+    "ground": "red",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://www.dc.com/characters/wonder-woman"
+  },
+  {
+    "id": "wolverine",
+    "variant": "Classic yellow-and-blue suit with red belt",
+    "colors": [
+      "yellow",
+      "blue",
+      "red"
+    ],
+    "ground": "yellow",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://www.marvel.com/articles/comics/wolverine-logan-james-howlett-every-costume-list"
+  },
+  {
+    "id": "deadpool",
+    "variant": "Red suit panels, black gear, white lenses",
+    "colors": [
+      "red",
+      "neutral",
+      "neutral"
+    ],
+    "ground": "red",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://www.marvel.com/articles/gear/dc-shoes-offbeat-deadpool-collection"
+  },
+  {
+    "id": "joker",
+    "variant": "Classic purple suit, green hair, white face",
+    "colors": [
+      "violet",
+      "green",
+      "neutral"
+    ],
+    "ground": "violet",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://www.dc.com/blog/2021/09/24/laughing-in-fear-twelve-moments-that-defined-the-joker"
+  },
+  {
+    "id": "harley-quinn",
+    "variant": "Modern pink/blue hair, pale makeup and black stagewear",
+    "colors": [
+      "pink",
+      "blue",
+      "neutral"
+    ],
+    "ground": "neutral",
+    "mode": "color",
+    "appearance": "light",
+    "source": "https://www.dc.com/blog/2024/02/12/a-dangerous-desire-could-the-joker-and-harley-ever-work"
+  },
+  {
+    "id": "black-panther",
+    "variant": "T’Challa’s black suit and violet vibranium energy",
+    "colors": [
+      "violet",
+      "neutral",
+      "neutral"
+    ],
+    "ground": "neutral",
+    "mode": "duo",
+    "appearance": "dark",
+    "source": "https://www.marvel.com/articles/movies/how-the-costumes-of-black-panther-brought-the-world-of-wakanda-to-life"
+  },
+  {
+    "id": "doctor-strange",
+    "variant": "Blue tunic, red cloak and golden amulet",
+    "colors": [
+      "blue",
+      "red",
+      "yellow"
+    ],
+    "ground": "blue",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://www.marvel.com/characters/doctor-strange-stephen-strange/on-screen"
+  },
+  {
+    "id": "darth-vader",
+    "variant": "Black armor, red saber and silver highlights",
+    "colors": [
+      "red",
+      "neutral",
+      "neutral"
+    ],
+    "ground": "neutral",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://www.starwars.com/news/15-of-the-scariest-star-wars-villains"
+  },
+  {
+    "id": "princess-leia",
+    "variant": "A New Hope white gown and silver belt",
+    "colors": [
+      "neutral",
+      "neutral",
+      "neutral"
+    ],
+    "ground": "neutral",
+    "mode": "mono",
+    "appearance": "light",
+    "source": "https://www.starwars.com/news/from-a-certain-point-of-view-who-is-the-galaxys-best-dressed"
+  },
+  {
+    "id": "gandalf",
+    "variant": "Gandalf the Grey, wooden staff and silver hair",
+    "colors": [
+      "neutral",
+      "sepia",
+      "neutral"
+    ],
+    "ground": "neutral",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://www.wetanz.com/uk/gandalf-the-grey-wizard"
+  },
+  {
+    "id": "sherlock-holmes",
+    "variant": "Victorian ink and sepia print interpretation",
+    "colors": [
+      "sepia",
+      "neutral",
+      "neutral"
+    ],
+    "ground": "sepia",
+    "mode": "mono",
+    "appearance": "light",
+    "source": "https://www.gutenberg.org/cache/epub/66991/pg66991-images.html"
+  },
+  {
+    "id": "john-wick",
+    "variant": "Chapter 4 black tailoring and violet/blue night lighting",
+    "colors": [
+      "violet",
+      "blue",
+      "neutral"
+    ],
+    "ground": "neutral",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://www.lionsgate.com/movies/john-wick-chapter-4"
+  },
+  {
+    "id": "neo",
+    "variant": "The Matrix black leather and phosphor-green code",
+    "colors": [
+      "green",
+      "neutral",
+      "green"
+    ],
+    "ground": "green",
+    "mode": "mono",
+    "appearance": "dark",
+    "source": "https://wbshop.com/collections/the-matrix"
+  },
+  {
+    "id": "lara-croft",
+    "variant": "Classic teal top and brown leather",
+    "colors": [
+      "teal",
+      "sepia",
+      "neutral"
+    ],
+    "ground": "teal",
+    "mode": "color",
+    "appearance": "auto",
+    "source": "https://www.tombraider.com/news/cosplay/tomb-raider-ii-cosplay-guides"
+  },
+  {
+    "id": "link",
+    "variant": "Classic green tunic, brown boots and white undershirt",
+    "colors": [
+      "green",
+      "sepia",
+      "neutral"
+    ],
+    "ground": "green",
+    "mode": "color",
+    "appearance": "light",
+    "source": "https://www.nintendo.com/us/amiibo/detail/toon-link-the-wind-waker-amiibo-30th-anniversary-series/"
+  },
+  {
+    "id": "zelda",
+    "variant": "The Wind Waker pink-and-white royal dress and gold",
+    "colors": [
+      "pink",
+      "yellow",
+      "neutral"
+    ],
+    "ground": "neutral",
+    "mode": "color",
+    "appearance": "light",
+    "source": "https://www.nintendo.com/us/amiibo/detail/toon-zelda-the-wind-waker-amiibo-30th-anniversary-series/"
+  },
+  {
+    "id": "samus-aran",
+    "variant": "Classic Varia suit: orange, red and green",
+    "colors": [
+      "rust",
+      "red",
+      "green"
+    ],
+    "ground": "rust",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://www.nintendo.com/us/store/products/metroid-duffel-bag-126914/"
+  },
+  {
+    "id": "chun-li",
+    "variant": "Classic blue qipao, gold trim and white boots",
+    "colors": [
+      "blue",
+      "yellow",
+      "neutral"
+    ],
+    "ground": "blue",
+    "mode": "color",
+    "appearance": "light",
+    "source": "https://game.capcom.com/cfn/sfv/character/chun-li/costume?lang=en"
+  },
+  {
+    "id": "hermione-granger",
+    "variant": "Black school robes and Gryffindor scarlet/gold",
+    "colors": [
+      "red",
+      "yellow",
+      "neutral"
+    ],
+    "ground": "neutral",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://www.harrypotter.com/house/gryffindor"
+  },
+  {
+    "id": "miyamoto-musashi",
+    "variant": "Musashi’s ink-wash painting, paper and wood",
+    "colors": [
+      "neutral",
+      "sepia",
+      "neutral"
+    ],
+    "ground": "neutral",
+    "mode": "color",
+    "appearance": "light",
+    "source": "https://www.shimada-museum.net/eng.html"
+  },
+  {
+    "id": "sekiro",
+    "variant": "Wolf’s rust coat, charcoal wraps and steel blade",
+    "colors": [
+      "rust",
+      "neutral",
+      "neutral"
+    ],
+    "ground": "rust",
+    "mode": "color",
+    "appearance": "dark",
+    "source": "https://www.sekirothegame.com/"
+  },
+  {
+    "id": "ezio-auditore",
+    "variant": "Brotherhood white robes, silver armor and red sash",
+    "colors": [
+      "red",
+      "neutral",
+      "neutral"
+    ],
+    "ground": "neutral",
+    "mode": "duo",
+    "appearance": "light",
+    "source": "https://www.ubisoft.com/en-us/game/assassins-creed/the-ezio-collection"
+  }
+]

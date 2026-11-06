@@ -21,7 +21,7 @@ N = wrap(round(P − 45√2 × sin((S − P) × π / 180)))
 ```
 
 This is a smooth periodic aesthetic relationship, calibrated to the original
-blue-pink-neon pair (224°, 359° → 179°) and within 1° of daredevil’s curated Neon
+blue-pink-neon pair (224°, 359° → 179°) and within 1° of the original v1.2 Daredevil recipe’s Neon
 (25°, 280° → 86°). It does not reproduce every curated trichrome recipe or prove
 universal color harmony. It preserves rotation and mirror symmetry, with no
 shortest-arc jump at the circular seam. Complementary inputs derive the primary
@@ -122,18 +122,33 @@ backing and intermediate alpha composites, including nested mentions/reactions.
 
 ## Preset relationships
 
-Each recipe contains three hue anchors and a ground relationship: either primary
-+90° (the original `blue-pink-neon`) or primary +0° (a ground in the primary’s
-color family). This is data supplied to the same gamut/contrast engine, not a
-second shade algorithm. It keeps `daredevil` red instead of olive and lets its
-automatic monochrome version follow its red primary.
+Each character has one recipe: three hue anchors, per-seed neutral flags and a
+ground relationship. `surfaceOffset` accepts either 90° (the original
+`blue-pink-neon`) or 0° (a ground in Primary’s family). `neutralGround: true`
+sets generic reading surfaces and standard hairlines to C=0 while Primary actions,
+links and selected states retain Primary and own-message surfaces retain Secondary.
+The raw Ground preview uses the same solved neutral ramp. These are inputs to the
+same gamut/contrast engine, not separate character-specific shade algorithms.
+Monochrome ignores both ground settings and reduces all decorative families to its
+chosen hue or gray; the protected semantic/categorical colors remain independent.
 
-The relationship is stored and rotates with the hue anchors, so leaving the exact
-preset does not introduce a special-case cliff. Old saved settings default to 90°.
-The API exposes this field and accepts only 0 or 90. Character recipes may recommend
-trichrome, bichrome or monochrome; explicit API mode overrides the recommendation. Light/Dark/
-Auto is independent. A custom monochrome override persists until reset or a new
-preset is selected; **Use primary hue** restores the link.
+The ground relationship is stored with the seeds and survives custom edits. Old
+settings missing the fields retain `surfaceOffset: 90` and `neutralGround: false`.
+Snapshots, local saves and the API carry both fields, so the same seeds never need
+hidden preset-history state to reproduce a look.
+
+Recipes recommend both a color mode and an appearance, chosen against a named
+visual reference. Selecting a preset restores that recommendation; explicit API
+mode/appearance overrides it. Switching mode or appearance keeps the same seeds;
+Light and Dark solve brightness independently and Auto follows the host’s resolved
+mode. Saved local themes retain the user’s current appearance. A custom monochrome
+override persists until reset or a new preset; **Use primary hue** restores the link.
+
+The visible catalog contains 28 recipes. Fourteen retired IDs retain their original
+recipes for API/snapshot compatibility; existing saved settings are never rewritten
+from a matching name. See [CHARACTERS.md](CHARACTERS.md) for references and the
+rendered color-family criteria. Distinct characters may honestly share a one-hue
+reduction; uniqueness is not a reason to invent a new signature color.
 
 Red and green character palettes can deliberately share a hue with danger and
 success. Those signal hues remain fixed; host labels, icons and diff +/- marks
@@ -166,9 +181,12 @@ Deleting a theme never removes the currently applied colors.
 
 ## Validation and limits
 
-`npm run check` includes 3,522 full generated configurations and 2,173,074 role
-contrast measurements, including all 360 rotations in all three modes in both
-appearances plus independent hue/neutral-mask combinations. It also checks
+`npm run check` measures the full host role graph, including all 360 rotations in all three modes in both
+appearances, neutral-ground variants and independent hue/neutral-mask combinations.
+Every visible preset is also exercised in all modes and both Auto outcomes, with
+live CSS compared to API-generated roles. Sourced identity briefs assert the rendered
+Primary/Secondary/Neon families in both polarities and each recommended mode/appearance.
+It also checks
 picker idempotence, mode transitions, storage, service cleanup, equal state steps
 and a 1,081,080-sample rendered luminance sweep. The two-input rule is tested over
 all 129,600 hue pairs for rotation, mirror symmetry and bounded steps. Independent auditors additionally

@@ -28,7 +28,7 @@ test('all emitted mode IDs can be used in patches; coercible values and contradi
     {mode:'monochrome',colors:['#0099dd'],monochrome:'#cc2233'}]){
     assert.throws(()=>api.setLook(bad),TypeError);assert.equal(h.css(),before);
   }
-  const duo=api.setLook({preset:'daredevil'}),duoCss=h.css();
+  const duo=api.setLook({preset:'black-widow',mode:'bichrome'}),duoCss=h.css();
   assert.throws(()=>duo.update({colors:['#0099dd','#dd4083'],monochrome:'#cc2233'}),TypeError);assert.equal(h.css(),duoCss);duo.dispose();
   app.dispose();
 });
@@ -66,7 +66,7 @@ test('explicit rotation uses base colors without rebaking unprovided seeds',()=>
 
 test('effective neutral flags describe the rendered families and gray toggles retain the primary link',()=>{
   const h=host(),app=h.boot(),api=app.services.get('chroma');
-  const a=api.setLook({preset:'batman'});assert.deepEqual(api.getLook().effectiveNeutrals,[true,false,false]);a.dispose();
+  const a=api.setLook({mode:'bichrome',colors:['#808080','#d09300']});assert.deepEqual(api.getLook().effectiveNeutrals,[true,false,false]);a.dispose();
   const b=api.setLook({mode:'bichrome',colors:['#808080','#ffffff']});assert.deepEqual(api.getLook().effectiveNeutrals,[true,true,true]);b.dispose();
   click(app,'Monochrome');click(app,'Neutral gray');assert.equal(api.getLook().monoHue,null);assert.deepEqual(api.getLook().effectiveNeutrals,[true,true,true]);
   click(app,'Tinted');assert.equal(api.getLook().monoHue,null);app.dispose();
