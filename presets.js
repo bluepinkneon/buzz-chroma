@@ -37,7 +37,7 @@ export const PRESETS = Object.freeze([
   {
     "id": "black-widow",
     "hues": [
-      25,
+      5,
       285,
       195
     ],
