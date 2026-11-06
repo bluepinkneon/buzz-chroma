@@ -364,6 +364,7 @@ export function apply(ctx) {
   function apiChoice(options, base = choice) {
     if (!alive) throw new Error("Chroma is disabled");
     if (!options || typeof options !== "object" || Array.isArray(options)) throw new TypeError("Expected theme options");
+    if(!Object.keys(options).length)return cleanLocalIdentity(structuredClone(base));
     // A full getLook() snapshot is also a valid request. Metadata is read-only;
     // palette fields go through the same validator as saved user preferences.
     if(Object.hasOwn(options,"theme")&&Object.hasOwn(options,"hues")) {
@@ -478,7 +479,7 @@ export function apply(ctx) {
       if(options.includeSaved&&libraryLocked)throw new Error("The saved preset library is locked");
       return structuredClone([...PRESETS,...(options.includeSaved?localThemes.map(preset=>({id:`local:${preset.name}`,name:displayName(preset.name),description:"Saved on this device",...preset.look,look:preset.look})):[])]);
     },
-    getLook:()=>{assertAlive();const next=activeChoice();return structuredClone({...next,preset:findPreset(next)?.id??"custom",effectiveHues:next.mode==="mono"?Array(3).fill(monoHue(next)):effectiveHues(next),effectiveNeutrals:effectiveNeutrals(next),resolvedAppearance:appearance});},
+    getLook:()=>{assertAlive();const next=editableChoice();return structuredClone({...next,preset:findPreset(next)?.id??"custom",effectiveHues:next.mode==="mono"?Array(3).fill(monoHue(next)):effectiveHues(next),effectiveNeutrals:effectiveNeutrals(next),resolvedAppearance:appearance});},
     generateTheme:(options={})=>structuredClone(mapRoles(generateRoles(apiChoice(options)))),
     setLook:makeLook,
     savePreset:(name,options)=>{

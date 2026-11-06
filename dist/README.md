@@ -325,15 +325,15 @@ The service has `version: 1` and five methods:
 | Method | Returns | Effect |
 |---|---|---|
 | `listPresets({ includeSaved = false } = {})` | A fresh array of built-in recipes, optionally including local saves | No changes |
-| `getLook()` | A fresh snapshot of the currently displayed look | No changes |
+| `getLook()` | A fresh snapshot of the current requested look (the target during a fade) | No changes |
 | `generateTheme(options = {})` | `Record<string, "#RRGGBB">` containing Buzz semantic CSS roles | Generates only; does not apply or save |
 | `setLook(options)` | A callable live handle with `update(patch)`, `transition()` and `dispose()` | Applies or fades to one temporary look; does not save |
 | `savePreset(name, look)` | `{ id: "local:<name>", persisted: boolean }` | Creates a local preset without applying it |
 
 Each new `setLook` and `generateTheme` request starts from the **saved user look**
 for omitted fields, independently of other temporary handles. A handle’s
-`update` starts from that handle’s own target while a fade is running, or its current state otherwise. To deliberately copy a
-visible temporary look, pass `getLook()` as a complete snapshot.
+`update` starts from that handle’s own target while a fade is running, or its current state otherwise. To deliberately copy the active temporary look’s requested settings, pass
+`getLook()` as a complete snapshot.
 
 ### Write a consumer plugin
 
@@ -452,6 +452,12 @@ look overrides never write preferences or the local theme library; `savePreset` 
 | `preset` | Underlying recipe ID at zero rotation, or `custom`; it identifies palette seeds, not the selected mode |
 | `effectiveHues`, `effectiveNeutrals` | Three resulting hues and neutral flags after mode/rotation derivation; hue is irrelevant for a neutral family |
 | `resolvedAppearance` | Last applied `dark` or `light` appearance |
+
+`getLook()` returns the requested destination while a fade runs. Save/restore
+therefore keeps the intended look instead of accidentally adopting a halfway
+frame. The painted palette moves toward that destination. Use Buzz CSS variables
+for visuals that should track every painted sample; `generateTheme(getLook())`
+generates the destination palette during a fade.
 
 Complete snapshots replace settings and can round-trip through `setLook` or
 `live.update`. Derived metadata is shape-checked, then ignored and recomputed;

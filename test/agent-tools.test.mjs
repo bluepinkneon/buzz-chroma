@@ -75,7 +75,7 @@ test("four stable, Buzz-valid tools whose listing is pinned", () => {
   assert.equal(Object.keys(tools).length, 4, "dispose is not listed as a tool");
   // Changing a name, description or schema gives every Buzz-run Codex agent a
   // fresh thread. Update this only on purpose.
-  assert.equal(addedKey(tools), "3o9o7");
+  assert.equal(addedKey(tools), "4dlbvz");
   tools.dispose();
 });
 

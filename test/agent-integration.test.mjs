@@ -43,7 +43,7 @@ test('real tools create and recall a complete local recipe, and restore an unstr
 test('a tool replacement preserves the new fade, and an empty setter returns to the saved user look',async()=>{
   const {h,app,api,tools}=fixture(),original=api.getLook();
   await parse(tools[1],{rotation:120});const out=await parse(tools[1],{rotation:240,fadeMs:2000});
-  assert.equal(out.transition.status,'fading');assert.equal(out.transition.target.rotation,240);h.advance(1000);assert.equal(api.getLook().rotation,180);
+  assert.equal(out.transition.status,'fading');assert.equal(out.transition.target.rotation,240);h.advance(1000);assert.equal(api.getLook().rotation,240,'getLook reports the requested target, never a fade frame');
   await parse(tools[1],{});assert.deepEqual(api.getLook(),original);h.advance(3000);assert.deepEqual(api.getLook(),original);tools.dispose();app.dispose();
 });
 
@@ -64,4 +64,25 @@ test('the compiled plugin registers discoverable native tools only after the exp
   const before=await parse(get);await parse(set,{colors:['#d62828','#167a43','#efc66c'],mode:'trichrome',fadeMs:2000});h.advance(2000);assert.notDeepEqual((await parse(get)).look,before.look);
   checkbox().props.onChange({target:{checked:false}});await settle();assert.equal(native.registered.size,0);assert.deepEqual(app.services.get('chroma').getLook(),before.look);
   await assert.rejects(parse(get),/off/);app.dispose();await settle();assert.equal(h.styles.size,0);
+});
+
+test('mid-fade snapshots are the requested target, so save and cue-restore never adopt a synthetic frame',async()=>{
+  const {h,app,api,tools}=fixture(),[get,set,save]=tools,user=(await parse(get)).look;
+  const out=await parse(set,{rotation:120,fadeMs:4000});assert.equal(out.look.rotation,120);assert.equal(out.transition.status,'fading');
+  h.advance(2000);const painted=h.css(),mid=(await parse(get)).look;assert.equal(mid.rotation,120);
+  await parse(save,{name:'calm-turn',look:mid});assert.equal(api.listPresets({includeSaved:true}).find(p=>p.id==='local:calm-turn').look.rotation,120);
+  h.advance(4000);assert.notEqual(h.css(),painted);
+  await parse(set,{look:user,fadeMs:2000});h.advance(1000);const snap=(await parse(get)).look;
+  await parse(set,{rotation:200});await parse(set,{look:snap});h.advance(5000);
+  assert.deepEqual((await parse(get)).look,user);tools.dispose();app.dispose();
+});
+
+test('an empty setter returns a Buzz-default user to Buzz default and counts as a possible polarity cut',async()=>{
+  const h=host(),app=h.boot(),api=app.services.get('chroma');h.mode('light');select(app,'default');
+  let now=0;const tools=createAgentTools(api,{gate:polarityGate(()=>now)}),user=api.getLook();
+  await parse(tools[1],{preset:'neo'});assert.equal(api.getLook().theme,'bluepinkneon');
+  await assert.rejects(parse(tools[1],{}),/appearance-rate-limited/);assert.equal(api.getLook().theme,'bluepinkneon');
+  now=1000;await parse(tools[1],{});assert.deepEqual(api.getLook(),user);
+  now=2000;await parse(tools[1],{preset:'neo'});await assert.rejects(parse(tools[1],{look:user}),/appearance-rate-limited/);assert.equal(api.getLook().theme,'bluepinkneon');
+  now=3000;await parse(tools[1],{look:user});assert.deepEqual(api.getLook(),user);tools.dispose();app.dispose();
 });

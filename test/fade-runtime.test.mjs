@@ -12,11 +12,11 @@ test('setLook fades change the painted palette, finish exactly, and never save i
   const handle=api.setLook({rotation:90,fadeMs:2000});
   assert.equal(h.css(),before);assert.equal(handle.transition().status,'fading');
   assert(h.attributes.has('data-chroma-changing'));
-  h.advance(1000);assert.equal(api.getLook().rotation,45);assert.notEqual(h.css(),before);
+  h.advance(1000);assert.equal(api.getLook().rotation,90,'getLook reports the target');const mid=h.css();assert.notEqual(mid,before);
   assert(h.attributes.has('data-chroma-changing'),'one held guard spans the complete fade');
   assert.deepEqual([...h.saved],stored);
   h.advance(1000);assert.equal(handle.transition().status,'idle');assert.equal(api.getLook().rotation,90);
-  assert.deepEqual(api.generateTheme(api.getLook()),expected);const final=h.css();
+  assert.deepEqual(api.generateTheme(api.getLook()),expected);const final=h.css();assert.notEqual(final,mid);
   const direct=api.setLook({rotation:90});assert.equal(h.css(),final);direct();assert.equal(h.css(),final);
   assert.deepEqual([...h.saved],stored);handle();assert.equal(h.css(),before);
   app.dispose();assert.equal(h.frames.size,0);assert.equal(h.styles.size,0);
@@ -24,9 +24,9 @@ test('setLook fades change the painted palette, finish exactly, and never save i
 
 test('update interrupts from the last painted key while keeping unedited target fields',()=>{
   const {h,app,api}=setup(),handle=api.setLook({rotation:120,fadeMs:4000});
-  h.advance(1000);const from=api.getLook();assert(from.rotation>0&&from.rotation<120);
-  handle.update({rotation:240,fadeMs:2000});assert.deepEqual(api.getLook(),from);
-  h.advance(1000);assert.notEqual(api.getLook().rotation,from.rotation);
+  h.advance(1000);const from=h.css();assert.equal(api.getLook().rotation,120);
+  handle.update({rotation:240,fadeMs:2000});assert.equal(h.css(),from,'interrupts from the painted frame');assert.equal(api.getLook().rotation,240);
+  h.advance(1000);assert.notEqual(h.css(),from);
   const painted=h.css();assert.throws(()=>handle.update({fadeMs:500}),/at least/);assert.equal(h.css(),painted);
   assert.equal(handle.transition().status,'fading');h.advance(1000);assert.equal(api.getLook().rotation,240);
   app.dispose();
@@ -59,7 +59,7 @@ test('incompatible modes, neutral families and appearances switch as whole palet
 test('manual edits and local saves adopt the target, never a synthetic fade frame',()=>{
   for(const action of ['rotate','save','pick','appearance']) {
     const {h,app,api}=setup(),handle=api.setLook({rotation:120,fadeMs:4000});h.advance(1000);
-    assert(api.getLook().rotation<120);
+    assert.equal(handle.transition().status,'fading');assert.equal(handle.transition().elapsedMs,1000);
     if(action==='rotate')rotate(app,200);
     if(action==='pick')input(app,'Primary').props.onChange({target:{value:'#ff7b00'}});
     if(action==='appearance')click(app,'Light');

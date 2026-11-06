@@ -21,7 +21,7 @@ const plain = value => value !== null && typeof value === "object" && !Array.isA
 // Buzz gives each Codex agent a fresh thread when any of them changes.
 const SCHEMAS = frozen({
   chroma_get_look: {
-    description: "Read the user's current look from the Colors plugin in Buzz: to describe it, build on it, or keep it so chroma_set_look can restore it exactly after a brief cue. Returns look and, while the Colors plugin paints Buzz, palette: every generated semantic color role.",
+    description: "Read the user's current look from the Colors plugin in Buzz: to describe it, build on it, or keep it so chroma_set_look can restore it exactly after a brief cue. Returns look and, while the Colors plugin paints Buzz, palette: every generated semantic color role. During a fade, both describe the fade's target.",
     inputSchema: {type: "object", properties: {}, additionalProperties: false},
   },
   chroma_set_look: {
@@ -134,7 +134,7 @@ export function createAgentTools(api, {gate = polarityGate()} = {}) {
       const generated=api.generateTheme(look);
       // generateTheme(default) is a plugin preview, not the host's real palette.
       // Treat a host-default restore as a possible polarity cut, never guess.
-      const cut=look.theme==="default"||polarityOf(generated)!==before;
+      const cut=look.theme==="default"||!Object.keys(look).length||polarityOf(generated)!==before;
       if (cut) {
         const retryAfterMs = gate.wait();
         if (retryAfterMs > 0) throw new ToolError("appearance-rate-limited", "Dark/light can change at most once a second.", {retryAfterMs});
