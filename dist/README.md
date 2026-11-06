@@ -78,7 +78,9 @@ Overrides do not write preferences. Changing a UI control cancels all external
 overrides. Disabling the provider removes the service and its dependent plugins.
 Invalid values throw before changing the theme. Rotation accepts any finite
 angle and normalizes to whole degrees; colors are six-digit hexadecimal. Explicit
-colors/monochrome supply base hues; rotation is then added to those hues.
+colors/monochrome supply base hues when an explicit rotation is included.
+Without an explicit angle, a monochrome color renders as picked while preserving
+the saved full-color rotation, matching the UI.
 
 `getLook()` returns a copy of the active settings and resolved appearance.
 `generateTheme(options)` returns a copy of generated Buzz CSS role colors without

@@ -120,18 +120,23 @@ export function apply(ctx) {
     const media = globalThis.matchMedia?.("(prefers-color-scheme: dark)");
     renderTheme = () => {
       const active = activeChoice();
-      appearance = resolveAppearance(active.appearance);
+      const nextAppearance = resolveAppearance(active.appearance);
       if (active.theme === "bluepinkneon") {
         const vars = Object.entries(paletteFor(active)).map(([key, value]) => `${key}:${value};`).join("\n");
         let result;
-        try { result = engine.generate({ ...active, hues: effectiveHues(active), monoHue: monoHue(active), appearance }); }
-        catch { warning = "Could not generate that palette. Keeping the last good appearance."; return; }
+        try { result = engine.generate({ ...active, hues: effectiveHues(active), monoHue: monoHue(active), appearance:nextAppearance }); }
+        catch (error) {
+          warning = "Could not generate that palette. Keeping the last good appearance.";
+          console.warn("[Color Overthinkers] palette-generation-failed", error);
+          return;
+        }
+        appearance = nextAppearance;
         currentRoles = mapRoles(result);
         const css = `:root[data-bluepinkneon]{${vars}}\n${roleCss(currentRoles, appearance, active.mode)}`;
         if (style.textContent !== css) style.textContent = css;
         root.setAttribute("data-bluepinkneon", "");
         if (!style.isConnected) document.head.appendChild(style);
-      } else { style.remove(); restoreAttribute(); }
+      } else { appearance = nextAppearance; style.remove(); restoreAttribute(); }
     };
     const refresh = () => { renderTheme(); for (const listener of listeners) listener(); };
     const observer = typeof MutationObserver === "function" ? new MutationObserver(refresh) : null;
@@ -209,7 +214,9 @@ export function apply(ctx) {
     if (options.monochrome !== undefined) {
       if (typeof options.monochrome !== "string" || !/^#[0-9a-f]{6}$/i.test(options.monochrome)) throw new TypeError("monochrome must be #RRGGBB");
       const hue = hueFromSwatch(options.monochrome.toLowerCase(),7,monoHue(next));
-      next.mode = "mono"; next.neutral = hue === null; next.monoHue = hue ?? next.monoHue ?? next.hues[0];
+      next.mode = "mono"; next.neutral = hue === null;
+      next.monoHue = hue === null ? next.monoHue ?? next.hues[0]
+        : options.rotation === undefined ? degree(hue-next.rotation) : hue;
     }
     return next;
   }

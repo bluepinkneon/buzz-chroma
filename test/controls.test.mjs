@@ -84,3 +84,10 @@ test("monochrome picker and hue slider preserve the full-color rotation",()=>{
   assert.equal(app.services.get("chroma").getLook().rotation,129);
   click(app,"Full color");assert.equal(h.css(),original);app.dispose();
 });
+
+test("a monochrome API color with no explicit angle agrees with the UI after rotation",()=>{
+  const h=host(),app=h.boot(),api=app.services.get("chroma");rotate(app,129);
+  const expected=api.generateTheme({monochrome:"#ff7b00"});
+  click(app,"Monochrome");input(app,"Monochrome hue").props.onChange({target:{value:"#ff7b00"}});
+  assert.deepEqual(api.generateTheme({}),expected);app.dispose();
+});
