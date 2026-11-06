@@ -86,3 +86,33 @@ test('an empty setter returns a Buzz-default user to Buzz default and counts as 
   now=2000;await parse(tools[1],{preset:'neo'});await assert.rejects(parse(tools[1],{look:user}),/appearance-rate-limited/);assert.equal(api.getLook().theme,'bluepinkneon');
   now=3000;await parse(tools[1],{look:user});assert.deepEqual(api.getLook(),user);tools.dispose();app.dispose();
 });
+
+function externalContext({pending=false,fail=false}={}) {
+  const servers=[],spawns=[];let release;
+  const hostService={serveMcp(){},spawn(){}};
+  const extra={reflect:{get:name=>name==='host'?hostService:undefined},plugin({apply}) {
+    let closed=false;const owned=[];
+    const scope={host:{async serveMcp(handler) {
+      if(pending)await new Promise(resolve=>{release=resolve;});
+      if(closed)throw Error('inactive scope');
+      let stop;const server={handler,closed:new Promise(resolve=>{stop=resolve;}),close(){stop();}};
+      owned.push(server);servers.push(server);return server;
+    },async spawn(id,{mcp}){spawns.push({id,mcp});if(fail)throw Error('helper unavailable');return{exited:Promise.resolve(0)};}}};
+    apply(scope);return {async dispose(){closed=true;for(const server of owned)server.close();}};
+  }};
+  return {extra,servers,spawns,release:()=>release()};
+}
+
+test('a supported compiled boot advertises local tools by default, remembers off, and cleans up',async()=>{
+  const local=externalContext(),saved=new Map(),h=host(saved,local.extra),app=h.boot();await settle();
+  const checkbox=()=>find(app.tree(),n=>n.props?.['aria-label']==='Let local agents control colors');
+  assert.equal(checkbox().props.checked,true);assert.equal(local.servers.length,1);assert.equal(local.spawns.length,1);assert.equal(local.spawns[0].id,'agent-access');assert.equal(saved.size,0);
+  const list=await local.servers[0].handler({jsonrpc:'2.0',id:1,method:'tools/list',params:{}});assert.equal(list.result.tools.length,4);
+  checkbox().props.onChange({target:{checked:false}});await settle();assert.equal(checkbox().props.checked,false);app.dispose();await settle();
+  const second=externalContext(),next=host(saved,second.extra).boot();await settle();assert.equal(second.spawns.length,0);next.dispose();await settle();
+});
+
+test('default local startup tolerates unload while starting and reports helper failure on the usable page',async()=>{
+  const local=externalContext({pending:true}),app=host(new Map(),local.extra).boot();await settle();app.dispose();local.release();await settle();assert.equal(local.servers.length,0);assert.equal(local.spawns.length,0);
+  const failed=externalContext({fail:true}),page=host(new Map(),failed.extra).boot();await settle();const tree=JSON.stringify(page.tree());assert(tree.includes('Could not start'));assert(tree.includes('helper unavailable'));assert(tree.includes('Colors settings'));page.dispose();await settle();
+});

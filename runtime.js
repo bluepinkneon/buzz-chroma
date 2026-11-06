@@ -155,7 +155,6 @@ export function apply(ctx) {
   let appearance = "dark";
   let currentRoles;
   let alive = true;
-  let uiPreview = null;
   const buzzAppearance = () => ["light","dark"].includes(document.documentElement.getAttribute("data-color-mode")) ? document.documentElement.getAttribute("data-color-mode")
       : globalThis.matchMedia?.("(prefers-color-scheme: dark)").matches === false ? "light" : "dark";
   const resolveAppearance = value => value === "auto" ? buzzAppearance() : value;
@@ -249,7 +248,7 @@ export function apply(ctx) {
     let prepared;
     try {if(next.theme==="bluepinkneon")prepared=prepareRoles(next);}
     catch(error){warning="Could not generate that palette. Keeping the last good appearance.";console.warn("[Colors] palette-generation-failed",error);for(const listener of listeners)listener();return;}
-    for(const fade of fades.values())fade.dispose();fades.clear();syncFadeGuard();uiPreview=null;
+    for(const fade of fades.values())fade.dispose();fades.clear();syncFadeGuard();
     overrides.clear(); // A person changing the controls takes back ownership.
     if(next.localName&&!localThemes.some(theme=>theme.name===next.localName&&paletteKey(theme.look)===paletteKey(next)))next={...next,localName:null};
     choice = next; warning = "";
@@ -508,8 +507,6 @@ export function apply(ctx) {
       const [localName,setLocalName] = React.useState("");
       const [backup,setBackup] = React.useState("");
       const [backupNotice,setBackupNotice] = React.useState("");
-      const [previewPreset,setPreviewPreset] = React.useState("blue-pink-neon");
-      const [fadeSeconds,setFadeSeconds] = React.useState("5");
       React.useEffect(() => {
         const refresh = () => update((value) => value + 1);
         listeners.add(refresh);
@@ -604,24 +601,16 @@ export function apply(ctx) {
             h("button",{type:"button",style:{...control,marginTop:"8px"},disabled:libraryLocked||!backup.trim(),onClick:()=>{try{const r=restorePresets(backup);setBackupNotice(r.persisted?`Imported ${r.added} preset(s).`:`Imported ${r.added} preset(s) for this session; device storage could not be written.`);}catch(error){setBackupNotice(error.message);}}},"Import preset backup"),
             h("p",{role:"status"},backupNotice)))),
         h("p", { role: "status" }, warning || (libraryLocked?"The local theme library is unreadable. Saving stays locked until an explicit reset.":libraryDirty?"Theme library has changes saved only for this session. They may be lost when Buzz closes.":fading?"Fading to the target look. Color values settle when the fade ends.":overrides.size ? "A temporary palette is active. Changing a control takes it back." : choice.theme === "bluepinkneon" ? "Palette active · saved on this device." : "Buzz default is active.")));
-      return h("section",{className:"chroma-colors-page"},
+      return h("div",{className:"chroma-colors-scroll",role:"region","aria-label":"Colors settings",tabIndex:0},
+        h("section",{className:"chroma-colors-page"},
         h("style",null,PAGE_CSS),
         h("header",{className:"chroma-colors-header"},h("h1",null,PLUGIN_NAME),...PLUGIN_COPY.map((paragraph,index)=>h("p",{key:index},paragraph))),
         h("div",{className:"chroma-colors-workspace"},controls,
           h("div",{className:"chroma-colors-live-preview","aria-label":"Live palette preview"},
             choice.theme==="bluepinkneon"&&currentRoles?palettePreview(h,colors,currentRoles,{fading}):h("p",{className:"chroma-colors-empty"},"Buzz’s own appearance is active. Choose a preset or a color to preview your generated palette."))),
         h("div",{className:"chroma-extra-settings"},
-          h("details",null,h("summary",null,"Color fades"),
-            h("p",null,"Preview a preset with a gentle fade. Changing a color or the dial takes control back."),
-            h("label",null,"Fade to preset",h("select",{"aria-label":"Fade to preset",value:previewPreset,style:control,onChange:e=>setPreviewPreset(e.target.value)},
-              ...service.listPresets({includeSaved:!libraryLocked}).sort((a,b)=>compareNames(a.id.replace(/^local:/,""),b.id.replace(/^local:/,""))).map(p=>h("option",{key:p.id,value:p.id},displayName(p.id.replace(/^local:/,""))+(p.id.startsWith("local:")?" (saved)":""))))),
-            h("label",null,"Fade time (seconds)",h("input",{type:"number",min:0,max:300,step:1,"aria-label":"Fade time in seconds",value:fadeSeconds,style:control,onChange:e=>setFadeSeconds(e.target.value)})),
-            h("div",{className:"chroma-extra-actions"},h("button",{type:"button",style:control,onClick:()=>{try{if(!fadeSeconds.trim())throw new TypeError("Choose a fade time between 0 and 300 seconds.");const next=service.setLook({preset:previewPreset,fadeMs:Number(fadeSeconds)*1000});uiPreview?.dispose();uiPreview=next;}catch(error){warning=error.message;notify();}}},"Preview fade"),
-              h("button",{type:"button",style:control,disabled:!uiPreview,onClick:()=>{uiPreview?.dispose();uiPreview=null;notify();}},"End preview"),
-              h("button",{type:"button",style:control,disabled:!overrides.size,onClick:()=>save(structuredClone(editableChoice()))},"Keep target look")),
-            h("p",null,"Dark/Light, mode and neutral-family changes switch atomically to preserve legibility. Reduced motion disables animated fades.")),
           agentSettings(h,{state:agentAccess.getState(),enabled:agentChoices.get(),notice:agentChoices.notice(),
-            onToggle:(key,value)=>{void agentChoices.set({[key]:value}).catch(()=>{warning="Could not update agent access. Try again from the connection controls.";notify();});}})));
+            onToggle:(key,value)=>{void agentChoices.set({[key]:value}).catch(()=>{warning="Could not update agent access. Try again from the connection controls.";notify();});}}))));
     },
   });
 }

@@ -67,3 +67,13 @@ turn them into a different GitHub state.
 
 All plugin overrides are lifecycle-owned. Disabling restores Buzz’s own theme;
 the plugin does not change Buzz source code or its saved appearance preference.
+
+## Workspace scrolling
+
+Buzz 0.7.9 workspace pages fill a fixed-height panel/frame whose overflow is
+clipped. Unlike document pages, their host wrapper supplies no scroll area.
+Colors therefore owns `.chroma-colors-scroll` at 100% height, with the centered,
+responsive `.chroma-colors-page` inside it. No viewport-height guess or global
+body overflow override is needed. `tools/check-workspace-scroll.py` reproduces
+the host wrapper in native WebKit and verifies that expanded agent controls can
+be reached while the document itself remains stationary.

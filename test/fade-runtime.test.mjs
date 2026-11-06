@@ -70,10 +70,10 @@ test('manual edits and local saves adopt the target, never a synthetic fade fram
   }
 });
 
-test('preview controls leave user preferences untouched until Keep target is chosen',()=>{
-  const {h,app,api}=setup();const select=find(app.tree(),n=>n.props?.['aria-label']==='Fade to preset');
-  select.props.onChange({target:{value:'john-wick'}});click(app,'Preview fade');assert.equal(h.saved.size,0);
-  click(app,'Keep target look');assert.equal(JSON.parse(h.saved.get(key)).hues[0],api.getLook().hues[0]);assert(h.saved.size);
+test('the settings omit fade configuration while the API retains opinionated transitions',()=>{
+  const {h,app,api}=setup(),tree=JSON.stringify(app.tree());
+  for(const removed of ['Color fades','Fade to preset','Fade time in seconds','Preview fade','Keep target look'])assert(!tree.includes(removed),removed);
+  const handle=api.setLook({rotation:90,fadeMs:2000});assert.equal(handle.transition().status,'fading');h.advance(2000);assert.equal(api.getLook().rotation,90);assert.equal(h.saved.size,0);
   app.dispose();
 });
 

@@ -1,0 +1,14 @@
+import AppKit
+import WebKit
+import Foundation
+let output=URL(fileURLWithPath:CommandLine.arguments[1],isDirectory:true)
+let app=NSApplication.shared;app.setActivationPolicy(.prohibited)
+let sizes=[(1440,900,"dark"),(1280,760,"light"),(390,760,"dark"),(390,760,"light")]
+final class Harness:NSObject,WKNavigationDelegate {
+ var window:NSWindow!;var web:WKWebView!;var index=0;var bottom=false;var results=[[String:Any]]()
+ func start(){window=NSWindow(contentRect:NSRect(x:-12000,y:-12000,width:1440,height:900),styleMask:[.borderless],backing:.buffered,defer:false);let cfg=WKWebViewConfiguration();cfg.websiteDataStore = .nonPersistent();cfg.preferences.setValue(true,forKey:"allowFileAccessFromFileURLs");web=WKWebView(frame:NSRect(x:0,y:0,width:1440,height:900),configuration:cfg);web.navigationDelegate=self;window.contentView=web;web.loadFileURL(output.appendingPathComponent("fixture.html"),allowingReadAccessTo:output);DispatchQueue.main.asyncAfter(deadline:.now()+45){print("FAIL timeout");exit(9)}}
+ func webView(_ w:WKWebView,didFinish n:WKNavigation!){stage()}
+ func stage(){let(w,h,mode)=sizes[index];window.setContentSize(NSSize(width:w,height:h));web.setFrameSize(NSSize(width:w,height:h));web.evaluateJavaScript("window.act('\(mode)','trichrome','blue-pink-neon',0,0);true"){_,e in if let e=e{print(e);exit(2)};DispatchQueue.main.asyncAfter(deadline:.now()+0.15){self.capture()}}}
+ func capture(){let(w,h,mode)=sizes[index],name="\(mode)-\(w)-\(h)-\(bottom ? "bottom":"top")";web.evaluateJavaScript("window.scrollProbe(\(bottom ? "true":"false"))"){v,e in guard e==nil,let str=v as?String,let data=str.data(using:.utf8),var item=(try?JSONSerialization.jsonObject(with:data)) as?[String:Any]else{print("FAIL probe \(String(describing:e))");exit(3)};item["name"]=name;self.results.append(item);try!data.write(to:output.appendingPathComponent(name+".json"));let cfg=WKSnapshotConfiguration();cfg.rect=self.web.bounds;cfg.snapshotWidth=NSNumber(value:w);cfg.afterScreenUpdates=true;self.web.takeSnapshot(with:cfg){im,e in guard e==nil,let im=im,let t=im.tiffRepresentation,let b=NSBitmapImageRep(data:t),let png=b.representation(using:.png,properties:[:])else{print("FAIL snapshot");exit(4)};try!png.write(to:output.appendingPathComponent(name+".png"));if !self.bottom{self.bottom=true;self.capture()}else{self.bottom=false;self.index+=1;if self.index<sizes.count{self.stage()}else{let receipt:[String:Any]=["renderer":"WKWebView","visible":self.window.isVisible,"active":NSApp.isActive,"results":self.results];try!JSONSerialization.data(withJSONObject:receipt,options:[.prettyPrinted,.sortedKeys]).write(to:output.appendingPathComponent("receipt.json"));print("DONE \(self.results.count) probes, \(self.results.filter{($0["pass"] as?Bool)==true}.count) pass, visible=\(self.window.isVisible) active=\(NSApp.isActive)");exit(self.results.allSatisfy{($0["pass"] as?Bool)==true} ? 0:1)}}}}}
+}
+let harness=Harness();harness.start();app.run()
