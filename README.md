@@ -14,15 +14,24 @@ Requires Buzz Desktop with API v1 external-plugin support.
 
 1. Open **Settings → Manage plugins → Add**.
 2. Enter `https://github.com/bluepinkneon/buzz-chroma`.
-3. Select tag **v1.2.0**, choose **Find**, then select **dist**.
+3. Set the branch/reference to **main**, choose **Find**, then select **dist**.
 4. Review and install **Color Overthinkers**, then enable it.
 5. Close Settings and open **Themes**, directly below **Inbox**.
 
 On macOS you can open the install review with:
 
 ```sh
-open 'buzz://plugin-install?repository=bluepinkneon%2Fbuzz-chroma&ref=v1.2.0&path=dist'
+open 'buzz://plugin-install?repository=bluepinkneon%2Fbuzz-chroma&ref=main&path=dist'
 ```
+
+### Update an existing GitHub install
+
+Open **Settings → Manage plugins → Color Overthinkers → Update**. Use the same
+repository, reference **main**, and folder **dist**, then **Find → review → Update**.
+A GitHub install is pinned to the reviewed commit; pushing here does not hot-reload
+an installed copy. The new screen shows **Trichrome / Bichrome / Monochrome** and
+**Neon**. Reinstalling an old version tag keeps that old version. For a fixed
+release instead, select a tag from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases).
 
 Or download the folder ZIP from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases),
 extract it, and select it with **Add → Browse**. Existing folder installs can
@@ -84,7 +93,7 @@ with a mix of comics, film, books, games and animation. Names use kebab-case:
 
 Some open in monochrome, others in bichrome or trichrome. Every palette supports
 all three modes, plus Light/Dark/Auto. Monochrome follows Primary automatically. Pick a
-custom monochrome hue, or choose **Use primary hue** to link it again. Selecting
+custom monochrome hue, or open **Monochrome options → Use primary hue** to link it again. Selecting
 a built-in palette restores its recommended color mode and hue relationships,
 while keeping your appearance preference.
 
@@ -94,14 +103,16 @@ while keeping your appearance preference.
 - **Bichrome:** choose **Primary** and **Secondary**; Neon is derived automatically.
 - **Monochrome:** choose **Primary** for every decorative family. **Neutral gray** is
   the same mode at zero chroma. Alerts retain familiar signal colors.
-- **Hue rotation:** the bottom slider rotates the whole look in every mode.
+- **Hue rotation:** the bottom slider rotates the whole look in every mode. Editing
+  a color keeps this angle and leaves unedited colors unchanged.
 - A gray pick makes only that family neutral. Two gray bichrome inputs also make
   the derived Neon neutral; one gray input borrows the other input’s hue.
 - **Light / Dark:** independently computed surfaces and contrast-checked inks.
 - **Auto:** follows Buzz’s resolved appearance, including its System setting and
   OS day/night schedule. It does not impose a sunrise timer or change Buzz’s saved
   preference. If Buzz supplies no resolved mode, it follows the OS directly.
-- **Reset blue-pink-neon:** resets the three hues, rotation and dark appearance.
+- **More color options → Reset blue-pink-neon:** restores the original colors,
+  trichrome mode, rotation, neutral flags, ground relationship and dark appearance.
 - **Buzz default**, or disabling the plugin, removes its owned style override.
 
 The RGB controls select a hue or a neutral family; the generator owns
@@ -119,9 +130,26 @@ also retain an inset stripe; links keep Buzz’s underlines and reactions its ri
 Preferences are local to this device. Older preferences migrate without deleting
 the old rollback key.
 
+## See what the controls generate
+
+Below the pickers and rotation bar:
+
+- **Palette:** eight named families, with twelve source shades in each. Hover a
+  shade to see its name, index and hex value.
+- **Console colors:** all sixteen normal/bright ANSI colors, labeled with names
+  and hex values. This previews the source palette; it does not change a separate
+  terminal application.
+- **Status and diffs:** the actual contrast-solved Buzz success/addition,
+  danger/removal, warning and information inks, backgrounds and icon colors.
+
+The source ramps and console colors are the original generator’s output. Buzz UI
+roles are separately solved for the selected Light/Dark appearance; raw ramps
+are not a claim that every shade can be used as text on every background.
+Choosing **Buzz default** removes the plugin override and its generated preview.
+
 ## Save your own themes
 
-Enter a name under **Save your theme**, then choose **Save locally**. The name
+Expand **Save your theme**, enter a name, then choose **Save locally**. The name
 becomes kebab-case. Saved themes appear in the selector under **Saved on this
 device**, and survive app restarts. They restore palette and color-mode settings while
 keeping your current Light/Dark/Auto preference. Duplicate names receive a
@@ -131,73 +159,127 @@ removes the local copy and keeps the current colors as an unsaved look.
 If the stored library is unreadable, Save/Remove stay locked to protect it. Only
 the explicit **Reset local library** button clears those stored bytes.
 
+If saving fails, the library remains usable for the current session and keeps
+an unsaved-changes notice visible. A later successful library save writes those
+session changes too. If another window changes the stored library, a stale window
+refuses to overwrite it; reload the plugin before saving again.
+
 Up to 50 themes are stored in the device’s localStorage. Nothing is uploaded.
 Disabling the plugin keeps them; clearing app/site data can remove them.
 
-## Let another Buzz plugin change the theme
+## Callable API for other Buzz plugins
 
-The lifecycle-owned Cordis service is named **chroma**. Consumer example:
+This is an in-process Cordis service named **chroma**, not an HTTP endpoint.
+Require it with `export const inject = ["chroma"]`, then use `ctx.chroma`.
+The service has `version: 1` and four methods:
+
+| Method | Returns | Effect |
+|---|---|---|
+| `listPresets()` | A fresh array of all built-in recipes | No changes |
+| `getLook()` | A fresh snapshot of the currently displayed look | No changes |
+| `generateTheme(options = {})` | `Record<string, "#RRGGBB">` containing 149 Buzz CSS roles | Generates only; does not apply or save |
+| `setLook(options)` | A callable live handle with `update(patch)` and `dispose()` | Applies a temporary look; does not save |
+
+Each new `setLook` and `generateTheme` request starts from the **saved user look**
+for omitted fields, independently of other temporary handles. A handle’s
+`update` starts from that handle’s own current state. To deliberately copy a
+visible temporary look, pass `getLook()` as a complete snapshot.
 
 ```js
 export const inject = ["chroma"];
 export function apply(ctx) {
-  ctx.effect(() => ctx.chroma.setLook({
-    preset: "john-wick", // optional built-in ID
-    // colors: ["#0099dd", "#dd4083", "#95fae4"],
-    rotation: 45,
-    appearance: "auto", // dark | light | auto
-    mode: "trichrome",  // monochrome | bichrome | trichrome
-    // monochrome: "#808080", // optional one-hue/neutral override
-  }));
+  ctx.effect(() => {
+    const live = ctx.chroma.setLook({
+      preset: "john-wick",
+      appearance: "auto",
+      mode: "trichrome",
+    });
+    // An event handler can update this same handle without stacking overrides:
+    live.update({ mode: "bichrome", colors: ["#0099dd", "#dd4083"] });
+    live.update({ rotation: 45 });
+    return () => live.dispose();
+  });
 }
 ```
 
-`setLook(options)` returns a live handle that is also an idempotent disposer:
+### Options and precedence
+
+| Option | Values / behavior |
+|---|---|
+| `preset` | A built-in ID from `listPresets()`. Sets its palette, ground relationship and recommended mode; retains appearance. |
+| `mode` | `monochrome`, `bichrome`, `trichrome`. Snapshot IDs `mono`, `duo`, `color` also work; `dichrome` aliases bichrome. |
+| `colors` | Six-digit hex inputs: one for monochrome, two for bichrome, three for trichrome. All modes also accept a complete three-seed array. |
+| `rotation` | Any finite number, normalized to a whole degree modulo 360. |
+| `appearance` | `dark`, `light`, `auto`. Auto follows Buzz’s resolved mode, with an OS fallback. |
+| `monochrome` | A single hex override that enters monochrome. Do not combine it with an explicit non-mono mode or a one-color `colors` array. |
+| `surfaceOffset` | `0` for a primary-colored ground, `90` for the original quarter-wheel ground. Omitted values keep the base recipe. |
+
+A preset is applied first, then explicit options override it. RGB inputs choose
+a hue or neutral family, not exact output brightness. Without an explicit
+`rotation`, colors render as picked and the current angle is kept. With an
+explicit `rotation`, supplied colors are base hues under that angle. Only supplied
+seeds change; hidden trichrome choices and custom monochrome choices are kept.
+A three-seed array changes the stored seeds; a custom monochrome override stays
+active until replaced, **Use primary hue**, reset, or a new preset selection.
 
 ```js
-const live = ctx.chroma.setLook({ preset: "john-wick" });
-live.update({ rotation: 90 });
-live.update({ mode: "bichrome", colors: ["#0099dd", "#dd4083"] });
-live.update({ mode: "monochrome", colors: ["#cc2233"] });
-live.update({ appearance: "light" });
-live.dispose(); // equivalent to live()
+const cssRoles = ctx.chroma.generateTheme({
+  mode: "bichrome", colors: ["#cc2233", "#3355ff"], appearance: "light",
+}); // colors only; nothing applied
+const live = ctx.chroma.setLook({ mode: "monochrome", colors: ["#cc2233"] });
+live.update({ appearance: "light" }); // returns undefined
+live.dispose();                     // returns undefined; idempotent
+// live() is the equivalent callable cleanup form.
 ```
 
-`update(patch)` changes the same override synchronously; it does not stack a new
-override or save to storage. Each patch uses that handle’s own current settings.
-Priority follows handle creation order, so an older handle cannot steal priority
-by updating. Updating a disposed handle, or one cancelled by a UI action, throws.
-Invalid updates leave the current look untouched. Last active caller wins;
-disposing it restores the previous active caller, then the saved user palette.
-Overrides do not write preferences. Changing a UI control cancels all external
-overrides. Disabling the provider removes the service and its dependent plugins.
-Invalid values throw before changing the theme. Rotation accepts any finite
-angle and normalizes to whole degrees; colors are six-digit hexadecimal. Explicit
-colors/monochrome supply base hues when an explicit rotation is included.
-Without an explicit angle, a monochrome color renders as picked while preserving
-the saved trichrome rotation, matching the UI. Use one color for monochrome, two
-for bichrome, or three for trichrome. A full three-color seed array is also accepted
-in the other modes. `color` remains an alias for trichrome; `dichrome` is an alias
-for bichrome. The stored snapshot mode IDs remain `color`, `duo` and `mono` for
-compatibility.
+The newest **live handle by creation order** wins. Updating an older handle does
+not raise its priority. Disposing a middle handle leaves the newest unchanged;
+disposing the newest reveals the previous live handle, then the saved user look.
+A UI change takes ownership: it saves the visible look with the person’s edit,
+cancels all temporary handles, and prevents old handles from being revived.
+`update` on a disposed/cancelled handle throws. Disabling the provider removes
+its service and deactivates consumers that require it; it does not uninstall them.
+All four methods throw after disable; old disposers remain harmless.
 
-`listPresets()` returns a copy of the built-in catalog. `getLook()` returns a
-copy of the active settings and resolved appearance. `hues` contains the stored
-three seeds; `effectiveHues` contains the three resulting hues after rotation and
-mode derivation. Its `preset` identifies the
-underlying three-color recipe; mode and monochrome overrides can differ. A complete `getLook()`
-snapshot can be passed back to `setLook()` without changing its colors.
-`surfaceOffset` is the relationship recipe, either `0` (primary-colored ground)
-or `90` (the original quarter-wheel ground). It is returned in snapshots and may
-be supplied explicitly. Colors-only calls retain the current recipe. A preset
-sets its recipe first; explicit options then override it.
-`generateTheme(options)` returns a copy of generated Buzz CSS role colors without
-applying them. `version` is `1`. These functions give no access to messages,
-accounts, the filesystem, or the network. Plugins share the app’s trusted
-JavaScript context; this is not a security sandbox.
+All API inputs are validated. Unknown fields, unsupported modes, malformed colors,
+non-finite angles and conflicting options throw before changing the look. Returned
+arrays/objects and accepted snapshots are isolated from caller mutation. External
+overrides never write preferences or the local theme library.
 
-The original hue palette stays intact as source data. The visible UI is a new
-contrast-checked adaptation; it is intentionally not a pixel-for-pixel v1 skin.
+### Snapshot and preset records
+
+`getLook()` returns these settings and derived metadata:
+
+| Fields | Meaning |
+|---|---|
+| `theme` | `bluepinkneon` or `default` (Buzz’s own appearance) |
+| `hues`, `rotation`, `neutrals` | Three stored seed angles, shared rotation, and per-seed neutral flags |
+| `mode` | Stable snapshot ID `color`, `duo` or `mono` |
+| `monoHue`, `neutral` | Optional unrotated mono override (`null` links Primary), and neutral-gray choice |
+| `appearance`, `surfaceOffset`, `localName` | Appearance preference, ground relationship, saved local name or `null` |
+| `preset` | Underlying recipe ID at zero rotation, or `custom`; it identifies palette seeds, not the selected mode |
+| `effectiveHues`, `effectiveNeutrals` | Three resulting hues and neutral flags after mode/rotation derivation; hue is irrelevant for a neutral family |
+| `resolvedAppearance` | Last applied `dark` or `light` appearance |
+
+Complete snapshots replace settings and can round-trip through `setLook` or
+`live.update`. Derived metadata is shape-checked, then ignored and recomputed;
+it never overrides the stored settings. `generateTheme` always generates the
+plugin palette, even from a `theme: "default"` snapshot; it does not introspect
+Buzz’s own theme. It returns only semantic CSS roles, not a CSS string, source
+ramps, ANSI exports or solver measurements.
+
+```js
+const snapshot = ctx.chroma.getLook();
+const live = ctx.chroma.setLook(snapshot); // exact same palette
+live.update({ mode: snapshot.mode });     // snapshot IDs also work in patches
+live.dispose();
+```
+
+Each `listPresets()` entry contains `id`, `description`, three `hues`, three
+`neutrals`, `surfaceOffset`, `defaultMode` (`color`/`duo`/`mono`) and
+`defaultNeutral` (currently always `false`). Mutating the returned catalog never changes built-ins.
+The API grants no messages, account, filesystem or network access. Buzz plugins
+share a trusted JavaScript context; the service is not a security sandbox.
 
 ## Math and checks
 
@@ -214,7 +296,7 @@ Tests cover all 360 hue positions in trichrome, bichrome and monochrome, both ap
 neutral families, independent hue combinations, the circular seam, picker
 round-trips, storage migration, Auto changes, callable-service custody and cleanup.
 The host text/background graph also samples animated highlight composites.
-See [ALGORITHM.md](ALGORITHM.md) for the constraints, numeric floors and limits.
+See [ALGORITHM.md](https://github.com/bluepinkneon/buzz-chroma/blob/main/ALGORITHM.md) for the constraints, numeric floors and limits.
 
 - `runtime.js`: controls, validated preferences, lifecycle and callable service.
 - `role-engine.js`: polarity-aware contrast solving and gamut mapping.
@@ -222,9 +304,29 @@ See [ALGORITHM.md](ALGORITHM.md) for the constraints, numeric floors and limits.
 - `presets.js`: original character-inspired recipes.
 - `local-themes.js`: bounded local palette snapshots and names.
 - `harmony.js`: periodic two-input Neon derivation.
+- `palette-preview.js`: labeled palette, console and semantic-color previews.
 - `vendor/bluepinkneon/`: unchanged original generator with hash provenance.
 - `shepherd-theme.css`: original 152-color snapshot.
 - `test/role-graph.json`: authored graph based on Buzz’s public contrast checks.
+
+## Changes in v1.2.1
+
+- Color edits keep the rotation angle; colors-only API calls no longer reset it
+  to zero. Hidden seeds and monochrome overrides no longer drift during edits.
+- New live handles start from the saved user palette instead of inheriting a
+  different plugin’s temporary override.
+- Snapshot IDs work in mode patches; snapshots own their arrays; ambiguous input
+  combinations are rejected; derived neutral flags are available in snapshots.
+- Failed library saves remain visibly unsaved; stale windows refuse to overwrite
+  another window’s saved themes. Future built-in names cannot lock local saves.
+- A theme-colored SVG outline in the sidebar and a transparent color-wheel icon
+  in the plugin details.
+- Cleaner pickers/rotation, labeled palette and console previews, and current API
+  reference and GitHub update instructions.
+
+Version 1.1.0 cannot read bichrome settings in the v3 preference key; downgrading
+falls back to its default palette. Upgrade forward for all three modes. Older v2
+preferences remain untouched for rollback.
 
 ## Compatibility and license
 

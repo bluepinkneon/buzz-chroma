@@ -53,11 +53,11 @@ test("callable service validates atomically, stacks temporary leases, and unregi
   assert.equal(api.version,1);
   const a=api.setLook({colors:["#ff0000","#00ff00","#0000ff"],appearance:"light"});
   const first=h.css();assert.notEqual(first,original);assert.equal(h.saved.size,0);
-  const again=api.setLook({});assert.equal(h.css(),first);again();assert.equal(h.css(),first);
+  const again=api.setLook(api.getLook());assert.equal(h.css(),first);again();assert.equal(h.css(),first);
   const b=api.setLook({mode:"monochrome",monochrome:"#808080",rotation:45});
   const second=h.css();assert.notEqual(second,first);
   a();assert.equal(h.css(),second,"disposing old caller cannot undo latest caller");
-  for(const bad of [{rotation:Infinity},{colors:["red"]},{colors:Array(3)},{mode:"mono"},{appearance:"system"},{unknown:1},{monochrome:"url(x)"}]) {
+  for(const bad of [{rotation:Infinity},{colors:["red"]},{colors:Array(3)},{mode:["mono"]},{appearance:"system"},{unknown:1},{monochrome:"url(x)"}]) {
     assert.throws(()=>api.setLook(bad));assert.equal(h.css(),second);
   }
   b();assert.equal(h.css(),original);

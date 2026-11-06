@@ -24,7 +24,7 @@ test("named palettes supply three distinct hues and keep appearance with a recom
       assert(distance>=45,`${preset.id}: ${distance}`);
     }
   }
-  select(app,"daredevil");click(app,"Monochrome");assert(JSON.stringify(app.tree()).includes("daredevil’s primary"));
+  select(app,"daredevil");click(app,"Monochrome");assert.equal(api.getLook().monoHue,null);assert.deepEqual(api.getLook().effectiveHues,[25,25,25]);
   app.dispose();
 });
 

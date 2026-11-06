@@ -28,11 +28,11 @@ for key, value in colors.items():
 prefix = "// Color Overthinkers for Buzz — MIT. OKLCH palettes and measured APCA contrast.\n"
 prefix += "const ORIGINAL_COLORS = " + json.dumps(colors) + ";\n"
 prefix += "const TOKEN_REFS = " + json.dumps(refs) + ";\n"
-prefix += "const PLUGIN_ICON = " + json.dumps("data:image/png;base64," + base64.b64encode((root / "icon.png").read_bytes()).decode()) + ";\n"
+prefix += "const PLUGIN_ICON = " + json.dumps("data:image/svg+xml;base64," + base64.b64encode((root / "sidebar-icon.svg").read_bytes()).decode()) + ";\n"
 with tempfile.TemporaryDirectory(prefix="buzz-chroma-build-") as temp:
     stage = Path(temp)
     shutil.copytree(root / "vendor", stage / "vendor")
-    for name in ["role-engine.js", "role-map.js", "presets.js", "local-themes.js", "harmony.js"]:
+    for name in ["role-engine.js", "role-map.js", "presets.js", "local-themes.js", "harmony.js", "palette-preview.js"]:
         shutil.copy2(root / name, stage / name)
     shutil.copy2(root / "package.json", stage / "package.json")
     lock = root / "package-lock.json"
