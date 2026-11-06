@@ -15,6 +15,7 @@ test("picker uses alphabetized readable labels without changing preset IDs or AP
   assert.equal(options.find(o=>o.props.value==="blue-pink-neon").children[0],"Blue Pink Neon");
   assert.equal(options.find(o=>o.props.value==="black-widow").children[0],"Black Widow");
   assert.equal(options.find(o=>o.props.value==="daredevil").children[0],"Daredevil");
+  assert.equal(options.find(o=>o.props.value==="geralt-of-rivia").children[0],"Geralt of Rivia");
   assert.deepEqual(new Set(options.map(o=>o.props.value)),new Set(PRESETS.map(p=>p.id)));
   assert.equal(api.listPresets()[0].id,"blue-pink-neon");
   select(app,"black-widow");assert.equal(api.getLook().preset,"black-widow");app.dispose();

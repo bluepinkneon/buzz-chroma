@@ -13,7 +13,7 @@ import {hueDial} from "./hue-dial.js";
 
 export const inject = ["react", "pages"];
 const degree = (value) => ((Math.round(value) % 360) + 360) % 360;
-const displayName = id => id.split("-").map(word=>word.charAt(0).toUpperCase()+word.slice(1)).join(" ");
+const displayName = id => id.split("-").map((word,index)=>index>0&&["of","the","and"].includes(word)?word:word.charAt(0).toUpperCase()+word.slice(1)).join(" ");
 const nameOrder = new Intl.Collator("en",{sensitivity:"base",numeric:true});
 const compareNames = (a,b) => nameOrder.compare(displayName(a),displayName(b)) || a.localeCompare(b,"en");
 const displayedPresets = [...PRESETS].sort((a,b)=>compareNames(a.id,b.id));

@@ -219,9 +219,35 @@ for omitted fields, independently of other temporary handles. A handle’s
 `update` starts from that handle’s own current state. To deliberately copy a
 visible temporary look, pass `getLook()` as a complete snapshot.
 
+### Write a consumer plugin
+
+1. Install and enable **Color Overthinkers** first. Its **Colors** page below
+   Inbox is where you choose the saved look; other plugins use the service below.
+2. Create a folder containing these two files. Use a different manifest ID from
+   Color Overthinkers so Buzz installs it as a separate plugin.
+
+`manifest.json`:
+
+```json
+{
+  "id": "example.chroma-demo",
+  "name": "Chroma API Demo",
+  "description": "Try a temporary palette through Color Overthinkers.",
+  "apiVersion": 1
+}
+```
+
+`plugin.js` (complete module; no runtime imports):
+
 ```js
 export const inject = ["chroma"];
 export function apply(ctx) {
+  const current = ctx.chroma.getLook();
+  const palettes = ctx.chroma.listPresets();
+  const roles = ctx.chroma.generateTheme(current);
+  // roles["--text-standard"] is a hex color for a generated preview.
+  // palettes contains the stable IDs accepted by preset below.
+
   ctx.effect(() => {
     const live = ctx.chroma.setLook({
       preset: "john-wick",
@@ -235,6 +261,20 @@ export function apply(ctx) {
   });
 }
 ```
+
+3. In Buzz, choose **Settings → Manage plugins → Add → Browse**, select your
+   folder, then review and install it. Enabling this demo applies John Wick,
+   changes it to bichrome and rotates it 45°. Disabling the demo disposes its
+   handle and restores the previous live look or saved look. No preferences
+   are saved by these calls.
+
+Keep every live handle inside a plugin-owned `ctx.effect` and dispose it during
+cleanup. For UI that should follow the currently applied theme, use Buzz tokens
+such as `style: { color: "var(--text-standard)", background: "var(--surface-panel)" }`;
+they update with the theme without copying a stale generated snapshot.
+Use `generateTheme` when you need a separate palette preview or color values.
+For pages, React, events and packaging, see the official
+[Buzz plugin authoring guide](https://github.com/block/buzz-app/blob/main/docs/plugin-authoring-guide.md).
 
 ### Options and precedence
 
@@ -367,6 +407,8 @@ The build verifies those hashes so the two assets cannot drift silently.
 - Alphabetical, title-cased theme labels in the picker. Internal IDs, saved keys
   and API values keep their original kebab-case names.
 - Saved local themes use the same readable labels and sort within their group.
+- A complete two-file consumer-plugin example, with service access, live updates
+  and cleanup, complements the API reference.
 
 ## Changes in v1.3.1
 
