@@ -9,6 +9,21 @@ Controlled lightness, measured contrast, and a whole palette from up to three co
 Choose Dark, Light or Auto. Monochrome takes one color, bichrome two, and
 trichrome three. The original plugin ID and preferences stay unchanged.
 
+![Color Overthinkers preset preview](https://github.com/bluepinkneon/buzz-chroma/releases/download/v1.3.1/color-overthinkers-preview.gif)
+
+<details>
+<summary>Play the full 46-second introduction</summary>
+
+https://github.com/user-attachments/assets/a42c7ad7-cde1-43d4-a351-2ff9753cb342
+
+</details>
+
+[Download the video (MP4)](https://github.com/bluepinkneon/buzz-chroma/releases/download/v1.3.1/color-overthinkers-intro.mp4) · [Download the poster](https://github.com/bluepinkneon/buzz-chroma/releases/download/v1.3.1/color-overthinkers-poster.png)
+
+A silent tour of character palettes, Mono/Bi/Tri, Light/Dark/Auto, circular hue
+rotation, local saves and the live plugin API. The preview uses synthetic content
+and the same compiled plugin shipped here.
+
 ## Install
 
 Requires Buzz Desktop with API v1 external-plugin support.
