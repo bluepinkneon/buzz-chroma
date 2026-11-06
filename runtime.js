@@ -8,6 +8,7 @@ import {deriveNeonHue,derivedNeonNeutral} from "./harmony.js";
 import {palettePreview} from "./palette-preview.js";
 import {sidebarIconCss} from "./sidebar-icon.js";
 import {ownTerminalColors} from "./terminal-theme.js";
+import {ownPaletteTransition} from "./palette-transition.js";
 
 export const inject = ["react", "pages"];
 const degree = (value) => ((Math.round(value) % 360) + 360) % 360;
@@ -163,6 +164,7 @@ export function apply(ctx) {
   ctx.effect(() => {
     const root = document.documentElement;
     const terminalColors=ownTerminalColors(root.style);
+    const transition=ownPaletteTransition(document);
     const style = document.createElement("style");
     style.dataset.plugin = "com.ranveer.bluepinkneon";
     const iconStyle=document.createElement("style");
@@ -189,18 +191,18 @@ export function apply(ctx) {
         appearance = result.polarity;
         currentRoles = result.roles;
         const css = `:root[data-bluepinkneon]{${vars}}\n${roleCss(currentRoles, appearance, active.mode,result.scoped)}`;
-        if (style.textContent !== css) style.textContent = css;
+        if (style.textContent !== css || !style.isConnected) {transition.begin();style.textContent = css;}
         root.setAttribute("data-bluepinkneon", "");
         if (!style.isConnected) document.head.appendChild(style);
         terminalColors.apply(currentRoles);
-      } else { appearance = nextAppearance; currentRoles=undefined;style.remove(); restoreAttribute();terminalColors.restore(); }
+      } else { appearance = nextAppearance; currentRoles=undefined;if(style.isConnected)transition.begin();style.remove(); restoreAttribute();terminalColors.restore(); }
     };
     const refresh = () => { renderTheme(); for (const listener of listeners) listener(); };
     const observer = typeof MutationObserver === "function" ? new MutationObserver(refresh) : null;
     observer?.observe(root, { attributes:true, attributeFilter:["data-color-mode"] });
     media?.addEventListener("change", refresh);
     renderTheme();
-    return () => { alive = false; observer?.disconnect(); media?.removeEventListener("change",refresh); style.remove();iconStyle.remove(); restoreAttribute();terminalColors.restore(); renderTheme = () => {}; listeners.clear(); overrides.clear(); };
+    return () => { alive = false; observer?.disconnect(); media?.removeEventListener("change",refresh);if(style.isConnected)transition.begin(); style.remove();iconStyle.remove(); restoreAttribute();terminalColors.restore();transition.dispose(); renderTheme = () => {}; listeners.clear(); overrides.clear(); };
   });
 
   function save(next) {

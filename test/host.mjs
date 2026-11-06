@@ -2,6 +2,11 @@ import * as plugin from "../dist/plugin.js";
 export function host(saved = new Map()) {
   const attributes = new Map();
   const styles = new Set();
+  const frames=new Map();let nextFrame=0;
+  globalThis.requestAnimationFrame=fn=>{const id=++nextFrame;frames.set(id,fn);return id;};
+  globalThis.cancelAnimationFrame=id=>frames.delete(id);
+  globalThis.getComputedStyle=()=>({backgroundColor:""});
+  const flushFrames=()=>{for(let turn=0;turn<3&&frames.size;turn++){const pending=[...frames];frames.clear();for(const [,fn]of pending)fn();}};
   const inline=new Map();
   const rootStyle={getPropertyValue:key=>inline.get(key)?.value??"",getPropertyPriority:key=>inline.get(key)?.priority??"",setProperty:(key,value,priority="")=>inline.set(key,{value,priority}),removeProperty:key=>inline.delete(key)};
   globalThis.localStorage = { getItem: (key) => saved.get(key) ?? null, setItem: (key, value) => saved.set(key, value) };
@@ -11,6 +16,7 @@ export function host(saved = new Map()) {
   globalThis.document = {
     documentElement: {
       style:rootStyle,
+      getBoundingClientRect:()=>({}),
       getAttribute: (key) => attributes.get(key) ?? null,
       setAttribute: (key, value) => attributes.set(key, value),
       removeAttribute: (key) => attributes.delete(key),
@@ -19,9 +25,9 @@ export function host(saved = new Map()) {
     createElement: () => ({ dataset: {}, isConnected: false, remove() { this.isConnected = false; styles.delete(this); } }),
   };
   return {
-    saved, attributes, styles, mediaListeners, observers, rootStyle,
+    saved, attributes, styles, mediaListeners, observers, rootStyle, frames,flushFrames,
     mode(value) { attributes.set("data-color-mode",value); for(const o of observers) o.fn(); },
-    css: () => [...styles].find(style=>style.dataset.role!=="sidebar-icon")?.textContent ?? "",
+    css: () => {flushFrames();return [...styles].find(style=>!style.dataset.role)?.textContent ?? "";},
     boot() {
       let page; const services = new Map();
       const cleanups = [], hooks=[];let hookIndex=0;

@@ -1,6 +1,6 @@
 // Buzz's public semantic roles. Component states share recipes only where their
 // foreground context is the same; the contrast graph tests the rendered values.
-export function mapRoles({surfaces:s, inks:i, borders:b, signals:g}) {
+export function mapRoles({surfaces:s, inks:i, borders:b, signals:g, categorical:q}) {
   const out = {};
   const put = (value, names) => names.split(" ").forEach(name => { out[`--${name}`] = value; });
   put(s.base, "bg-app surface-base bg-glass-primary");
@@ -67,8 +67,8 @@ export function mapRoles({surfaces:s, inks:i, borders:b, signals:g}) {
   put(g.success.ownInk, "icon-success-own");
   put(g.warning.ink, "status-away");
   put(g.success.border, "border-success-subtle");
-  put(i.categoricalPurpleIcon, "icon-categorical-purple");
-  put(i.categoricalPurpleIconOwn, "icon-categorical-purple-own");
+  put(q.purpleIcon, "icon-categorical-purple");
+  put(q.purpleIconOwn, "icon-categorical-purple-own");
   return out;
 }
 

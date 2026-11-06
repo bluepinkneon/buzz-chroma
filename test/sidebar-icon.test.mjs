@@ -17,6 +17,6 @@ test('the compiled icon style survives Buzz default, follows the exact registere
   const iconStyle=[...h.styles].find(style=>style.dataset.role==='sidebar-icon');assert(iconStyle?.isConnected);
   const icon='data:image/svg+xml;base64,'+readFileSync(new URL('../icon.svg',import.meta.url)).toString('base64');
   assert.equal(app.icon,icon);assert.equal(iconStyle.textContent,sidebarIconCss(icon));
-  select(app,'default');assert.equal(h.css(),'');assert(iconStyle.isConnected);assert.equal(h.styles.size,1);
+  select(app,'default');assert.equal(h.css(),'');assert(iconStyle.isConnected);assert.equal(h.styles.size,2);
   app.dispose();assert.equal(h.styles.size,0);assert(!iconStyle.isConnected);
 });

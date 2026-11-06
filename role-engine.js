@@ -127,7 +127,7 @@ export function createRoleEngine(originalColors={}) {
     const ownBackgroundNames=["own","ownHover","ownHighlight"];
     const prominentNames=["prominent","prominentHover","prominentPressed"];
     const backgrounds=names=>names.map(name=>surfaces[name]);
-    const checks={},inks={},borders={},signals={};
+    const checks={},inks={},borders={},signals={},categorical={};
     const add=(destination,name,index,backgroundNames,preferred,minLc,minWcag=4.5,polarity=appearance,chroma=.12)=>{
       const solved=solveInk(hue(index),c(index,chroma),backgrounds(backgroundNames),
         {preferred,minLc,minWcag,polarity});
@@ -151,9 +151,9 @@ export function createRoleEngine(originalColors={}) {
     add(borders,"focus",1,genericNames,60,45,3,appearance,.18);
     // Merged GitHub state stays categorical purple, including own messages;
     // it must not inherit the user's primary/link hue.
-    for(const [name,names] of [["categoricalPurpleIcon",genericNames],["categoricalPurpleIconOwn",ownBackgroundNames]]) {
+    for(const [name,names] of [["purpleIcon",genericNames],["purpleIconOwn",ownBackgroundNames]]) {
       const solved=solveInk(307,.4,backgrounds(names),{preferred:45,minLc:45,minWcag:3,polarity:appearance});
-      inks[name]=solved.hex;checks["ink."+name]={...solved,backgroundNames:names};
+      categorical[name]=solved.hex;checks["categorical."+name]={...solved,backgroundNames:names};
     }
     // Colored alerts are an explicit exception to decorative monochrome.
     for(const [name,anchor] of Object.entries(signalAnchors)) {
@@ -184,7 +184,7 @@ export function createRoleEngine(originalColors={}) {
     const separation=Object.fromEntries(pairs.map(([a,b])=>[a+"/"+b,deltaE(surfaces[a],surfaces[b])]));
     const failures=Object.entries(checks).filter(([,x])=>x.apca+1e-7<x.minLc||x.wcag+1e-7<x.minWcag)
       .map(([role,value])=>({role,...value}));
-    return {surfaces,inks,borders,signals,measurements:{checks,separation,failures,passes:failures.length===0}};
+    return {surfaces,inks,borders,signals,categorical,measurements:{checks,separation,failures,passes:failures.length===0}};
   }};
 }
 

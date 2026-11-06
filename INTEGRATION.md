@@ -44,6 +44,9 @@ The public `.buzz-switch-control` uses a local semantic binding for its unchecke
 thumb, because Buzz otherwise reuses the prominent ink over a subtle track.
 Tests include both switch states, call fills as both buttons and phone icons,
 Todo status icons, and tinted availability labels.
+During a palette commit, an owned flag briefly suppresses CSS transitions until
+the new fills and inks are painted together. It clears after two animation
+frames, preserving normal hover/motion transitions between palette changes.
 Merged-PR icons retain a fixed categorical purple, with separate contrast solves
 for ordinary and own-message backgrounds; decorative hue rotation does not
 turn them into a different GitHub state.

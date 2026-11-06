@@ -326,11 +326,12 @@ See [ALGORITHM.md](https://github.com/bluepinkneon/buzz-chroma/blob/main/ALGORIT
 - `palette-preview.js`: labeled palette, console and semantic-color previews.
 - `sidebar-icon.js`: scoped monochrome icon rendering across Buzz versions.
 - `terminal-theme.js`: owned root values for Buzz’s terminal refresh observer.
+- `palette-transition.js`: a short, owned commit guard against polarity flashes.
 - `colors-page.css`: responsive controls and live-palette layout.
 - `vendor/bluepinkneon/`: unchanged original generator with hash provenance.
 - `shepherd-theme.css`: original 152-color snapshot.
-- `test/role-graph.json`: authored graph based on Buzz’s public contrast checks
-  and the pinned installed-host consumer audit.
+- `test/role-graph.json`: original graph from Buzz main `067db608`, with added
+  consumer contexts independently verified at desktop 0.7.9 `8ad11326`.
 
 ## Icon source
 
