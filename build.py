@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import base64
 
 root = Path(__file__).resolve().parent
 dist = root / "dist"
@@ -24,10 +25,11 @@ refs = {}
 for key, value in colors.items():
     if not key.startswith("--palette-"):
         refs[key] = next(k for k, v in palette_colors.items() if v == value)
-prefix = "// Chroma for Buzz — MIT. Built from the original OKLCH/APCA generator.\n"
+prefix = "// OKLCHAPCA for Buzz — MIT. Built from the original OKLCH/APCA generator.\n"
 prefix += "const ORIGINAL_COLORS = " + json.dumps(colors) + ";\n"
 prefix += "const TOKEN_REFS = " + json.dumps(refs) + ";\n"
 prefix += "const ROLE_CSS = " + json.dumps((root / "buzz-roles.css").read_text()) + ";\n"
+prefix += "const PLUGIN_ICON = " + json.dumps("data:image/png;base64," + base64.b64encode((root / "icon.png").read_bytes()).decode()) + ";\n"
 with tempfile.TemporaryDirectory(prefix="buzz-chroma-build-") as temp:
     stage = Path(temp)
     shutil.copytree(root / "vendor", stage / "vendor")
@@ -46,6 +48,6 @@ with tempfile.TemporaryDirectory(prefix="buzz-chroma-build-") as temp:
     (stage / "entry.js").write_text(prefix + (root / "runtime.js").read_text())
     subprocess.run(["bun", "build", "entry.js", "--target=browser", "--format=esm", "--minify",
                     "--outfile=" + str(dist / "plugin.js")], cwd=stage, check=True)
-for name in ["manifest.json", "README.md", "LICENSE"]:
+for name in ["manifest.json", "README.md", "LICENSE", "icon.png"]:
     shutil.copy2(root / name, dist / name)
 print(f"Built dist/plugin.js ({(dist / 'plugin.js').stat().st_size} bytes); original OKLCH/APCA generator bundled")

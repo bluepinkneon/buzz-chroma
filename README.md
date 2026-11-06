@@ -1,6 +1,10 @@
-# Chroma for Buzz
+# OKLCHAPCA for Buzz
 
-Chroma is a palette generator and theme selector for [Buzz](https://github.com/block/buzz-app).
+<img src="icon.png" alt="OKLCHAPCA's blue, pink and neon color wheel" width="96" height="96">
+
+**Three choices. A full theme, built on OKLCH and APCA.**
+
+OKLCHAPCA is a palette generator and theme selector for [Buzz](https://github.com/block/buzz-app).
 Deep purple surfaces, blue selections, pink accents, and neon text—plus controls
 to make the palette your own.
 
@@ -11,26 +15,28 @@ are needed to install the plugin.
 
 1. Open **Settings → Plugins → Manage plugins → Add**.
 2. In **Git or GitHub repository**, enter:
-   `https://github.com/bluepinkneon/buzz-chroma`
-3. Set the branch/tag to **v1.0.0**, choose **Find**, then select **dist**.
-4. Review and install **Chroma**. Enable it if your Buzz version leaves new
+   `https://github.com/bluepinkneon/buzz-oklchapca`
+3. Set the branch/tag to **v1.0.1**, choose **Find**, then select **dist**.
+4. Review and install **OKLCHAPCA**. Enable it if your Buzz version leaves new
    plugins disabled.
 5. Close Settings and open **Themes**, directly below **Inbox** in the sidebar.
 
 Or open this Buzz install URL from a browser or link-capable app:
 
 ```text
-buzz://plugin-install?repository=bluepinkneon%2Fbuzz-chroma&ref=v1.0.0&path=dist
+buzz://plugin-install?repository=bluepinkneon%2Fbuzz-oklchapca&ref=v1.0.1&path=dist
 ```
 
 GitHub may not make custom-protocol links clickable. On macOS, the equivalent is:
 
 ```sh
-open 'buzz://plugin-install?repository=bluepinkneon%2Fbuzz-chroma&ref=v1.0.0&path=dist'
+open 'buzz://plugin-install?repository=bluepinkneon%2Fbuzz-oklchapca&ref=v1.0.1&path=dist'
 ```
 
-For a folder install, download the ZIP from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases),
+For a folder install, download the ZIP from [Releases](https://github.com/bluepinkneon/buzz-oklchapca/releases),
 extract it, then choose **Add → Browse** and select the extracted plugin folder.
+
+The name combines **OKLCH** (the perceptual color space) and **APCA** (the text-contrast method). Formerly Chroma; the plugin ID and saved preferences are preserved.
 
 ## Make a palette
 
@@ -46,7 +52,7 @@ Preferences stay on this device and survive app restarts.
 
 ## Restore Buzz's appearance
 
-Choose **Buzz default** on the Themes page, or disable Chroma under
+Choose **Buzz default** on the Themes page, or disable OKLCHAPCA under
 **Settings → Manage plugins**. Both remove the plugin-owned stylesheet. Your
 saved Buzz appearance preferences are not changed.
 
@@ -85,7 +91,9 @@ separate stylesheets or assets are needed by Buzz.
 
 ## How the algorithm works
 
-See [ALGORITHM.md](ALGORITHM.md) for the hue wheel, shade steps and contrast targets.
+See [ALGORITHM.md](https://github.com/bluepinkneon/buzz-oklchapca/blob/main/ALGORITHM.md) for the hue wheel, shade steps and contrast targets.
+It also records the current adapter's status-color, preset-transition and picker
+limitations found in an independent review.
 
 ## License
 

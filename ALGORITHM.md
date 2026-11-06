@@ -19,6 +19,11 @@ Primary drives the related surface families; the neon-accent hue also drives the
 text family. Rotation adds the same angle to all three selected hues. Each color
 picker supplies a hue; the generator determines lightness and chroma.
 
+The original generator's three inputs were **Anchor**, **ANSI Index** (which wheel
+position supplies each semantic color), and **Brand Index** (position and shade
+for primary, secondary and accent). The Buzz adapter's three hue pickers are a
+different control model; they do not expose those original role assignments.
+
 ## Twelve shades per family
 
 Steps 0–7 use fixed OKLCH lightness/chroma pairs:
@@ -66,9 +71,40 @@ element the same brightness.
 - Independent hue choices and sRGB conversion can change contrast relationships.
   Review the actual UI after making a custom palette.
 - The BluePinkNeon reset preserves all 152 color tokens from the original
-  Shepherd stylesheet exactly, avoiding generator-version rounding drift.
+  Shepherd stylesheet exactly. Its red and green were manually tuned outside
+  the original 45° wheel. The current exact-preset special case therefore creates
+  a visible jump in those signal colors when rotation first leaves zero; this is
+  not merely generator-version rounding drift.
 - This plugin currently applies the dark palette. Buzz's saved Light/System
   preference is preserved and takes effect again when the plugin is disabled.
+
+## Current Buzz-adapter gaps
+
+A review of v1.0.0 reproduced these limitations in the shipped module. The icon
+and description update does not change its color calculations.
+
+- **Semantic colors rotate and can coincide.** Danger follows primary +180°;
+  success follows the independently selected accent. Those hues can be identical.
+  In one example, an orange accent produces success `#ffa742` beside danger
+  `#ffa55d`. Keep signal roles separate from decorative color rotation in a future
+  adapter revision.
+- **The preset has a discontinuity.** The generated default differs from the
+  snapshot in 22 of 96 palette entries, all in the hand-tuned danger/success
+  families. A one-degree departure can change danger by about 13.8 on a
+  0–100-scaled OKLab distance, much more than a normal one-degree step.
+- **The RGB picker round-trip can change hue.** The generator converts colors
+  outside the sRGB gamut by channel clamping. Reading the hue back from that
+  rendered swatch is not an inverse of generation: 204 of 360 step-7 swatches
+  change the saved hue when reselected. Neutral RGB picks lose their chroma and
+  fall back to hue zero, producing pink. The original grayscale mode is not
+  exposed by this adapter.
+
+The same review confirmed strong body-text contrast across all 360 × 360 text
+and surface hue pairs: the panel minimum was approximately APCA Lc 89.7. These
+results support the text-table design, not a claim that every control is covered.
+Dark ink on step-7 accent fills measured WCAG contrast 5.12–7.06 and APCA Lc
+36.8–48.5 across the hue wheel. Button typography and fill lightness need their
+own design decision; changing the ink alone does not satisfy both targets.
 
 The implementation is in `vendor/bluepinkneon/palette.ts`, `apca-lookup.ts`,
 `okcolor.ts`, and the Buzz adapter in `runtime.js`.

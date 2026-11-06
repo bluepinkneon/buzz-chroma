@@ -66,7 +66,7 @@ export function apply(ctx) {
     for (const listener of listeners) listener();
   }
 
-  ctx.pages.register({ id: "themes", title: "Themes", primary: true,
+  ctx.pages.register({ id: "themes", title: "Themes", primary: true, icon: PLUGIN_ICON,
     component: function Themes() {
       const [, update] = React.useState(0);
       React.useEffect(() => {
@@ -81,7 +81,7 @@ export function apply(ctx) {
       return h("section", { className: "ui-card",
         style: { padding: "var(--space-panel-inset, 24px)", maxWidth: "640px" } },
         h("h1", null, "Themes"),
-        h("p", null, "Chroma — make a color palette for Buzz."),
+        h("p", null, "Three choices. A full theme, built on OKLCH and APCA."),
         h("label", { htmlFor: "bluepinkneon-choice" }, "Theme "),
         h("select", { id: "bluepinkneon-choice", value: choice.theme, style: control,
           onChange: (event) => { if (["default", "bluepinkneon"].includes(event.target.value)) save({ ...choice, theme: event.target.value }); } },

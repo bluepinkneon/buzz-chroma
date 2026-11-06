@@ -1,5 +1,5 @@
 {
-  "name": "buzz-chroma",
+  "name": "buzz-oklchapca",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
   "dependencies": {
     "culori": "4.0.2"
   },
-  "version": "1.0.0",
-  "description": "Chroma: a color palette generator and theme selector for Buzz",
+  "version": "1.0.1",
+  "description": "Three choices. A full theme, built on OKLCH and APCA.",
   "license": "MIT"
 }
