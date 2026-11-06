@@ -3,12 +3,12 @@ import { hexToOklch, oklchToHex, solveApcaLightness } from "./vendor/bluepinkneo
 import { createRoleEngine } from "./role-engine.js";
 import { mapRoles, roleCss } from "./role-map.js";
 import { PRESETS, findPreset, applyPreset } from "./presets.js";
-import { LOCAL_LIMIT, LIBRARY_KEY, paletteSnapshot, paletteKey, themeSlug } from "./local-themes.js";
+import { LOCAL_LIMIT, LIBRARY_KEY, paletteSnapshot, paletteKey, themeSlug, isThemeName } from "./local-themes.js";
 
 export const inject = ["react", "pages"];
 const degree = (value) => ((Math.round(value) % 360) + 360) % 360;
 const defaults = () => ({ theme: "bluepinkneon", hues: [224, 359, 179], rotation: 0,
-  mode: "color", monoHue: null, neutral: false, neutrals: [false,false,false], appearance: "dark",surfaceOffset:90 });
+  mode: "color", monoHue: null, neutral: false, neutrals: [false,false,false], appearance: "dark",surfaceOffset:90,localName:null });
 const effectiveHues = (choice) => choice.hues.map((hue) => degree(hue + choice.rotation));
 const monoHue = (choice) => degree((choice.monoHue ?? choice.hues[0]) + choice.rotation);
 const monoIsNeutral = (choice) => choice.neutral || (choice.monoHue === null && choice.neutrals[0]);
@@ -80,11 +80,20 @@ function readChoice(saved, legacy) {
   if (legacy) hues[2] = degree(hues[2] + 45); // v2 stored the text family's preceding hue.
   if (!legacy && (saved.appearance !== undefined && !["dark","light","auto"].includes(saved.appearance)
     || saved.neutrals !== undefined && (!Array.isArray(saved.neutrals) || saved.neutrals.length !== 3 || !Array.from(saved.neutrals).every(v=>typeof v === "boolean"))
-    || saved.surfaceOffset !== undefined && ![0,90].includes(saved.surfaceOffset))) return null;
+    || saved.surfaceOffset !== undefined && ![0,90].includes(saved.surfaceOffset)
+    || saved.localName != null && !isThemeName(saved.localName))) return null;
   return { ...defaults(), theme: saved.theme, hues, rotation: degree(saved.rotation),
     appearance: legacy ? "dark" : saved.appearance ?? "dark", neutrals: legacy ? [false,false,false] : saved.neutrals ?? [false,false,false],
     surfaceOffset:legacy?90:saved.surfaceOffset??90,
+    localName:legacy?null:saved.localName??null,
     ...(legacy ? {} : { mode: saved.mode, neutral: saved.neutral, monoHue: saved.monoHue === null ? null : degree(saved.monoHue) }) };
+}
+
+function readLocalEntry(entry) {
+  if(!entry||typeof entry!=="object"||Array.isArray(entry)||Object.keys(entry).some(key=>!["name","look"].includes(key))||JSON.stringify(entry).length>2048||!isThemeName(entry.name)||PRESETS.some(preset=>preset.id===entry.name))return null;
+  if(!entry.look||Object.keys(entry.look).some(key=>!["hues","rotation","neutrals","mode","monoHue","neutral","surfaceOffset"].includes(key)))return null;
+  const look=readChoice({...entry.look,theme:"bluepinkneon",appearance:"dark"},false);
+  return look?{name:entry.name,look:paletteSnapshot(look)}:null;
 }
 
 export function apply(ctx) {
@@ -93,6 +102,7 @@ export function apply(ctx) {
   let choice = defaults();
   let warning = "";
   let localThemes = [];
+  let libraryLocked = false;
   const listeners = new Set();
   let renderTheme = () => {};
   const engine = createRoleEngine(ORIGINAL_COLORS);
@@ -120,14 +130,12 @@ export function apply(ctx) {
       const entries=JSON.parse(raw),seen=new Set();
       if(!Array.isArray(entries)||entries.length>LOCAL_LIMIT)throw new Error("invalid library");
       for(const entry of entries) {
-        if(!entry||Object.keys(entry).some(key=>!["name","look"].includes(key))||JSON.stringify(entry).length>2048||typeof entry.name!=="string"||entry.name.length>60||entry.name!==themeSlug(entry.name)||!entry.name||seen.has(entry.name)||PRESETS.some(preset=>preset.id===entry.name))throw new Error("invalid theme name");
-        if(!entry.look||Object.keys(entry.look).some(key=>!["hues","rotation","neutrals","mode","monoHue","neutral","surfaceOffset"].includes(key)))throw new Error("invalid theme fields");
-        const look=readChoice({...entry.look,theme:"bluepinkneon",appearance:"dark"},false);
-        if(!look)throw new Error("invalid theme palette");
-        seen.add(entry.name);localThemes.push({name:entry.name,look:paletteSnapshot(look)});
+        const parsed=readLocalEntry(entry);
+        if(!parsed||seen.has(parsed.name))throw new Error("invalid theme entry");
+        seen.add(parsed.name);localThemes.push(parsed);
       }
     }
-  } catch { localThemes=[];warning="Could not read the local theme library. Its stored data has been left untouched."; }
+  } catch { localThemes=[];libraryLocked=true;warning="Could not read the local theme library. Its stored data has been left untouched. Saving is locked until you explicitly reset it."; }
 
   ctx.effect(() => {
     const root = document.documentElement;
@@ -169,6 +177,7 @@ export function apply(ctx) {
 
   function save(next) {
     overrides.clear(); // A person changing the controls takes back ownership.
+    if(next.localName&&!localThemes.some(theme=>theme.name===next.localName&&paletteKey(theme.look)===paletteKey(next)))next={...next,localName:null};
     choice = next; warning = "";
     try { localStorage.setItem(storageKey, JSON.stringify(choice)); }
     catch { warning = "Applied for now, but could not save. Buzz may reset this palette after restart."; }
@@ -177,20 +186,34 @@ export function apply(ctx) {
   }
 
   function saveLibrary(next) {
-    localThemes=next;warning="";
+    if(libraryLocked)return false;
+    const parsed=next.map(readLocalEntry);
+    if(next.length>LOCAL_LIMIT||parsed.some(entry=>entry===null)||new Set(parsed.map(entry=>entry.name)).size!==parsed.length) {
+      warning="The theme library update was refused. Existing saved themes were not changed.";
+      for(const listener of listeners)listener();return false;
+    }
+    localThemes=parsed;warning="";
+    let saved=true;
     try {localStorage.setItem(LIBRARY_KEY,JSON.stringify(localThemes));}
-    catch {warning="Theme library changed for this session, but could not be saved on this device.";}
+    catch {saved=false;warning="Theme library changed for this session, but could not be saved on this device.";}
     for(const listener of listeners)listener();
+    return saved;
   }
 
   function saveLocalTheme(name) {
+    if(libraryLocked)return;
     if(activeChoice().theme!=="bluepinkneon") {warning="Choose a palette before saving it.";return;}
     const base=themeSlug(name);
     if(!base) {warning="Use a theme name with letters a–z or numbers.";for(const listener of listeners)listener();return;}
     if(localThemes.length>=LOCAL_LIMIT) {warning=`You can save up to ${LOCAL_LIMIT} local themes. Remove one first.`;for(const listener of listeners)listener();return;}
     let unique=base,index=2;
-    while(localThemes.some(theme=>theme.name===unique)||PRESETS.some(preset=>preset.id===unique))unique=base.slice(0,55)+"-"+index++;
-    saveLibrary([...localThemes,{name:unique,look:paletteSnapshot(activeChoice())}]);
+    while(localThemes.some(theme=>theme.name===unique)||PRESETS.some(preset=>preset.id===unique)) {
+      const suffix="-"+index++;unique=base.slice(0,60-suffix.length).replace(/-+$/g,"")+suffix;
+    }
+    const next={...activeChoice(),localName:unique};
+    const persisted=saveLibrary([...localThemes,{name:unique,look:paletteSnapshot(next)}]);
+    save(next);
+    if(!persisted){warning="Theme library changed for this session, but could not be saved on this device.";for(const listener of listeners)listener();}
   }
 
   function chooseColor(index, hex) {
@@ -230,8 +253,10 @@ export function apply(ctx) {
     // A full getLook() snapshot is also a valid request. Metadata is read-only;
     // palette fields go through the same validator as saved user preferences.
     if(Object.hasOwn(options,"theme")&&Object.hasOwn(options,"hues")) {
-      const keys=["theme","hues","rotation","mode","monoHue","neutral","neutrals","appearance","surfaceOffset","preset","resolvedAppearance"];
+      const keys=["theme","hues","rotation","mode","monoHue","neutral","neutrals","appearance","surfaceOffset","localName","preset","resolvedAppearance"];
       if(Object.keys(options).some(key=>!keys.includes(key)))throw new TypeError("Unknown snapshot field");
+      if(options.preset!==undefined&&(typeof options.preset!=="string"||!(options.preset==="custom"||PRESETS.some(preset=>preset.id===options.preset))))throw new TypeError("Invalid snapshot preset metadata");
+      if(options.resolvedAppearance!==undefined&&!["dark","light"].includes(options.resolvedAppearance))throw new TypeError("Invalid snapshot appearance metadata");
       const restored=readChoice(options,false);
       if(!restored)throw new TypeError("Invalid theme snapshot");
       return restored;
@@ -309,8 +334,8 @@ export function apply(ctx) {
       const h = React.createElement;
       const colors = paletteFor(choice);
       const hues = effectiveHues(choice);
-      const preset = findPreset(choice);
-      const localTheme = localThemes.find(theme=>paletteKey(theme.look)===paletteKey(choice));
+      const preset = choice.localName ? null : findPreset(choice);
+      const localTheme = localThemes.find(theme=>theme.name===choice.localName&&paletteKey(theme.look)===paletteKey(choice));
       const paletteName = localTheme?.name ?? preset?.id ?? "custom";
       const control = { color: "var(--text-standard)", background: "var(--surface-panel)",
         border: "1px solid var(--border-prominent)", borderRadius: "6px", padding: "8px" };
@@ -335,7 +360,7 @@ export function apply(ctx) {
             else if(PRESETS.some(preset=>preset.id===id))save(applyPreset(choice,id));
             else if(id.startsWith("local:")) {
               const theme=localThemes.find(theme=>`local:${theme.name}`===id);
-              if(theme)save({...choice,...structuredClone(theme.look),theme:"bluepinkneon"});
+              if(theme)save({...choice,...structuredClone(theme.look),theme:"bluepinkneon",localName:theme.name});
             }
           } },
           h("option", { value: "default" }, "Buzz default"),
@@ -390,8 +415,15 @@ export function apply(ctx) {
           h("legend",null,"Save your theme"),
           h("label",{style:{display:"grid",gap:"8px"}},"Theme name",
             h("input",{type:"text","aria-label":"Theme name",maxLength:60,value:localName,placeholder:"my-night-palette",style:control,onChange:event=>setLocalName(event.target.value)})),
-          h("button",{type:"button",style:{...control,marginTop:"12px"},disabled:choice.theme==="default",onClick:()=>saveLocalTheme(localName)},"Save locally"),
-          ...(localTheme?[h("button",{type:"button",style:{...control,marginLeft:"8px"},onClick:()=>saveLibrary(localThemes.filter(theme=>theme.name!==localTheme.name))},"Remove saved theme")]:[]),
+          h("button",{type:"button",style:{...control,marginTop:"12px"},disabled:libraryLocked||choice.theme==="default",onClick:()=>saveLocalTheme(localName)},"Save locally"),
+          ...(libraryLocked?[h("p",null,"Reset permanently removes the stored library, including unreadable entries. Your active palette is kept."),h("button",{type:"button",style:control,onClick:()=>{
+            try{localStorage.setItem(LIBRARY_KEY,"[]");localThemes=[];libraryLocked=false;save({...choice,localName:null});}
+            catch{warning="Could not reset the local library. Stored data was not changed.";for(const listener of listeners)listener();}
+          }},"Reset local library")]:[]),
+          ...(localTheme?[h("button",{type:"button",style:{...control,marginLeft:"8px"},onClick:()=>{
+            const persisted=saveLibrary(localThemes.filter(theme=>theme.name!==localTheme.name));save({...choice,localName:null});
+            if(!persisted){warning="Theme library changed for this session, but could not be saved on this device.";for(const listener of listeners)listener();}
+          }},"Remove saved theme")]:[]),
           h("p",null,"Names use kebab-case. Saved only on this device; nothing is uploaded.")),
         h("div", { "aria-label": "Palette preview", style: { background: "var(--surface-panel)", color: "var(--text-standard)", borderRadius: "8px", padding: "16px", marginTop: "20px" } },
           h("div", { style: { display: "flex", gap: "8px", marginBottom: "12px" } },

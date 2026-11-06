@@ -496,5 +496,5 @@ export function applyPreset(choice,id) {
   const preset=PRESETS.find(preset=>preset.id===id);
   if(!preset)throw new TypeError("Unknown preset");
   return {...choice,theme:"bluepinkneon",hues:[...preset.hues],rotation:0,mode:preset.defaultMode,
-    neutrals:[...(preset.neutrals??[false,false,false])],monoHue:null,neutral:preset.defaultNeutral,surfaceOffset:preset.surfaceOffset};
+    neutrals:[...(preset.neutrals??[false,false,false])],monoHue:null,neutral:preset.defaultNeutral,surfaceOffset:preset.surfaceOffset,localName:null};
 }

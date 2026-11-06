@@ -124,6 +124,9 @@ keeping your current Light/Dark/Auto preference. Duplicate names receive a
 suffix; built-ins and earlier saves are never overwritten. **Remove saved theme**
 removes the local copy and keeps the current colors as an unsaved look.
 
+If the stored library is unreadable, Save/Remove stay locked to protect it. Only
+the explicit **Reset local library** button clears those stored bytes.
+
 Up to 50 themes are stored in the device’s localStorage. Nothing is uploaded.
 Disabling the plugin keeps them; clearing app/site data can remove them.
 
@@ -170,7 +173,8 @@ Without an explicit angle, a monochrome color renders as picked while preserving
 the saved full-color rotation, matching the UI.
 
 `listPresets()` returns a copy of the built-in catalog. `getLook()` returns a
-copy of the active settings and resolved appearance. A complete `getLook()`
+copy of the active settings and resolved appearance. Its `preset` identifies the
+underlying three-color recipe; mode and monochrome overrides can differ. A complete `getLook()`
 snapshot can be passed back to `setLook()` without changing its colors.
 `surfaceOffset` is the relationship recipe, either `0` (primary-colored ground)
 or `90` (the original quarter-wheel ground). It is returned in snapshots and may

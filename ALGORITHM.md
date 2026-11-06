@@ -125,7 +125,9 @@ The local library is separate from the active preference. A saved record contain
 a capped kebab-case name and the palette settings, without a forced appearance.
 It is bounded to 50 entries, 60 name characters, 2,048 characters per stored entry
 and 131,072 characters for the library. It uses the shared preference validator,
-rejects foreign fields and leaves invalid stored data untouched. Duplicate saves
+rejects foreign fields and locks writes after a refused load, leaving invalid
+stored data untouched until an explicit library reset. The same entry validator
+runs on load and every write. Duplicate saves
 receive new names rather than overwriting a built-in or another user theme.
 Deleting a theme never removes the currently applied colors.
 
