@@ -1,0 +1,5181 @@
+{
+  "schemaVersion": 1,
+  "description": "Independently authored Buzz semantic-role test inventory for generated theme CSS. Role names are public API/source identifiers. Direct pairs assume an opaque fill; use overlay recipes whenever resolved alpha is below 1.",
+  "sourceCommit": "067db608fbc624e56161ccf3e4ff1c0f11c30baf",
+  "sources": {
+    "contract": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/plugins/api.ts",
+    "contrastInventory": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/scripts/design-system/check-contrast.mjs",
+    "semanticRoles": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/shared/design-system/styles/tokens.css",
+    "interactions": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/shared/design-system/styles/components.css",
+    "surfaceAliases": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/shared/design-system/styles/materials.css",
+    "messagePaint": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/features/messages/Messages.module.css",
+    "inlineReferences": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/shared/InlineReference.module.css",
+    "nativeSelection": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/shared/design-system/styles/typography.css"
+  },
+  "thresholds": {
+    "body": {
+      "wcag": 4.5,
+      "apcaAbs": 60
+    },
+    "metadata": {
+      "wcag": 4.5,
+      "apcaAbs": 45
+    },
+    "nontext": {
+      "wcag": 3
+    },
+    "inactive": {
+      "exempt": true
+    }
+  },
+  "measurement": {
+    "colorSpace": "sRGB",
+    "sourceOver": "For each layer, effective alpha = parsed fill alpha * opacity. Composite each sRGB channel as src*alpha + dst*(1-alpha), then compute luminance/APCA from the composited result. Resolve nested recipe layers bottom to top.",
+    "highlightTimeline": {
+      "keyframes": [
+        {
+          "offset": 0,
+          "opacity": 1
+        },
+        {
+          "offset": 0.45,
+          "opacity": 1
+        },
+        {
+          "offset": 1,
+          "opacity": 0
+        }
+      ],
+      "timingFunction": "ease-out",
+      "duration": "calc(var(--duration-settle) * 10)",
+      "reducedMotion": "steps(1,end), unchanged endpoints",
+      "peakOpacity": 1,
+      "fixedAlpha": null
+    },
+    "animationSampling": "Opacity samples cover the envelope; they are not equally spaced animation timestamps. Contrast may be non-monotonic for chromatic fills, so a denser sweep is suitable when intermediate samples approach thresholds.",
+    "transparentBacking": "Compact/unboxed messages expose the feed panel. A supplied transparent page/thread host must provide its actual backing.",
+    "foregroundAlpha": "Composite partially transparent foreground ink over its measured background before luminance."
+  },
+  "legacyRoleMappings": {
+    "--bg-app": "--token-bg",
+    "--surface-base": "--token-bg",
+    "--surface-panel": "--token-bg-subtle",
+    "--surface-composer": "--token-bg-subtle",
+    "--surface-popover": "--palette-shadow-3",
+    "--surface-inset": "--palette-shadow-1",
+    "--surface-inverse": "--token-fg",
+    "--surface-elevated-glass": "--palette-shadow-3",
+    "--bg-panel": "--token-bg-subtle",
+    "--bg-float": "--palette-shadow-3",
+    "--bg-glass-primary": "--token-bg",
+    "--bg-glass-primary-hover": "--palette-shadow-3",
+    "--bg-glass-secondary": "--palette-shadow-3",
+    "--bg-glass-secondary-hover": "--palette-shadow-4",
+    "--bg-chrome-selected": "--palette-primary-3",
+    "--text-standard": "--token-fg",
+    "--text-navigation": "--token-fg",
+    "--text-navigation-unread": "--palette-primary-10",
+    "--text-subtle": "--token-fg-muted",
+    "--text-metadata": "--token-fg-sub",
+    "--text-quiet-control": "--token-fg-sub",
+    "--text-unavailable": "--palette-light-6",
+    "--text-inverse": "--token-bg",
+    "--text-primary": "--token-fg",
+    "--text-secondary": "--token-fg-muted",
+    "--text-tertiary": "--token-fg-sub",
+    "--text-disabled": "--palette-light-6",
+    "--text-link": "--palette-primary-9",
+    "--text-accent": "--palette-primary-9",
+    "--border-standard": "--token-border",
+    "--border-primary": "--token-border",
+    "--border-message-thread": "--palette-shadow-5",
+    "--border-prominent": "--palette-shadow-6",
+    "--border-control": "--palette-shadow-6",
+    "--border-focus": "--palette-secondary-8",
+    "--border-accent": "--palette-primary-9",
+    "--scrollbar-thumb": "--palette-shadow-6",
+    "--scrollbar-thumb-quiet": "--palette-shadow-4",
+    "--affordance-prominent": "--palette-primary-7",
+    "--affordance-prominent-hover": "--palette-primary-8",
+    "--affordance-prominent-pressed": "--palette-primary-9",
+    "--affordance-prominent-mark": "--palette-primary-9",
+    "--text-on-prominent": "--palette-primary-0",
+    "--affordance-subtle": "--palette-shadow-4",
+    "--affordance-subtle-hover": "--palette-shadow-5",
+    "--affordance-subtle-pressed": "--palette-shadow-6",
+    "--affordance-backdrop-hover": "--palette-shadow-3",
+    "--affordance-backdrop-pressed": "--palette-shadow-4",
+    "--affordance-selected": "--palette-primary-3",
+    "--affordance-disabled": "--palette-shadow-4",
+    "--affordance-row-hover": "--palette-shadow-4",
+    "--text-row": "--token-fg",
+    "--text-row-subtle": "--token-fg-muted",
+    "--text-row-metadata": "--token-fg-sub",
+    "--surface-navigation-selected": "--palette-primary-3",
+    "--affordance-navigation-selected": "--palette-primary-3",
+    "--text-navigation-selected": "--palette-primary-10",
+    "--text-row-selected": "--palette-primary-10",
+    "--text-row-selected-subtle": "--token-fg",
+    "--text-row-selected-metadata": "--token-fg-muted",
+    "--surface-row-selected-detail": "--palette-primary-4",
+    "--text-row-selected-detail": "--palette-primary-10",
+    "--surface-control-selected": "--palette-primary-3",
+    "--text-control-selected": "--palette-primary-10",
+    "--affordance-chrome": "--palette-shadow-4",
+    "--affordance-chrome-hover": "--palette-shadow-5",
+    "--text-chrome-subtle": "--token-fg-muted",
+    "--affordance-navigation-quiet": "--palette-shadow-3",
+    "--affordance-panel-hover": "--palette-shadow-4",
+    "--affordance-floating-hover": "--palette-shadow-5",
+    "--affordance-popover-selected": "--palette-primary-3",
+    "--affordance-floating-control": "--palette-shadow-4",
+    "--affordance-floating-control-hover": "--palette-shadow-5",
+    "--affordance-floating-control-pressed": "--palette-shadow-6",
+    "--affordance-floating-selected": "--palette-primary-3",
+    "--border-floating-control": "--palette-shadow-6",
+    "--surface-sidebar-selected": "--palette-primary-7",
+    "--text-sidebar-selected": "--palette-primary-0",
+    "--text-sidebar-hover": "--palette-primary-10",
+    "--affordance-sidebar-hover": "--palette-primary-3",
+    "--affordance-accent": "--palette-primary-3",
+    "--affordance-accent-hover": "--palette-primary-4",
+    "--affordance-accent-prominent": "--palette-primary-7",
+    "--affordance-accent-prominent-hover": "--palette-primary-8",
+    "--affordance-accent-prominent-pressed": "--palette-primary-9",
+    "--text-on-accent": "--palette-primary-0",
+    "--surface-message": "--palette-shadow-3",
+    "--surface-message-hover": "--palette-shadow-4",
+    "--surface-message-own": "--palette-secondary-3",
+    "--surface-message-own-hover": "--palette-secondary-4",
+    "--text-message-own": "--palette-secondary-10",
+    "--text-message-link": "--palette-primary-9",
+    "--text-message-link-own": "--palette-primary-10",
+    "--text-metadata-own": "--palette-secondary-9",
+    "--icon-subtle-own": "--palette-secondary-9",
+    "--affordance-message-own-hover": "--palette-secondary-4",
+    "--affordance-message-highlight": "--palette-primary-3",
+    "--affordance-message-own-highlight": "--palette-secondary-5",
+    "--surface-message-highlight": "--palette-primary-3",
+    "--affordance-reaction": "--palette-shadow-4",
+    "--affordance-reaction-own": "--palette-secondary-4",
+    "--affordance-mention": "--palette-primary-3",
+    "--affordance-mention-hover": "--palette-primary-4",
+    "--text-mention": "--palette-primary-10",
+    "--affordance-mention-self": "--palette-secondary-7",
+    "--affordance-mention-self-hover": "--palette-secondary-8",
+    "--text-mention-self": "--palette-secondary-0",
+    "--affordance-mention-own": "--palette-secondary-4",
+    "--affordance-mention-own-hover": "--palette-secondary-5",
+    "--text-mention-own": "--palette-secondary-10",
+    "--surface-text-selection": "--palette-primary-7",
+    "--text-on-selection": "--palette-primary-0",
+    "--surface-text-selection-own": "--palette-secondary-7",
+    "--text-on-selection-own": "--palette-secondary-0",
+    "--text-danger": "--token-danger",
+    "--text-warning": "--palette-warm-10",
+    "--text-success": "--token-success",
+    "--border-danger": "--palette-contrast-7",
+    "--border-warning": "--token-warn",
+    "--affordance-danger": "--palette-contrast-3",
+    "--affordance-danger-hover": "--palette-contrast-4",
+    "--affordance-danger-pressed": "--palette-contrast-5",
+    "--affordance-warning": "--palette-warm-3",
+    "--affordance-success": "--palette-accent-3",
+    "--affordance-success-hover": "--palette-accent-4",
+    "--affordance-success-pressed": "--palette-accent-5",
+    "--border-success-subtle": "--palette-accent-6",
+    "--status-online": "--token-success",
+    "--status-away": "--token-warn",
+    "--status-offline": "--palette-shadow-6"
+  },
+  "pairs": [
+    {
+      "foreground": "--text-standard",
+      "background": "--bg-app",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--surface-base",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--surface-panel",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces",
+        "neutral code/table/revealed spoiler inset inside either bubble",
+        "compact/unboxed message uses feed backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--surface-composer",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--surface-popover",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--surface-inset",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--surface-elevated-glass",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--bg-panel",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--bg-float",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--bg-glass-primary",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--bg-glass-primary-hover",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--bg-glass-secondary",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--bg-glass-secondary-hover",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--bg-app",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--surface-base",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--surface-panel",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces",
+        "neutral code/table/revealed spoiler inset inside either bubble"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--surface-composer",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--surface-popover",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--surface-inset",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--surface-elevated-glass",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--bg-panel",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--bg-float",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--bg-glass-primary",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--bg-glass-primary-hover",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--bg-glass-secondary",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--bg-glass-secondary-hover",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--bg-app",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--surface-base",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--surface-panel",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces",
+        "neutral code/table/revealed spoiler inset inside either bubble",
+        "compact/unboxed message uses feed backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--surface-composer",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--surface-popover",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--surface-inset",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--surface-elevated-glass",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--bg-panel",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--bg-float",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--bg-glass-primary",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--bg-glass-primary-hover",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--bg-glass-secondary",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--bg-glass-secondary-hover",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-primary",
+      "background": "--bg-app",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-primary",
+      "background": "--surface-base",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-primary",
+      "background": "--surface-panel",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-primary",
+      "background": "--surface-composer",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-primary",
+      "background": "--surface-popover",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-primary",
+      "background": "--surface-inset",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-primary",
+      "background": "--surface-elevated-glass",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-primary",
+      "background": "--bg-panel",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-primary",
+      "background": "--bg-float",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-primary",
+      "background": "--bg-glass-primary",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-primary",
+      "background": "--bg-glass-primary-hover",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-primary",
+      "background": "--bg-glass-secondary",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-primary",
+      "background": "--bg-glass-secondary-hover",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-secondary",
+      "background": "--bg-app",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-secondary",
+      "background": "--surface-base",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-secondary",
+      "background": "--surface-panel",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-secondary",
+      "background": "--surface-composer",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-secondary",
+      "background": "--surface-popover",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-secondary",
+      "background": "--surface-inset",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-secondary",
+      "background": "--surface-elevated-glass",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-secondary",
+      "background": "--bg-panel",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-secondary",
+      "background": "--bg-float",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-secondary",
+      "background": "--bg-glass-primary",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-secondary",
+      "background": "--bg-glass-primary-hover",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-secondary",
+      "background": "--bg-glass-secondary",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-secondary",
+      "background": "--bg-glass-secondary-hover",
+      "target": "body",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-tertiary",
+      "background": "--bg-app",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-tertiary",
+      "background": "--surface-base",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-tertiary",
+      "background": "--surface-panel",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-tertiary",
+      "background": "--surface-composer",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-tertiary",
+      "background": "--surface-popover",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-tertiary",
+      "background": "--surface-inset",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-tertiary",
+      "background": "--surface-elevated-glass",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-tertiary",
+      "background": "--bg-panel",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-tertiary",
+      "background": "--bg-float",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-tertiary",
+      "background": "--bg-glass-primary",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-tertiary",
+      "background": "--bg-glass-primary-hover",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-tertiary",
+      "background": "--bg-glass-secondary",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-tertiary",
+      "background": "--bg-glass-secondary-hover",
+      "target": "metadata",
+      "contexts": [
+        "generic text on opaque or glass-backed reading surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-subtle",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-subtle-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-subtle-pressed",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-backdrop-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-backdrop-pressed",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-selected",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-row-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-panel-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-floating-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-popover-selected",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-floating-control",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-floating-control-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-floating-control-pressed",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-floating-selected",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-chrome",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces",
+        "chrome capsule normal and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-chrome-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces",
+        "chrome capsule normal and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-navigation-quiet",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-subtle",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-subtle-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-subtle-pressed",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-backdrop-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-backdrop-pressed",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-selected",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-row-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-panel-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-floating-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-popover-selected",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-floating-control",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-floating-control-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-floating-control-pressed",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-floating-selected",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-chrome",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-chrome-hover",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-subtle",
+      "background": "--affordance-navigation-quiet",
+      "target": "body",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-subtle",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-subtle-hover",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-subtle-pressed",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-backdrop-hover",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-backdrop-pressed",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-selected",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-row-hover",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-panel-hover",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-floating-hover",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-popover-selected",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-floating-control",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-floating-control-hover",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-floating-control-pressed",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-floating-selected",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-chrome",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-chrome-hover",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--affordance-navigation-quiet",
+      "target": "metadata",
+      "contexts": [
+        "generic inks on control or row interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation",
+      "background": "--bg-app",
+      "target": "body",
+      "contexts": [
+        "navigation at rest and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation",
+      "background": "--surface-base",
+      "target": "body",
+      "contexts": [
+        "navigation at rest and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation",
+      "background": "--surface-panel",
+      "target": "body",
+      "contexts": [
+        "navigation at rest and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation",
+      "background": "--surface-composer",
+      "target": "body",
+      "contexts": [
+        "navigation at rest and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation",
+      "background": "--surface-popover",
+      "target": "body",
+      "contexts": [
+        "navigation at rest and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation",
+      "background": "--surface-inset",
+      "target": "body",
+      "contexts": [
+        "navigation at rest and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation",
+      "background": "--surface-elevated-glass",
+      "target": "body",
+      "contexts": [
+        "navigation at rest and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation",
+      "background": "--bg-panel",
+      "target": "body",
+      "contexts": [
+        "navigation at rest and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation",
+      "background": "--bg-float",
+      "target": "body",
+      "contexts": [
+        "navigation at rest and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation",
+      "background": "--affordance-navigation-quiet",
+      "target": "body",
+      "contexts": [
+        "navigation at rest and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation",
+      "background": "--affordance-row-hover",
+      "target": "body",
+      "contexts": [
+        "navigation at rest and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation",
+      "background": "--affordance-panel-hover",
+      "target": "body",
+      "contexts": [
+        "navigation at rest and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row",
+      "background": "--affordance-row-hover",
+      "target": "body",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row",
+      "background": "--affordance-selected",
+      "target": "body",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row",
+      "background": "--affordance-panel-hover",
+      "target": "body",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row",
+      "background": "--affordance-navigation-quiet",
+      "target": "body",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation-unread",
+      "background": "--affordance-row-hover",
+      "target": "body",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation-unread",
+      "background": "--affordance-selected",
+      "target": "body",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation-unread",
+      "background": "--affordance-panel-hover",
+      "target": "body",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation-unread",
+      "background": "--affordance-navigation-quiet",
+      "target": "body",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row-subtle",
+      "background": "--affordance-row-hover",
+      "target": "body",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row-subtle",
+      "background": "--affordance-selected",
+      "target": "body",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row-subtle",
+      "background": "--affordance-panel-hover",
+      "target": "body",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row-subtle",
+      "background": "--affordance-navigation-quiet",
+      "target": "body",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row-metadata",
+      "background": "--affordance-row-hover",
+      "target": "metadata",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row-metadata",
+      "background": "--affordance-selected",
+      "target": "metadata",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row-metadata",
+      "background": "--affordance-panel-hover",
+      "target": "metadata",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row-metadata",
+      "background": "--affordance-navigation-quiet",
+      "target": "metadata",
+      "contexts": [
+        "generic hovered or selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation-unread",
+      "background": "--surface-base",
+      "target": "body",
+      "contexts": [
+        "unread navigation label at rest"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation-unread",
+      "background": "--surface-panel",
+      "target": "body",
+      "contexts": [
+        "unread navigation label at rest"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row-selected",
+      "background": "--affordance-navigation-selected",
+      "target": "body",
+      "contexts": [
+        "dedicated selected navigation row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row-selected-subtle",
+      "background": "--affordance-navigation-selected",
+      "target": "body",
+      "contexts": [
+        "dedicated selected navigation row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row-selected-metadata",
+      "background": "--affordance-navigation-selected",
+      "target": "metadata",
+      "contexts": [
+        "dedicated selected navigation row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation-selected",
+      "background": "--surface-navigation-selected",
+      "target": "body",
+      "contexts": [
+        "selected navigation icon or chrome capsule"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-navigation-selected",
+      "background": "--bg-chrome-selected",
+      "target": "body",
+      "contexts": [
+        "selected navigation icon or chrome capsule"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-row-selected-detail",
+      "background": "--surface-row-selected-detail",
+      "target": "body",
+      "contexts": [
+        "count or working badge inside selected row"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-control-selected",
+      "background": "--surface-control-selected",
+      "target": "body",
+      "contexts": [
+        "segmented control selection"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-sidebar-selected",
+      "background": "--surface-sidebar-selected",
+      "target": "body",
+      "contexts": [
+        "solid app/sidebar selection"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-sidebar-hover",
+      "background": "--affordance-sidebar-hover",
+      "target": "body",
+      "contexts": [
+        "app/sidebar hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-chrome-subtle",
+      "background": "--affordance-chrome",
+      "target": "body",
+      "contexts": [
+        "chrome capsule normal and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-chrome-subtle",
+      "background": "--affordance-chrome-hover",
+      "target": "body",
+      "contexts": [
+        "chrome capsule normal and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-on-prominent",
+      "background": "--affordance-prominent",
+      "target": "body",
+      "contexts": [
+        "prominent control all interaction states"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-on-prominent",
+      "background": "--affordance-prominent-hover",
+      "target": "body",
+      "contexts": [
+        "prominent control all interaction states"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-on-prominent",
+      "background": "--affordance-prominent-pressed",
+      "target": "body",
+      "contexts": [
+        "prominent control all interaction states"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-on-accent",
+      "background": "--affordance-accent-prominent",
+      "target": "body",
+      "contexts": [
+        "accent prominent control all interaction states"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-on-accent",
+      "background": "--affordance-accent-prominent-hover",
+      "target": "body",
+      "contexts": [
+        "accent prominent control all interaction states"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-on-accent",
+      "background": "--affordance-accent-prominent-pressed",
+      "target": "body",
+      "contexts": [
+        "accent prominent control all interaction states"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-accent",
+      "background": "--bg-app",
+      "target": "body",
+      "contexts": [
+        "accent icon/tint and selected panel tab"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-accent",
+      "background": "--surface-base",
+      "target": "body",
+      "contexts": [
+        "accent icon/tint and selected panel tab"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-accent",
+      "background": "--surface-panel",
+      "target": "body",
+      "contexts": [
+        "accent icon/tint and selected panel tab"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-accent",
+      "background": "--surface-composer",
+      "target": "body",
+      "contexts": [
+        "accent icon/tint and selected panel tab"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-accent",
+      "background": "--surface-popover",
+      "target": "body",
+      "contexts": [
+        "accent icon/tint and selected panel tab"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-accent",
+      "background": "--surface-inset",
+      "target": "body",
+      "contexts": [
+        "accent icon/tint and selected panel tab"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-accent",
+      "background": "--surface-elevated-glass",
+      "target": "body",
+      "contexts": [
+        "accent icon/tint and selected panel tab"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-accent",
+      "background": "--bg-panel",
+      "target": "body",
+      "contexts": [
+        "accent icon/tint and selected panel tab"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-accent",
+      "background": "--bg-float",
+      "target": "body",
+      "contexts": [
+        "accent icon/tint and selected panel tab"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-accent",
+      "background": "--affordance-accent",
+      "target": "body",
+      "contexts": [
+        "accent icon/tint and selected panel tab"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-accent",
+      "background": "--affordance-accent-hover",
+      "target": "body",
+      "contexts": [
+        "accent icon/tint and selected panel tab"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-link",
+      "background": "--bg-app",
+      "target": "body",
+      "contexts": [
+        "ordinary link and link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-link",
+      "background": "--surface-base",
+      "target": "body",
+      "contexts": [
+        "ordinary link and link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-link",
+      "background": "--surface-panel",
+      "target": "body",
+      "contexts": [
+        "ordinary link and link hover outside message bubbles",
+        "neutral code/table/revealed spoiler inset inside either bubble",
+        "compact/unboxed message uses feed backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-link",
+      "background": "--surface-composer",
+      "target": "body",
+      "contexts": [
+        "ordinary link and link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-link",
+      "background": "--surface-popover",
+      "target": "body",
+      "contexts": [
+        "ordinary link and link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-link",
+      "background": "--surface-inset",
+      "target": "body",
+      "contexts": [
+        "ordinary link and link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-link",
+      "background": "--surface-elevated-glass",
+      "target": "body",
+      "contexts": [
+        "ordinary link and link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-link",
+      "background": "--bg-panel",
+      "target": "body",
+      "contexts": [
+        "ordinary link and link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-link",
+      "background": "--bg-float",
+      "target": "body",
+      "contexts": [
+        "ordinary link and link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-link",
+      "background": "--affordance-link-hover",
+      "target": "body",
+      "contexts": [
+        "ordinary link and link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-inverse",
+      "background": "--surface-inverse",
+      "target": "body",
+      "contexts": [
+        "inverse surface labels"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--surface-message",
+      "target": "body",
+      "contexts": [
+        "received message normal and pointer hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--surface-message-hover",
+      "target": "body",
+      "contexts": [
+        "received message normal and pointer hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-message-link",
+      "background": "--surface-message",
+      "target": "body",
+      "contexts": [
+        "received message normal and pointer hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-message-link",
+      "background": "--surface-message-hover",
+      "target": "body",
+      "contexts": [
+        "received message normal and pointer hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--surface-message",
+      "target": "metadata",
+      "contexts": [
+        "received message normal and pointer hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata",
+      "background": "--surface-message-hover",
+      "target": "metadata",
+      "contexts": [
+        "received message normal and pointer hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-message-own",
+      "background": "--surface-message-own",
+      "target": "body",
+      "contexts": [
+        "own message normal and pointer hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-message-own",
+      "background": "--surface-message-own-hover",
+      "target": "body",
+      "contexts": [
+        "own message normal and pointer hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-message-link-own",
+      "background": "--surface-message-own",
+      "target": "body",
+      "contexts": [
+        "own message normal and pointer hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-message-link-own",
+      "background": "--surface-message-own-hover",
+      "target": "body",
+      "contexts": [
+        "own message normal and pointer hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata-own",
+      "background": "--surface-message-own",
+      "target": "metadata",
+      "contexts": [
+        "own message normal and pointer hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-metadata-own",
+      "background": "--surface-message-own-hover",
+      "target": "metadata",
+      "contexts": [
+        "own message normal and pointer hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-message-own",
+      "background": "--affordance-message-own-hover",
+      "target": "body",
+      "contexts": [
+        "legacy own-message overlay contract"
+      ],
+      "coverage": "legacy-role-contract"
+    },
+    {
+      "foreground": "--text-mention",
+      "background": "--affordance-mention",
+      "target": "body",
+      "contexts": [
+        "mention label normal and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-mention",
+      "background": "--affordance-mention-hover",
+      "target": "body",
+      "contexts": [
+        "mention label normal and hover"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-mention-own",
+      "background": "--affordance-mention-own",
+      "target": "body",
+      "contexts": [
+        "mention label normal and hover-own"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-mention-own",
+      "background": "--affordance-mention-own-hover",
+      "target": "body",
+      "contexts": [
+        "mention label normal and hover-own"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-mention-self",
+      "background": "--affordance-mention-self",
+      "target": "body",
+      "contexts": [
+        "mention label normal and hover-self"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-mention-self",
+      "background": "--affordance-mention-self-hover",
+      "target": "body",
+      "contexts": [
+        "mention label normal and hover-self"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-reaction",
+      "target": "body",
+      "contexts": [
+        "reaction count on received bubble or panel"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-standard",
+      "background": "--affordance-reaction-self",
+      "target": "body",
+      "contexts": [
+        "reaction count on received bubble or panel"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-message-own",
+      "background": "--affordance-reaction-own",
+      "target": "body",
+      "contexts": [
+        "reaction count inside own bubble"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-message-own",
+      "background": "--affordance-reaction-self-own",
+      "target": "body",
+      "contexts": [
+        "reaction count inside own bubble"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-on-selection",
+      "background": "--surface-text-selection",
+      "target": "body",
+      "contexts": [
+        "native text selection including neutral insets"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-on-selection-own",
+      "background": "--surface-text-selection-own",
+      "target": "body",
+      "contexts": [
+        "native text selection inside own bubble"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--bg-app",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--surface-base",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--surface-panel",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--surface-composer",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--surface-popover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--surface-inset",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--surface-elevated-glass",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--bg-panel",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--bg-float",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-subtle",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-subtle-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-subtle-pressed",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-backdrop-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-backdrop-pressed",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-selected",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-row-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-panel-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-floating-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-popover-selected",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-floating-control",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-floating-control-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-floating-control-pressed",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-floating-selected",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-chrome",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-chrome-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-navigation-quiet",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--bg-app",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--surface-base",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--surface-panel",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--surface-composer",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--surface-popover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--surface-inset",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--surface-elevated-glass",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--bg-panel",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--bg-float",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-subtle",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-subtle-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-subtle-pressed",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-backdrop-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-backdrop-pressed",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-selected",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-row-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-panel-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-floating-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-popover-selected",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-floating-control",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-floating-control-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-floating-control-pressed",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-floating-selected",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-chrome",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-chrome-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-navigation-quiet",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--bg-app",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--surface-base",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--surface-panel",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--surface-composer",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--surface-popover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--surface-inset",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--surface-elevated-glass",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--bg-panel",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--bg-float",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-subtle",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-subtle-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-subtle-pressed",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-backdrop-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-backdrop-pressed",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-selected",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-row-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-panel-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-floating-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-popover-selected",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-floating-control",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-floating-control-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-floating-control-pressed",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-floating-selected",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-chrome",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-chrome-hover",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-navigation-quiet",
+      "target": "body",
+      "contexts": [
+        "semantic text on reading and interaction surfaces"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-danger",
+      "target": "body",
+      "contexts": [
+        "destructive action all states"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-danger-hover",
+      "target": "body",
+      "contexts": [
+        "destructive action all states"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-danger",
+      "background": "--affordance-danger-pressed",
+      "target": "body",
+      "contexts": [
+        "destructive action all states"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-warning",
+      "background": "--affordance-warning",
+      "target": "body",
+      "contexts": [
+        "warning notice"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-success",
+      "target": "body",
+      "contexts": [
+        "success action all states"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-success-hover",
+      "target": "body",
+      "contexts": [
+        "success action all states"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-success",
+      "background": "--affordance-success-pressed",
+      "target": "body",
+      "contexts": [
+        "success action all states"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-unavailable",
+      "background": "--affordance-disabled",
+      "target": "inactive",
+      "contexts": [
+        "inactive controls exempt from active text contrast"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-unavailable",
+      "background": "--surface-panel",
+      "target": "inactive",
+      "contexts": [
+        "inactive controls exempt from active text contrast"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-unavailable",
+      "background": "--surface-popover",
+      "target": "inactive",
+      "contexts": [
+        "inactive controls exempt from active text contrast"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-disabled",
+      "background": "--affordance-disabled",
+      "target": "inactive",
+      "contexts": [
+        "inactive controls exempt from active text contrast"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-disabled",
+      "background": "--surface-panel",
+      "target": "inactive",
+      "contexts": [
+        "inactive controls exempt from active text contrast"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-disabled",
+      "background": "--surface-popover",
+      "target": "inactive",
+      "contexts": [
+        "inactive controls exempt from active text contrast"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-quiet-control",
+      "background": "--bg-app",
+      "target": "nontext",
+      "contexts": [
+        "quiet control icon before hover raises its emphasis"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-quiet-control",
+      "background": "--surface-base",
+      "target": "nontext",
+      "contexts": [
+        "quiet control icon before hover raises its emphasis"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-quiet-control",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "contexts": [
+        "quiet control icon before hover raises its emphasis"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-quiet-control",
+      "background": "--surface-composer",
+      "target": "nontext",
+      "contexts": [
+        "quiet control icon before hover raises its emphasis"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-quiet-control",
+      "background": "--surface-popover",
+      "target": "nontext",
+      "contexts": [
+        "quiet control icon before hover raises its emphasis"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-quiet-control",
+      "background": "--surface-inset",
+      "target": "nontext",
+      "contexts": [
+        "quiet control icon before hover raises its emphasis"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-quiet-control",
+      "background": "--surface-elevated-glass",
+      "target": "nontext",
+      "contexts": [
+        "quiet control icon before hover raises its emphasis"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-quiet-control",
+      "background": "--bg-panel",
+      "target": "nontext",
+      "contexts": [
+        "quiet control icon before hover raises its emphasis"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-quiet-control",
+      "background": "--bg-float",
+      "target": "nontext",
+      "contexts": [
+        "quiet control icon before hover raises its emphasis"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--text-quiet-control",
+      "background": "--affordance-subtle",
+      "target": "nontext",
+      "contexts": [
+        "quiet control icon before hover raises its emphasis"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--icon-subtle-own",
+      "background": "--surface-message-own",
+      "target": "nontext",
+      "contexts": [
+        "state icons inside own message"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--icon-subtle-own",
+      "background": "--surface-message-own-hover",
+      "target": "nontext",
+      "contexts": [
+        "state icons inside own message"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--icon-success-own",
+      "background": "--surface-message-own",
+      "target": "nontext",
+      "contexts": [
+        "state icons inside own message"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--icon-success-own",
+      "background": "--surface-message-own-hover",
+      "target": "nontext",
+      "contexts": [
+        "state icons inside own message"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--icon-categorical-purple-own",
+      "background": "--surface-message-own",
+      "target": "nontext",
+      "contexts": [
+        "state icons inside own message"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--icon-categorical-purple-own",
+      "background": "--surface-message-own-hover",
+      "target": "nontext",
+      "contexts": [
+        "state icons inside own message"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--bg-app",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--surface-base",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--surface-composer",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--surface-popover",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--surface-inset",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--surface-elevated-glass",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--bg-panel",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--bg-float",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-subtle",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-subtle-hover",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-subtle-pressed",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-backdrop-hover",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-backdrop-pressed",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-selected",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-row-hover",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-panel-hover",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-floating-hover",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-popover-selected",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-floating-control",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-floating-control-hover",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-floating-control-pressed",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-floating-selected",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-chrome",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-chrome-hover",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--affordance-navigation-quiet",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--surface-sidebar-selected",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--surface-navigation-selected",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--surface-control-selected",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--surface-message",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--surface-message-own",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-focus",
+      "background": "--surface-message-highlight",
+      "target": "nontext",
+      "contexts": [
+        "visible keyboard focus against its immediate backing"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-prominent",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "contexts": [
+        "meaningful control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-prominent",
+      "background": "--surface-inset",
+      "target": "nontext",
+      "contexts": [
+        "meaningful control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-prominent",
+      "background": "--affordance-subtle",
+      "target": "nontext",
+      "contexts": [
+        "meaningful control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-prominent",
+      "background": "--affordance-subtle-hover",
+      "target": "nontext",
+      "contexts": [
+        "meaningful control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-prominent",
+      "background": "--affordance-subtle-pressed",
+      "target": "nontext",
+      "contexts": [
+        "meaningful control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-control",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "contexts": [
+        "meaningful control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-control",
+      "background": "--surface-inset",
+      "target": "nontext",
+      "contexts": [
+        "meaningful control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-control",
+      "background": "--affordance-subtle",
+      "target": "nontext",
+      "contexts": [
+        "meaningful control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-control",
+      "background": "--affordance-subtle-hover",
+      "target": "nontext",
+      "contexts": [
+        "meaningful control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-control",
+      "background": "--affordance-subtle-pressed",
+      "target": "nontext",
+      "contexts": [
+        "meaningful control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-floating-control",
+      "background": "--surface-popover",
+      "target": "nontext",
+      "contexts": [
+        "floating control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-floating-control",
+      "background": "--affordance-floating-control",
+      "target": "nontext",
+      "contexts": [
+        "floating control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-floating-control",
+      "background": "--affordance-floating-control-hover",
+      "target": "nontext",
+      "contexts": [
+        "floating control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-floating-control",
+      "background": "--affordance-floating-control-pressed",
+      "target": "nontext",
+      "contexts": [
+        "floating control boundary"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-reaction-self",
+      "background": "--affordance-reaction-self",
+      "target": "nontext",
+      "contexts": [
+        "own-reaction ring on received bubble or panel"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-reaction-self",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "contexts": [
+        "own-reaction ring on received bubble or panel"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-reaction-self",
+      "background": "--surface-message",
+      "target": "nontext",
+      "contexts": [
+        "own-reaction ring on received bubble or panel"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-reaction-self-own",
+      "background": "--affordance-reaction-self-own",
+      "target": "nontext",
+      "contexts": [
+        "own-reaction ring inside own bubble"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-reaction-self-own",
+      "background": "--surface-message-own",
+      "target": "nontext",
+      "contexts": [
+        "own-reaction ring inside own bubble"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--affordance-prominent-mark",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "contexts": [
+        "tab underline/insertion mark standing alone"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--affordance-prominent-mark",
+      "background": "--surface-base",
+      "target": "nontext",
+      "contexts": [
+        "tab underline/insertion mark standing alone"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--affordance-prominent-mark",
+      "background": "--bg-app",
+      "target": "nontext",
+      "contexts": [
+        "tab underline/insertion mark standing alone"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-accent",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-accent",
+      "background": "--surface-base",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-danger",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-danger",
+      "background": "--surface-base",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-warning",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-warning",
+      "background": "--surface-base",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-success-subtle",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--border-success-subtle",
+      "background": "--surface-base",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--status-online",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--status-online",
+      "background": "--surface-base",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--status-away",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--status-away",
+      "background": "--surface-base",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--status-offline",
+      "background": "--surface-panel",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "foreground": "--status-offline",
+      "background": "--surface-base",
+      "target": "nontext",
+      "contexts": [
+        "semantic state mark with accompanying shape or label"
+      ],
+      "coverage": "host-supported"
+    }
+  ],
+  "overlays": [
+    {
+      "id": "received-arrival-highlight",
+      "backdrop": "--surface-message",
+      "layers": [
+        {
+          "fill": "--affordance-message-highlight",
+          "opacity": "sample"
+        }
+      ],
+      "foregrounds": [
+        "--text-standard",
+        "--text-message-link",
+        "--text-metadata"
+      ],
+      "targets": {
+        "--text-standard": "body",
+        "--text-message-link": "body",
+        "--text-metadata": "metadata"
+      },
+      "opacitySamples": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "contexts": [
+        "filled received bubble highlight; hover background is suppressed"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "own-arrival-highlight",
+      "backdrop": "--surface-message-own",
+      "layers": [
+        {
+          "fill": "--affordance-message-own-highlight",
+          "opacity": "sample"
+        }
+      ],
+      "foregrounds": [
+        "--text-message-own",
+        "--text-message-link-own",
+        "--text-metadata-own",
+        "--icon-subtle-own",
+        "--icon-success-own",
+        "--icon-categorical-purple-own"
+      ],
+      "targets": {
+        "--text-message-own": "body",
+        "--text-message-link-own": "body",
+        "--text-metadata-own": "metadata",
+        "--icon-subtle-own": "nontext",
+        "--icon-success-own": "nontext",
+        "--icon-categorical-purple-own": "nontext"
+      },
+      "opacitySamples": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "contexts": [
+        "filled own bubble highlight; hover background is suppressed"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "unboxed-arrival-highlight",
+      "backdrop": "--surface-panel",
+      "layers": [
+        {
+          "fill": "--surface-message-highlight",
+          "opacity": "sample"
+        }
+      ],
+      "foregrounds": [
+        "--text-standard",
+        "--text-subtle",
+        "--text-metadata",
+        "--text-link",
+        "--text-message-link"
+      ],
+      "targets": {
+        "--text-standard": "body",
+        "--text-subtle": "body",
+        "--text-metadata": "metadata",
+        "--text-link": "body",
+        "--text-message-link": "body"
+      },
+      "opacitySamples": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "contexts": [
+        "unboxed/emoji/diff/table row highlight on feed backing; opaque child table/code keeps its own panel surface"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "keyboard-message-focus",
+      "backdrop": "--surface-panel",
+      "layers": [
+        {
+          "fill": "--surface-message-highlight",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-standard",
+        "--text-subtle",
+        "--text-metadata",
+        "--text-link",
+        "--border-focus"
+      ],
+      "targets": {
+        "--text-standard": "body",
+        "--text-subtle": "body",
+        "--text-metadata": "metadata",
+        "--text-link": "body",
+        "--border-focus": "nontext"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "keyboard-focused row with persistent highlight and focus ring"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-mention-normal",
+      "backdrop": "--surface-message",
+      "layers": [
+        {
+          "fill": "--affordance-mention",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention"
+      ],
+      "targets": {
+        "--text-mention": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention over normal bubble; own alias also handles self mention"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-mention-highlight",
+      "backdrop": "--surface-message",
+      "layers": [
+        {
+          "fill": "--affordance-message-highlight",
+          "opacity": "sample"
+        },
+        {
+          "fill": "--affordance-mention",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention"
+      ],
+      "targets": {
+        "--text-mention": "body"
+      },
+      "opacitySamples": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "contexts": [
+        "mention paints above animated bubble highlight"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-mention-hover-normal",
+      "backdrop": "--surface-message",
+      "layers": [
+        {
+          "fill": "--affordance-mention-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention"
+      ],
+      "targets": {
+        "--text-mention": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention over normal bubble; own alias also handles self mention"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-mention-hover-highlight",
+      "backdrop": "--surface-message",
+      "layers": [
+        {
+          "fill": "--affordance-message-highlight",
+          "opacity": "sample"
+        },
+        {
+          "fill": "--affordance-mention-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention"
+      ],
+      "targets": {
+        "--text-mention": "body"
+      },
+      "opacitySamples": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "contexts": [
+        "mention paints above animated bubble highlight"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-mention-self-normal",
+      "backdrop": "--surface-message",
+      "layers": [
+        {
+          "fill": "--affordance-mention-self",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-self"
+      ],
+      "targets": {
+        "--text-mention-self": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention over normal bubble; own alias also handles self mention"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-mention-self-highlight",
+      "backdrop": "--surface-message",
+      "layers": [
+        {
+          "fill": "--affordance-message-highlight",
+          "opacity": "sample"
+        },
+        {
+          "fill": "--affordance-mention-self",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-self"
+      ],
+      "targets": {
+        "--text-mention-self": "body"
+      },
+      "opacitySamples": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "contexts": [
+        "mention paints above animated bubble highlight"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-mention-self-hover-normal",
+      "backdrop": "--surface-message",
+      "layers": [
+        {
+          "fill": "--affordance-mention-self-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-self"
+      ],
+      "targets": {
+        "--text-mention-self": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention over normal bubble; own alias also handles self mention"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-mention-self-hover-highlight",
+      "backdrop": "--surface-message",
+      "layers": [
+        {
+          "fill": "--affordance-message-highlight",
+          "opacity": "sample"
+        },
+        {
+          "fill": "--affordance-mention-self-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-self"
+      ],
+      "targets": {
+        "--text-mention-self": "body"
+      },
+      "opacitySamples": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "contexts": [
+        "mention paints above animated bubble highlight"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-reaction-normal",
+      "backdrop": "--surface-message",
+      "layers": [
+        {
+          "fill": "--affordance-reaction",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-standard"
+      ],
+      "targets": {
+        "--text-standard": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "reaction strip fill over its bubble"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-reaction-highlight",
+      "backdrop": "--surface-message",
+      "layers": [
+        {
+          "fill": "--affordance-message-highlight",
+          "opacity": "sample"
+        },
+        {
+          "fill": "--affordance-reaction",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-standard"
+      ],
+      "targets": {
+        "--text-standard": "body"
+      },
+      "opacitySamples": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "contexts": [
+        "reaction paints above animated bubble highlight"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-reaction-self-normal",
+      "backdrop": "--surface-message",
+      "layers": [
+        {
+          "fill": "--affordance-reaction-self",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-standard",
+        "--border-reaction-self"
+      ],
+      "targets": {
+        "--text-standard": "body",
+        "--border-reaction-self": "nontext"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "reaction strip fill over its bubble"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-reaction-self-highlight",
+      "backdrop": "--surface-message",
+      "layers": [
+        {
+          "fill": "--affordance-message-highlight",
+          "opacity": "sample"
+        },
+        {
+          "fill": "--affordance-reaction-self",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-standard",
+        "--border-reaction-self"
+      ],
+      "targets": {
+        "--text-standard": "body",
+        "--border-reaction-self": "nontext"
+      },
+      "opacitySamples": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "contexts": [
+        "reaction paints above animated bubble highlight"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "own-affordance-mention-own-normal",
+      "backdrop": "--surface-message-own",
+      "layers": [
+        {
+          "fill": "--affordance-mention-own",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-own"
+      ],
+      "targets": {
+        "--text-mention-own": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention over normal bubble; own alias also handles self mention"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "own-affordance-mention-own-highlight",
+      "backdrop": "--surface-message-own",
+      "layers": [
+        {
+          "fill": "--affordance-message-own-highlight",
+          "opacity": "sample"
+        },
+        {
+          "fill": "--affordance-mention-own",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-own"
+      ],
+      "targets": {
+        "--text-mention-own": "body"
+      },
+      "opacitySamples": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "contexts": [
+        "mention paints above animated bubble highlight"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "own-affordance-mention-own-hover-normal",
+      "backdrop": "--surface-message-own",
+      "layers": [
+        {
+          "fill": "--affordance-mention-own-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-own"
+      ],
+      "targets": {
+        "--text-mention-own": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention over normal bubble; own alias also handles self mention"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "own-affordance-mention-own-hover-highlight",
+      "backdrop": "--surface-message-own",
+      "layers": [
+        {
+          "fill": "--affordance-message-own-highlight",
+          "opacity": "sample"
+        },
+        {
+          "fill": "--affordance-mention-own-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-own"
+      ],
+      "targets": {
+        "--text-mention-own": "body"
+      },
+      "opacitySamples": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "contexts": [
+        "mention paints above animated bubble highlight"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "own-affordance-reaction-own-normal",
+      "backdrop": "--surface-message-own",
+      "layers": [
+        {
+          "fill": "--affordance-reaction-own",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-message-own"
+      ],
+      "targets": {
+        "--text-message-own": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "reaction strip fill over its bubble"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "own-affordance-reaction-own-highlight",
+      "backdrop": "--surface-message-own",
+      "layers": [
+        {
+          "fill": "--affordance-message-own-highlight",
+          "opacity": "sample"
+        },
+        {
+          "fill": "--affordance-reaction-own",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-message-own"
+      ],
+      "targets": {
+        "--text-message-own": "body"
+      },
+      "opacitySamples": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "contexts": [
+        "reaction paints above animated bubble highlight"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "own-affordance-reaction-self-own-normal",
+      "backdrop": "--surface-message-own",
+      "layers": [
+        {
+          "fill": "--affordance-reaction-self-own",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-message-own",
+        "--border-reaction-self-own"
+      ],
+      "targets": {
+        "--text-message-own": "body",
+        "--border-reaction-self-own": "nontext"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "reaction strip fill over its bubble"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "own-affordance-reaction-self-own-highlight",
+      "backdrop": "--surface-message-own",
+      "layers": [
+        {
+          "fill": "--affordance-message-own-highlight",
+          "opacity": "sample"
+        },
+        {
+          "fill": "--affordance-reaction-self-own",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-message-own",
+        "--border-reaction-self-own"
+      ],
+      "targets": {
+        "--text-message-own": "body",
+        "--border-reaction-self-own": "nontext"
+      },
+      "opacitySamples": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "contexts": [
+        "reaction paints above animated bubble highlight"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "surface-composer-affordance-mention",
+      "backdrop": "--surface-composer",
+      "layers": [
+        {
+          "fill": "--affordance-mention",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention"
+      ],
+      "targets": {
+        "--text-mention": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention on composer or neutral inset; own aliases reset"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "surface-composer-affordance-mention-hover",
+      "backdrop": "--surface-composer",
+      "layers": [
+        {
+          "fill": "--affordance-mention-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention"
+      ],
+      "targets": {
+        "--text-mention": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention on composer or neutral inset; own aliases reset"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "surface-composer-affordance-mention-self",
+      "backdrop": "--surface-composer",
+      "layers": [
+        {
+          "fill": "--affordance-mention-self",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-self"
+      ],
+      "targets": {
+        "--text-mention-self": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention on composer or neutral inset; own aliases reset"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "surface-composer-affordance-mention-self-hover",
+      "backdrop": "--surface-composer",
+      "layers": [
+        {
+          "fill": "--affordance-mention-self-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-self"
+      ],
+      "targets": {
+        "--text-mention-self": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention on composer or neutral inset; own aliases reset"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "surface-panel-affordance-mention",
+      "backdrop": "--surface-panel",
+      "layers": [
+        {
+          "fill": "--affordance-mention",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention"
+      ],
+      "targets": {
+        "--text-mention": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention on composer or neutral inset; own aliases reset"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "surface-panel-affordance-mention-hover",
+      "backdrop": "--surface-panel",
+      "layers": [
+        {
+          "fill": "--affordance-mention-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention"
+      ],
+      "targets": {
+        "--text-mention": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention on composer or neutral inset; own aliases reset"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "surface-panel-affordance-mention-self",
+      "backdrop": "--surface-panel",
+      "layers": [
+        {
+          "fill": "--affordance-mention-self",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-self"
+      ],
+      "targets": {
+        "--text-mention-self": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention on composer or neutral inset; own aliases reset"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "surface-panel-affordance-mention-self-hover",
+      "backdrop": "--surface-panel",
+      "layers": [
+        {
+          "fill": "--affordance-mention-self-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-self"
+      ],
+      "targets": {
+        "--text-mention-self": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "mention on composer or neutral inset; own aliases reset"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "legacy-own-hover-overlay",
+      "backdrop": "--surface-message-own",
+      "layers": [
+        {
+          "fill": "--affordance-message-own-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-message-own",
+        "--text-message-link-own",
+        "--text-metadata-own",
+        "--icon-subtle-own",
+        "--icon-success-own",
+        "--icon-categorical-purple-own"
+      ],
+      "targets": {
+        "--text-message-own": "body",
+        "--text-message-link-own": "body",
+        "--text-metadata-own": "metadata",
+        "--icon-subtle-own": "nontext",
+        "--icon-success-own": "nontext",
+        "--icon-categorical-purple-own": "nontext"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "legacy role remains a contract but current message hover directly uses surface-message-own-hover"
+      ],
+      "coverage": "legacy-role-contract"
+    },
+    {
+      "id": "received-affordance-mention-bubble-hover",
+      "backdrop": "--surface-message-hover",
+      "layers": [
+        {
+          "fill": "--affordance-mention",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention"
+      ],
+      "targets": {
+        "--text-mention": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "chip or reaction on a pointer-hovered bubble; both resting and hovered chip fill variants are included"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-mention-hover-bubble-hover",
+      "backdrop": "--surface-message-hover",
+      "layers": [
+        {
+          "fill": "--affordance-mention-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention"
+      ],
+      "targets": {
+        "--text-mention": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "chip or reaction on a pointer-hovered bubble; both resting and hovered chip fill variants are included"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-mention-self-bubble-hover",
+      "backdrop": "--surface-message-hover",
+      "layers": [
+        {
+          "fill": "--affordance-mention-self",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-self"
+      ],
+      "targets": {
+        "--text-mention-self": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "chip or reaction on a pointer-hovered bubble; both resting and hovered chip fill variants are included"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-mention-self-hover-bubble-hover",
+      "backdrop": "--surface-message-hover",
+      "layers": [
+        {
+          "fill": "--affordance-mention-self-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-self"
+      ],
+      "targets": {
+        "--text-mention-self": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "chip or reaction on a pointer-hovered bubble; both resting and hovered chip fill variants are included"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-reaction-bubble-hover",
+      "backdrop": "--surface-message-hover",
+      "layers": [
+        {
+          "fill": "--affordance-reaction",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-standard"
+      ],
+      "targets": {
+        "--text-standard": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "chip or reaction on a pointer-hovered bubble; both resting and hovered chip fill variants are included"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "received-affordance-reaction-self-bubble-hover",
+      "backdrop": "--surface-message-hover",
+      "layers": [
+        {
+          "fill": "--affordance-reaction-self",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-standard",
+        "--border-reaction-self"
+      ],
+      "targets": {
+        "--text-standard": "body",
+        "--border-reaction-self": "nontext"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "chip or reaction on a pointer-hovered bubble; both resting and hovered chip fill variants are included"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "own-affordance-mention-own-bubble-hover",
+      "backdrop": "--surface-message-own-hover",
+      "layers": [
+        {
+          "fill": "--affordance-mention-own",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-own"
+      ],
+      "targets": {
+        "--text-mention-own": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "chip or reaction on a pointer-hovered bubble; both resting and hovered chip fill variants are included"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "own-affordance-mention-own-hover-bubble-hover",
+      "backdrop": "--surface-message-own-hover",
+      "layers": [
+        {
+          "fill": "--affordance-mention-own-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-mention-own"
+      ],
+      "targets": {
+        "--text-mention-own": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "chip or reaction on a pointer-hovered bubble; both resting and hovered chip fill variants are included"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "own-affordance-reaction-own-bubble-hover",
+      "backdrop": "--surface-message-own-hover",
+      "layers": [
+        {
+          "fill": "--affordance-reaction-own",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-message-own"
+      ],
+      "targets": {
+        "--text-message-own": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "chip or reaction on a pointer-hovered bubble; both resting and hovered chip fill variants are included"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "own-affordance-reaction-self-own-bubble-hover",
+      "backdrop": "--surface-message-own-hover",
+      "layers": [
+        {
+          "fill": "--affordance-reaction-self-own",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-message-own",
+        "--border-reaction-self-own"
+      ],
+      "targets": {
+        "--text-message-own": "body",
+        "--border-reaction-self-own": "nontext"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "chip or reaction on a pointer-hovered bubble; both resting and hovered chip fill variants are included"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "surface-base-link-hover",
+      "backdrop": "--surface-base",
+      "layers": [
+        {
+          "fill": "--affordance-link-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-link"
+      ],
+      "targets": {
+        "--text-link": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "ordinary underlined link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "surface-panel-link-hover",
+      "backdrop": "--surface-panel",
+      "layers": [
+        {
+          "fill": "--affordance-link-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-link"
+      ],
+      "targets": {
+        "--text-link": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "ordinary underlined link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "surface-composer-link-hover",
+      "backdrop": "--surface-composer",
+      "layers": [
+        {
+          "fill": "--affordance-link-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-link"
+      ],
+      "targets": {
+        "--text-link": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "ordinary underlined link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "surface-popover-link-hover",
+      "backdrop": "--surface-popover",
+      "layers": [
+        {
+          "fill": "--affordance-link-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-link"
+      ],
+      "targets": {
+        "--text-link": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "ordinary underlined link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    },
+    {
+      "id": "surface-inset-link-hover",
+      "backdrop": "--surface-inset",
+      "layers": [
+        {
+          "fill": "--affordance-link-hover",
+          "opacity": 1
+        }
+      ],
+      "foregrounds": [
+        "--text-link"
+      ],
+      "targets": {
+        "--text-link": "body"
+      },
+      "opacitySamples": [
+        1
+      ],
+      "contexts": [
+        "ordinary underlined link hover outside message bubbles"
+      ],
+      "coverage": "host-supported"
+    }
+  ],
+  "stateDistinctions": [
+    {
+      "id": "row-hover-selected",
+      "normal": "--surface-panel",
+      "hover": "--affordance-row-hover",
+      "selected": "--affordance-navigation-selected",
+      "selector": ".navigation-item[data-selected]",
+      "alternativeCue": "persistent inset stroke with >=3:1 against its backing"
+    },
+    {
+      "id": "generic-control-states",
+      "normal": "--affordance-subtle",
+      "hover": "--affordance-subtle-hover",
+      "pressed": "--affordance-subtle-pressed",
+      "selected": "--affordance-selected"
+    },
+    {
+      "id": "floating-control-states",
+      "normal": "--affordance-floating-control",
+      "hover": "--affordance-floating-control-hover",
+      "pressed": "--affordance-floating-control-pressed",
+      "selected": "--affordance-floating-selected"
+    },
+    {
+      "id": "popover-hover-selected",
+      "hover": "--affordance-floating-hover",
+      "selected": "--affordance-popover-selected",
+      "selector": ".buzz-menu-item[data-selection=\"highlight\"][data-checked]",
+      "existingCue": "checked item indicator; keep visible against selected backing"
+    },
+    {
+      "id": "message-ownership",
+      "received": "--surface-message",
+      "own": "--surface-message-own",
+      "existingCue": "own message alignment/avatar position"
+    },
+    {
+      "id": "message-arrival-versus-hover",
+      "normal": "--surface-message",
+      "hover": "--surface-message-hover",
+      "highlight": "--affordance-message-highlight",
+      "alpha": 1
+    },
+    {
+      "id": "own-message-arrival-versus-hover",
+      "normal": "--surface-message-own",
+      "hover": "--surface-message-own-hover",
+      "highlight": "--affordance-message-own-highlight",
+      "alpha": 1
+    },
+    {
+      "id": "mention-attention",
+      "ordinary": "--affordance-mention",
+      "self": "--affordance-mention-self",
+      "selector": "[data-mention-kind][data-mention-self]",
+      "alternativeCue": "inset currentColor ring; own aliases otherwise collapse self versus ordinary"
+    },
+    {
+      "id": "reaction-ownership",
+      "normal": "--affordance-reaction",
+      "mine": "--affordance-reaction-self",
+      "existingCue": "[data-mine] inset ring using border-reaction-self"
+    },
+    {
+      "id": "link-recognition",
+      "existingCue": "underlined ordinary links; mention chips remove underline"
+    },
+    {
+      "id": "keyboard-focus",
+      "existingCue": "visible focus outline separate from pointer hover and persistent selection"
+    }
+  ],
+  "coverage": {
+    "legacyTextRoles": [
+      "--text-accent",
+      "--text-chrome-subtle",
+      "--text-control-selected",
+      "--text-danger",
+      "--text-disabled",
+      "--text-inverse",
+      "--text-link",
+      "--text-mention",
+      "--text-mention-own",
+      "--text-mention-self",
+      "--text-message-link",
+      "--text-message-link-own",
+      "--text-message-own",
+      "--text-metadata",
+      "--text-metadata-own",
+      "--text-navigation",
+      "--text-navigation-selected",
+      "--text-navigation-unread",
+      "--text-on-accent",
+      "--text-on-prominent",
+      "--text-on-selection",
+      "--text-on-selection-own",
+      "--text-primary",
+      "--text-quiet-control",
+      "--text-row",
+      "--text-row-metadata",
+      "--text-row-selected",
+      "--text-row-selected-detail",
+      "--text-row-selected-metadata",
+      "--text-row-selected-subtle",
+      "--text-row-subtle",
+      "--text-secondary",
+      "--text-sidebar-hover",
+      "--text-sidebar-selected",
+      "--text-standard",
+      "--text-subtle",
+      "--text-success",
+      "--text-tertiary",
+      "--text-unavailable",
+      "--text-warning"
+    ],
+    "uncoveredLegacyTextRoles": [],
+    "legacyMappedRolesNotReferencedByThisGraph": [
+      "--border-message-thread",
+      "--border-primary",
+      "--border-standard",
+      "--scrollbar-thumb",
+      "--scrollbar-thumb-quiet"
+    ],
+    "additionalHostRolesRequired": [
+      "--affordance-link-hover",
+      "--affordance-reaction-self",
+      "--affordance-reaction-self-own",
+      "--border-reaction-self",
+      "--border-reaction-self-own",
+      "--icon-categorical-purple-own",
+      "--icon-success-own"
+    ]
+  },
+  "notes": [
+    "Generic affordance-selected uses generic row/control inks; dedicated selected inks apply only to their dedicated navigation/control/sidebar surfaces.",
+    "Selected popover menu entries keep generic standard/subtle/metadata inks. Highlighted floating rows promote supporting copy to standard.",
+    "Code/table/revealed-spoiler neutral insets reset own-message link/mention/icon pairing and retain opaque panel backing above the bubble highlight.",
+    "Own-message mentions override the self-mention token trio as well; test own plus self through the own mention recipe.",
+    "Current source has no fixed 8%,12%, or other alpha for message highlights. Alpha comes from the resolved role plus the full-strength animation envelope.",
+    "This role graph does not claim pixel geometry or state distinguishability from contrast alone. Validate cues and actual component selectors separately.",
+    "CSS Module class names in source are descriptive anchors, not stable global external-plugin selectors.",
+    "Do not apply text thresholds to inactive controls or decorative separators; a meaningful control boundary or state mark uses the nontext target.",
+    "Theme mode matrix: color/mono/neutral times light/dark and Auto resolved to both modes, including live host mode changes and scoped light/dark popup owners.",
+    "Semantic statuses are separate from decorative monochrome. Decide their policy explicitly before asserting every generated role has zero chroma.",
+    "Five legacy mapped decorative roles are inventoried but not assigned a universal numeric threshold: border-standard, border-primary, border-message-thread, scrollbar-thumb, scrollbar-thumb-quiet. Their actual geometry and purpose determine whether a nontext accessibility boundary test applies.",
+    "Hover-backed chip recipes account for translucent mention/reaction fills above the bubble hover color. Native text selection is a paired fill/text override, not an alpha-reduced overlay from these rules."
+  ]
+}

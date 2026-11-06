@@ -1,103 +1,117 @@
-# OKLCHAPCA for Buzz
+# Color Overthinkers for Buzz
 
-<img src="icon.png" alt="OKLCHAPCA's blue, pink and neon color wheel" width="96" height="96">
+<img src="icon.png" alt="Blue, pink and neon color wheel" width="96" height="96">
 
-**Three choices. A full theme, built on OKLCH and APCA.**
+**We’ve already overthought it for you.**
 
-OKLCHAPCA is a palette generator and theme selector for [Buzz](https://github.com/block/buzz-app).
-Deep purple surfaces, blue selections, pink accents, and neon text—plus controls
-to make the palette your own.
+Choose three hues, or one. Get a complete Buzz palette in **Dark**, **Light**, or
+**Auto**. Grayscale is monochrome with zero chroma. The repository is Buzz Chroma;
+the plugin keeps its original ID, so existing installations and preferences migrate.
 
 ## Install
 
-Requires Buzz Desktop with API v1 external-plugin support. No development tools
-are needed to install the plugin.
+Requires Buzz Desktop with API v1 external-plugin support.
 
-1. Open **Settings → Plugins → Manage plugins → Add**.
-2. In **Git or GitHub repository**, enter:
-   `https://github.com/bluepinkneon/buzz-oklchapca`
-3. Set the branch/tag to **v1.0.1**, choose **Find**, then select **dist**.
-4. Review and install **OKLCHAPCA**. Enable it if your Buzz version leaves new
-   plugins disabled.
-5. Close Settings and open **Themes**, directly below **Inbox** in the sidebar.
+1. Open **Settings → Manage plugins → Add**.
+2. Enter `https://github.com/bluepinkneon/buzz-chroma`.
+3. Select tag **v1.1.0**, choose **Find**, then select **dist**.
+4. Review and install **Color Overthinkers**, then enable it.
+5. Close Settings and open **Themes**, directly below **Inbox**.
 
-Or open this Buzz install URL from a browser or link-capable app:
-
-```text
-buzz://plugin-install?repository=bluepinkneon%2Fbuzz-oklchapca&ref=v1.0.1&path=dist
-```
-
-GitHub may not make custom-protocol links clickable. On macOS, the equivalent is:
+On macOS you can open the install review with:
 
 ```sh
-open 'buzz://plugin-install?repository=bluepinkneon%2Fbuzz-oklchapca&ref=v1.0.1&path=dist'
+open 'buzz://plugin-install?repository=bluepinkneon%2Fbuzz-chroma&ref=v1.1.0&path=dist'
 ```
 
-For a folder install, download the ZIP from [Releases](https://github.com/bluepinkneon/buzz-oklchapca/releases),
-extract it, then choose **Add → Browse** and select the extracted plugin folder.
-
-The name combines **OKLCH** (the perceptual color space) and **APCA** (the text-contrast method). Formerly Chroma; the plugin ID and saved preferences are preserved.
+Or download the folder ZIP from [Releases](https://github.com/bluepinkneon/buzz-chroma/releases),
+extract it, and select it with **Add → Browse**. Existing folder installs can
+reload the updated source through Manage plugins.
 
 ## Make a palette
 
-- **Theme:** switch between BluePinkNeon and Buzz's original appearance.
-- **Three color pickers:** select primary, secondary and neon-accent hues.
-- **Hue rotation:** rotate the palette with the slider or **Rotate +45°**.
-- **Reset BluePinkNeon:** return to the original Shepherd palette.
+- **Full color:** choose primary, secondary and text hues; rotate them together.
+- **Monochrome:** choose one hue for every decorative role. **Neutral gray** is
+  the same mode at zero chroma. Alerts retain familiar signal colors.
+- A gray pick in a full-color picker makes only that family neutral.
+- **Light / Dark:** independently computed surfaces and contrast-checked inks.
+- **Auto:** follows Buzz’s resolved appearance, including its System setting and
+  OS day/night schedule. It does not impose a sunrise timer or change Buzz’s saved
+  preference. If Buzz supplies no resolved mode, it follows the OS directly.
+- **Reset BluePinkNeon:** resets the three hues, rotation and dark appearance.
+- **Buzz default**, or disabling the plugin, removes its owned style override.
 
-The pickers choose hue; the generator chooses chroma and lightness. The original
-generator uses OKLCH ramps and hue-adaptive APCA lightness tables. These are text
-contrast targets, not a guarantee for every Buzz component or custom combination.
-Preferences stay on this device and survive app restarts.
+The three RGB controls select a hue or a neutral family; the generator owns
+lightness and chroma. Their displayed swatches round-trip without hue drift.
+The Text picker shows its hue swatch; the preview shows the actual reading ink.
+In Light mode, ink can approach black when higher contrast requires it.
 
-## Restore Buzz's appearance
+Selected, hovered and pressed states use separate tones. Monochrome selections
+also retain an inset stripe; links keep Buzz’s underlines and reactions its rings.
+Preferences are local to this device. Older preferences migrate without deleting
+the old rollback key.
 
-Choose **Buzz default** on the Themes page, or disable OKLCHAPCA under
-**Settings → Manage plugins**. Both remove the plugin-owned stylesheet. Your
-saved Buzz appearance preferences are not changed.
+## Let another Buzz plugin change the theme
 
-## Compatibility and access
+The lifecycle-owned Cordis service is named **chroma**. Consumer example:
 
-This is an opt-in app-wide CSS color override, not a Buzz core theme API. It keeps
-Buzz's fonts, spacing and layout. Changes to Buzz's semantic color roles can
-require plugin updates. BluePinkNeon is a dark palette even if Buzz is set to
-System or Light.
+```js
+export const inject = ["chroma"];
+export function apply(ctx) {
+  ctx.effect(() => ctx.chroma.setLook({
+    colors: ["#0099dd", "#dd4083", "#95fae4"],
+    rotation: 45,
+    appearance: "auto", // dark | light | auto
+    mode: "color",      // color | monochrome
+    // monochrome: "#808080", // optional one-hue/neutral override
+  }));
+}
+```
 
-The code makes no network requests and uses no host command, process, filesystem,
-account or message APIs. It stores only its preference under the namespaced
-`com.ranveer.bluepinkneon:theme:v2` localStorage key. Buzz plugins run in the app's
-JavaScript context; they are not sandboxed. This release is unsigned and Buzz
-will show its normal external-plugin review.
+`setLook(options)` returns an idempotent disposer. Last active caller wins;
+disposing it restores the previous active caller, then the saved user palette.
+Overrides do not write preferences. Changing a UI control cancels all external
+overrides. Disabling the provider removes the service and its dependent plugins.
+Invalid values throw before changing the theme. Rotation accepts any finite
+angle and normalizes to whole degrees; colors are six-digit hexadecimal.
 
-## Build and check
+`getLook()` returns a copy of the active settings and resolved appearance.
+`generateTheme(options)` returns a copy of generated Buzz CSS role colors without
+applying them. `version` is `1`. These functions give no access to messages,
+accounts, the filesystem, or the network. Plugins share the app’s trusted
+JavaScript context; this is not a security sandbox.
 
-Use Python 3, npm, Node.js 24+ and Bun 1.3.14. The generated module is checked in
-under `dist/`, so people installing it do not build anything.
+## Math and checks
 
 ```sh
 npm run check
 ```
 
-`build.py` verifies the original palette-generator files and Shepherd CSS
-snapshot by SHA-256, installs pinned culori 4.0.2 in an automatically removed OS
-temporary directory, and bundles a single browser ES module. No runtime imports,
-separate stylesheets or assets are needed by Buzz.
+Python 3, npm, Node.js 24+ and Bun 1.3.14 build one self-contained browser module.
+The build verifies the pinned original generator and CSS snapshot by SHA-256,
+uses culori 4.0.2 in an automatically removed temporary directory, and checks in
+the result under `dist/`. Installers do not need build tools.
 
-- `runtime.js`: plugin lifecycle, theme controls and validated local preference.
-- `buzz-roles.css`: Buzz semantic color-role mapping.
-- `shepherd-theme.css`: original palette snapshot; only color tokens are used.
-- `vendor/bluepinkneon/`: original OKLCH/APCA generator and source provenance.
-- `test/`: default-palette parity, controls, persistence, cleanup and validation.
+Tests cover all 360 hue positions in color and monochrome, both appearances,
+neutral families, independent hue combinations, the circular seam, picker
+round-trips, storage migration, Auto changes, callable-service custody and cleanup.
+The host text/background graph also samples animated highlight composites.
+See [ALGORITHM.md](ALGORITHM.md) for the constraints, numeric floors and limits.
 
-## How the algorithm works
+- `runtime.js`: controls, validated preferences, lifecycle and callable service.
+- `role-engine.js`: polarity-aware contrast solving and gamut mapping.
+- `role-map.js`: Buzz semantic role mapping and monochrome state cues.
+- `vendor/bluepinkneon/`: unchanged original generator with hash provenance.
+- `shepherd-theme.css`: original 152-color snapshot.
+- `test/role-graph.json`: authored graph based on Buzz’s public contrast checks.
 
-See [ALGORITHM.md](https://github.com/bluepinkneon/buzz-oklchapca/blob/main/ALGORITHM.md) for the hue wheel, shade steps and contrast targets.
-It also records the current adapter's status-color, preset-transition and picker
-limitations found in an independent review.
+## Compatibility and license
 
-## License
+This is an opt-in CSS color override, not a Buzz core change. Buzz keeps its
+spacing, typography and layout. New host roles may require updates; contrast
+checks cover the documented graph, not every future plugin or arbitrary CSS.
+The code makes no network requests. It saves only namespaced theme preferences
+under `com.ranveer.bluepinkneon:theme:v3`. External plugins are reviewed by Buzz.
 
-MIT. The original BluePinkNeon palette generator is published here by its owner.
-The bundled culori dependency is MIT; its notice is included in `dist/`.
-
-Independent plugin; not an official Buzz release or marketplace endorsement.
+MIT. The original palette generator is published by its owner. Bundled culori
+is MIT; its notice is included. Independent plugin, without marketplace endorsement.

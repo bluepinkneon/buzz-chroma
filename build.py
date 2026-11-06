@@ -25,14 +25,15 @@ refs = {}
 for key, value in colors.items():
     if not key.startswith("--palette-"):
         refs[key] = next(k for k, v in palette_colors.items() if v == value)
-prefix = "// OKLCHAPCA for Buzz — MIT. Built from the original OKLCH/APCA generator.\n"
+prefix = "// Color Overthinkers for Buzz — MIT. OKLCH palettes and measured APCA contrast.\n"
 prefix += "const ORIGINAL_COLORS = " + json.dumps(colors) + ";\n"
 prefix += "const TOKEN_REFS = " + json.dumps(refs) + ";\n"
-prefix += "const ROLE_CSS = " + json.dumps((root / "buzz-roles.css").read_text()) + ";\n"
 prefix += "const PLUGIN_ICON = " + json.dumps("data:image/png;base64," + base64.b64encode((root / "icon.png").read_bytes()).decode()) + ";\n"
 with tempfile.TemporaryDirectory(prefix="buzz-chroma-build-") as temp:
     stage = Path(temp)
     shutil.copytree(root / "vendor", stage / "vendor")
+    for name in ["role-engine.js", "role-map.js"]:
+        shutil.copy2(root / name, stage / name)
     shutil.copy2(root / "package.json", stage / "package.json")
     lock = root / "package-lock.json"
     if lock.exists():

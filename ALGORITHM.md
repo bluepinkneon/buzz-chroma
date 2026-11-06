@@ -1,110 +1,107 @@
-# How OKLCHAPCA generates colors
+# Color Overthinkers: the math
 
-OKLCHAPCA uses the original BluePinkNeon OKLCH generator. OKLCH separates perceived
-lightness (`L`), chroma (`C`, color intensity) and hue (`h`, an angle).
+## Two layers, one palette
 
-## The original hue wheel
+The original BluePinkNeon generator remains hash-pinned and unchanged. Its wheel
+has eight hue positions at equal 45° intervals and twelve shades per family.
+The Buzz adapter exposes primary, secondary and text hues, plus rotation. Rotation
+adds the same whole-degree angle to each hue, preserving their chosen offsets and
+wrapping periodically through 359° → 0°.
 
-The default anchor is 224°. Eight families lie 45° apart:
+The original three inputs were Anchor, ANSI Index (role-to-wheel permutation),
+and Brand Index (position/shade). Three independent hue controls are a simpler
+adapter model, not the same three original inputs.
 
-```text
-hue[i] = (anchor + i × 45°) mod 360°
-```
+The original raw shades and 152 default token values remain exact. The original
+shade steps are deliberately not uniform: steps 0–7 use lightness
+.045/.09/.135/.20/.28/.36/.44/.618, and text shades 8–10 use hue-adaptive APCA tables.
+The .618 choice is aesthetic, not an accessibility theorem. The old sRGB-clamped
+raw ramps remain available; the derived UI-role colors below are separately solved.
 
-Primary, secondary and accent use positions 0, 3 and 6 by default. The other
-families supply surfaces, text and semantic colors.
+## Derived UI roles
 
-The Buzz controls extend this by letting those three hues be chosen independently.
-Primary drives the related surface families; the neon-accent hue also drives the
-text family. Rotation adds the same angle to all three selected hues. Each color
-picker supplies a hue; the generator determines lightness and chroma.
+We preserve the wheel but derive surfaces and inks for their actual jobs. New
+colors reduce chroma into the sRGB gamut at fixed OKLCH lightness and hue before
+rounding to eight-bit hex. This avoids changing hue through per-channel clipping.
+Grayscale is exactly the same process at C=0; one-hue monochrome uses one common
+hue. Signal roles are a deliberate exception: danger, warning, success and info
+retain hue anchors from the original hand-tuned signal ramps.
 
-The original generator's three inputs were **Anchor**, **ANSI Index** (which wheel
-position supplies each semantic color), and **Brand Index** (position and shade
-for primary, secondary and accent). The Buzz adapter's three hue pickers are a
-different control model; they do not expose those original role assignments.
+The state ladder uses equal requested lightness increments of .035:
 
-## Twelve shades per family
+| State | Dark L | Light L |
+|---|---:|---:|
+| Panel | .200 | .985 |
+| Hover / own message | .235 | .950 |
+| Selected / own hover | .270 | .915 |
+| Pressed / highlight | .305 | .880 |
+| Own highlight | .340 | .845 |
 
-Steps 0–7 use fixed OKLCH lightness/chroma pairs:
+Separate components may share a tone; competing states within a component do not.
+Primary and secondary hues can add further separation. In monochrome, selected
+navigation adds an inset cue, links remain underlined and reactions keep rings.
+Equal requested L does not mean exact perceptual equality after gamut mapping
+and quantization. All-hue measurements give roughly ΔE_OK×100 of 3.25–4.20 for the
+.035 state changes, with no special wrap discontinuity. The tests require ≥3 for
+specified competing states, not global uniqueness of every CSS role.
 
-| Step | Lightness | Chroma | Purpose |
-| --- | --- | --- | --- |
-| 0 | 0.045 | 0.04 | Near black |
-| 1 | 0.090 | 0.06 | Deep shadow |
-| 2 | 0.135 | 0.08 | Dark background |
-| 3 | 0.200 | 0.10 | Surface |
-| 4 | 0.280 | 0.12 | Surface/border |
-| 5 | 0.360 | 0.14 | Raised surface/border |
-| 6 | 0.440 | 0.16 | Muted color |
-| 7 | 0.618 | 0.20 | Brand/accent fill |
+## Solve ink against its actual backgrounds
 
-The 0.618 accent lightness is an aesthetic choice inspired by the golden ratio.
-It is not an accessibility measurement.
+Dark backgrounds need negative APCA polarity (light ink); light backgrounds need
+positive polarity (dark ink). These are separate solves, not inverted hex values
+or a reuse of the old dark-only lookup tables. The adapter’s solver retains a
+passing endpoint, searches toward the requested target, then measures the actual
+returned hex against every background in that ink’s context.
 
-Text steps 8–10 use precomputed, 360-entry lightness lookup tables, indexed by
-the nearest whole hue degree. They target APCA contrast magnitudes of:
+| Ink | Preferred APCA magnitude | Hard floor |
+|---|---:|---:|
+| Reading body, selected, own-message | 90 | 75 |
+| Supporting text | 65 | 60 |
+| Metadata | 50 | 50 |
+| Links | 80 | 60 |
+| Semantic signal text | 75 | 75 |
 
-| Step | Role | Target | Chroma |
-| --- | --- | --- | --- |
-| 8 | Subdued text | Lc 50 | 0.20 |
-| 9 | Muted text | Lc 65 | 0.20 |
-| 10 | Body text | Lc 92 | 0.10 |
+Readable text also requires WCAG contrast≥4.5. Meaningful non-text boundaries use
+3:1; decorative hairlines are not claimed to meet that threshold. If the preferred
+APCA value is physically unavailable but the hard floors pass, the strongest
+endpoint is used and reported in the engine measurements. If even a hard floor
+is unavailable, generation throws rather than silently returning a weak color.
+This can make light-mode body ink nearly black. APCA and WCAG measure different
+properties; passing a numeric target is not a universal accessibility certification.
 
-Step 11 uses lightness 0.98 and chroma 0.05 for a near-white tint. Culori converts
-the generated OKLCH colors to sRGB hexadecimal values.
+The public Buzz contrast graph is the coverage baseline (body Lc 60 / metadata 45
+and WCAG4.5); our measured ink recipes are stronger. It includes selected rows,
+popovers, own-message contexts, links, mentions, reactions and signal colors.
+Arrival highlights animate an opaque overlay to transparent: we test the peak,
+backing and intermediate alpha composites, including nested mentions/reactions.
 
-## Why the lookup tables exist
+## Stable picks and migration
 
-Different hues at the same OKLCH lightness can produce different sRGB text
-contrast. The tables adjust lightness by hue. Their original generation used
-an APCA solver against a reference dark background at `L=0.135, C=0.08`.
+A displayed raw step7 swatch is inverted through a 360-entry table of the same
+rendered swatches, with circular hue distance and a nearest-current-hue tie-break.
+Reselecting the displayed value is a no-op. Neutral RGB picks (C < .02) set only that
+picker’s neutral flag; they do not turn the whole theme monochrome. All three
+pickers use step7 for their controls; the preview shows the actual text ink.
 
-The plugin maps the resulting palette onto Buzz's semantic color roles. Text,
-surfaces and accents have different jobs; changing a hue does not give every
-element the same brightness.
+The v2 third hue preceded the text hue by 45°; migration adds 45°, preserves rotation
+and leaves v2 storage untouched. v3 records explicit palette/neutral/appearance
+choices. Invalid JSON or values show a fallback warning. New semantic signals do
+not rotate, eliminating the old exact-preset cliff and success/danger collisions.
 
-## Limits
+## Validation and limits
 
-- The APCA targets describe the lookup-table reference conditions. They do not
-  certify every pair of colors or every Buzz component.
-- Independent hue choices and sRGB conversion can change contrast relationships.
-  Review the actual UI after making a custom palette.
-- The BluePinkNeon reset preserves all 152 color tokens from the original
-  Shepherd stylesheet exactly. Its red and green were manually tuned outside
-  the original 45° wheel. The current exact-preset special case therefore creates
-  a visible jump in those signal colors when rotation first leaves zero; this is
-  not merely generator-version rounding drift.
-- This plugin currently applies the dark palette. Buzz's saved Light/System
-  preference is preserved and takes effect again when the plugin is disabled.
+`npm run check` includes 1,954 full generated configurations and 1,113,780 role
+contrast measurements, including all 360 rotations and monochrome hues in both
+appearances plus independent hue/neutral-mask combinations. It also checks
+picker idempotence, mode transitions, storage, service cleanup, equal state steps
+and a 1,081,080-sample rendered luminance sweep. Independent auditors additionally
+checked 2,214,000 gamut-map samples without brightness reversals and all 360²
+own/selected hue combinations for separation. The raw original default colors
+remain hash-verified and exact.
 
-## Current Buzz-adapter gaps
-
-A review of v1.0.0 reproduced these limitations in the shipped module. The icon
-and description update does not change its color calculations.
-
-- **Semantic colors rotate and can coincide.** Danger follows primary +180°;
-  success follows the independently selected accent. Those hues can be identical.
-  In one example, an orange accent produces success `#ffa742` beside danger
-  `#ffa55d`. Keep signal roles separate from decorative color rotation in a future
-  adapter revision.
-- **The preset has a discontinuity.** The generated default differs from the
-  snapshot in 22 of 96 palette entries, all in the hand-tuned danger/success
-  families. A one-degree departure can change danger by about 13.8 on a
-  0–100-scaled OKLab distance, much more than a normal one-degree step.
-- **The RGB picker round-trip can change hue.** The generator converts colors
-  outside the sRGB gamut by channel clamping. Reading the hue back from that
-  rendered swatch is not an inverse of generation: 204 of 360 step-7 swatches
-  change the saved hue when reselected. Neutral RGB picks lose their chroma and
-  fall back to hue zero, producing pink. The original grayscale mode is not
-  exposed by this adapter.
-
-The same review confirmed strong body-text contrast across all 360 × 360 text
-and surface hue pairs: the panel minimum was approximately APCA Lc 89.7. These
-results support the text-table design, not a claim that every control is covered.
-Dark ink on step-7 accent fills measured WCAG contrast 5.12–7.06 and APCA Lc
-36.8–48.5 across the hue wheel. Button typography and fill lightness need their
-own design decision; changing the ink alone does not satisfy both targets.
-
-The implementation is in `vendor/bluepinkneon/palette.ts`, `apca-lookup.ts`,
-`okcolor.ts`, and the Buzz adapter in `runtime.js`.
+These are finite tests plus runtime constraints, not an exhaustive proof over
+all CSS, display hardware, eyesight, browser compositing or future host versions.
+Whole-degree hue choices bound the hue domain. Equal hue angles are retained;
+per-degree perceived distance is not guaranteed identical. Auto follows Buzz’s
+resolved light/dark mode, using the OS preference only if the host supplies none.
+It never writes Buzz’s mode preference or imposes a separate day/night clock.

@@ -3,48 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import * as plugin from "../dist/plugin.js";
 
-function host(saved = new Map()) {
-  const attributes = new Map();
-  const styles = new Set();
-  globalThis.localStorage = { getItem: (key) => saved.get(key) ?? null, setItem: (key, value) => saved.set(key, value) };
-  globalThis.document = {
-    documentElement: {
-      getAttribute: (key) => attributes.get(key) ?? null,
-      setAttribute: (key, value) => attributes.set(key, value),
-      removeAttribute: (key) => attributes.delete(key),
-    },
-    head: { appendChild: (style) => { style.isConnected = true; styles.add(style); } },
-    createElement: () => ({ dataset: {}, isConnected: false, remove() { this.isConnected = false; styles.delete(this); } }),
-  };
-  return {
-    saved, attributes, styles,
-    css: () => [...styles][0]?.textContent ?? "",
-    boot() {
-      let page;
-      const cleanups = [];
-      plugin.apply({
-        react: {
-          useState: () => [0, () => {}],
-          useEffect: (fn) => cleanups.push(fn()),
-          createElement: (tag, props, ...children) => ({ tag, props, children }),
-        },
-        effect: (fn) => cleanups.push(fn()),
-        pages: { register: (value) => { page = value; } },
-      });
-      return { tree: () => page.component(), dispose: () => cleanups.reverse().forEach((fn) => fn?.()) };
-    },
-  };
-}
-
-function find(node, predicate) {
-  if (!node || typeof node !== "object") return;
-  return predicate(node) ? node : node.children?.map((child) => find(child, predicate)).find(Boolean);
-}
-const input = (app, name) => find(app.tree(), (n) => n.tag === "input" && n.props["aria-label"] === name);
-const rotate = (app, value) => find(app.tree(), (n) => n.tag === "input" && n.props.type === "range").props.onChange({ target: { value: String(value) } });
-const click = (app, label) => find(app.tree(), (n) => n.tag === "button" && n.children[0] === label).props.onClick();
-const select = (app, value) => find(app.tree(), (n) => n.tag === "select").props.onChange({ target: { value } });
-const variables = (css) => new Map([...css.split("}\n")[0].matchAll(/(--[\w-]+):\s*(#[\da-f]{6});/g)].map((m) => [m[1], m[2]]));
+import {host,find,input,rotate,click,select,variables} from "./host.mjs";
 
 test("default theme preserves every original color without importing layout tokens", () => {
   const h = host(); const app = h.boot();
@@ -58,7 +17,7 @@ test("default theme preserves every original color without importing layout toke
 
 test("all three hue controls, rotation wrapping, and reset affect the active theme", () => {
   const h = host(); const app = h.boot(); const original = h.css();
-  for (const name of ["Primary", "Secondary", "Neon accent"]) {
+  for (const name of ["Primary", "Secondary", "Text"]) {
     click(app, "Reset BluePinkNeon");
     input(app, name).props.onChange({ target: { value: "#ff7b00" } });
     assert.notEqual(h.css(), original, name);
