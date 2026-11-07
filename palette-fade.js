@@ -3,6 +3,7 @@
 const wrap = value => ((Math.round(value)%360)+360)%360;
 const arc = (a,b) => ((b-a+540)%360)-180;
 const same = (a,b) => JSON.stringify(a)===JSON.stringify(b);
+const monoIsNeutral = choice => choice.neutral || (choice.monoHue===null&&choice.neutrals[0]);
 export function fadeDuration(value=0) {
   if(!Number.isInteger(value)||value<0||value>300000)
     throw new TypeError('fadeMs must be an integer from 0 to 300000');
@@ -13,7 +14,8 @@ export function fadeDuration(value=0) {
 export function canFade(from,to) {
   return from.theme==='bluepinkneon'&&to.theme==='bluepinkneon'
     &&['mode','appearance','neutral','surfaceOffset','neutralGround'].every(key=>from[key]===to[key])
-    &&same(from.neutrals,to.neutrals);
+    &&same(from.neutrals,to.neutrals)
+    &&(from.mode!=='mono'||monoIsNeutral(from)===monoIsNeutral(to));
 }
 export function fadeChoice(from,to,progress) {
   if(progress>=1)return structuredClone(to);

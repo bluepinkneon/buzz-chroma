@@ -30,6 +30,16 @@ test('finite fades finish, interrupt from the displayed sample, and release thei
   f.c.draw(1000);assert.equal(f.value.hues[0],90);f.c.draw(1000);assert.deepEqual(f.value,look(135));
   assert.equal(f.fade.state().status,'idle');assert.equal(f.c.frames.size,0);
 });
+
+test('mono fades compare inherited neutrality as well as stored neutral flags',()=>{
+  const inherited={...look(0),mode:'mono',neutrals:[true,true,true]};
+  const colored={...inherited,monoHue:29};
+  assert.equal(canFade(inherited,colored),false);
+  assert.equal(canFade(colored,inherited),false);
+  assert.equal(canFade(colored,{...colored,monoHue:120}),true);
+  assert.equal(canFade(inherited,{...inherited,rotation:90}),true);
+  assert.equal(canFade({...inherited,mode:'color'},{...colored,mode:'color'}),true);
+});
 test('short arcs are measured on displayed hues even when seed and rotation changes cancel',()=>{
   const a=look(300),b={...look(100),rotation:200};
   for(let step=0;step<=20;step++) {

@@ -56,6 +56,27 @@ test('incompatible modes, neutral families and appearances switch as whole palet
   }
 });
 
+test('inherited neutral mono switches atomically to a custom hue and back through setLook and update',()=>{
+  for(const path of ['setLook','update']) {
+    const {h,app,api}=setup(),leia=api.setLook({preset:'princess-leia'});
+    const gray=api.getLook(),grayCSS=h.css();
+    assert.equal(gray.neutral,false);assert.equal(gray.monoHue,null);
+    assert.deepEqual(gray.effectiveNeutrals,[true,true,true]);
+    const target={preset:'princess-leia',monochrome:'#ff0000'};
+    const direct=api.setLook(target),redCSS=h.css();direct();assert.equal(h.css(),grayCSS);
+    const red=path==='setLook'?api.setLook({...target,fadeMs:2000}):leia;
+    if(path==='update')red.update({monochrome:'#ff0000',fadeMs:2000});
+    assert.equal(red.transition().status,'idle',`${path}: gray to hue is a cut`);
+    assert.equal(h.css(),redCSS);assert.deepEqual(api.getLook().effectiveNeutrals,[false,false,false]);
+    h.advance(1000);assert.equal(h.css(),redCSS);
+    const restored=path==='setLook'?api.setLook({...gray,fadeMs:2000}):red;
+    if(path==='update')restored.update({...gray,fadeMs:2000});
+    assert.equal(restored.transition().status,'idle',`${path}: hue to inherited gray is a cut`);
+    assert.equal(h.css(),grayCSS);assert.deepEqual(api.getLook().effectiveNeutrals,[true,true,true]);
+    h.advance(1000);assert.equal(h.css(),grayCSS);assert.equal(h.saved.size,0);app.dispose();
+  }
+});
+
 test('manual edits and local saves adopt the target, never a synthetic fade frame',()=>{
   for(const action of ['rotate','save','pick','appearance']) {
     const {h,app,api}=setup(),handle=api.setLook({rotation:120,fadeMs:4000});h.advance(1000);
