@@ -13,6 +13,8 @@ test("host contrast graph passes every hue in both appearances and monochrome, i
   let configs=0,checks=0,minBody=Infinity,minMeta=Infinity,minWcag=Infinity;
   function verify(options) {
     const generated=engine.generate(options),roles=mapRoles(generated),cache=new Map();configs++;
+    assert(/^#([\da-f]{2})\1\1$/.test(roles["--status-offline"]),"Offline must stay neutral in every decorative mode");
+    assert.equal(roles["--status-away"],roles["--icon-warning"]);
     const resolve=role=>{assert(roles[role],`unmapped ${role}`);if(!cache.has(role))cache.set(role,parse(roles[role]));return cache.get(role);};
     const check=(fg,bg,target,context)=>{
       const floor=graph.thresholds[target]; assert(floor,`unknown target ${target}`);

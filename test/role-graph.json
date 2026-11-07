@@ -3,6 +3,11 @@
   "description": "Independently authored Buzz semantic-role test inventory for generated theme CSS. Role names are public API/source identifiers. Direct pairs assume an opaque fill; use overlay recipes whenever resolved alpha is below 1.",
   "sourceCommit": "067db608fbc624e56161ccf3e4ff1c0f11c30baf",
   "sources": {
+    "currentHost": {
+      "activityStatus": "https://github.com/block/buzz-app/blob/b1e1cd82dd32e909aeb366fc587f0a50be1c2161/src/features/agents/ActivityTranscript.module.css#L325-L331",
+      "presence": "https://github.com/block/buzz-app/blob/b1e1cd82dd32e909aeb366fc587f0a50be1c2161/src/shared/design-system/styles/components.css#L901-L930",
+      "availability": "https://github.com/block/buzz-app/blob/b1e1cd82dd32e909aeb366fc587f0a50be1c2161/src/shared/design-system/styles/materials.css#L192-L219"
+    },
     "contract": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/plugins/api.ts",
     "contrastInventory": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/scripts/design-system/check-contrast.mjs",
     "semanticRoles": "https://github.com/block/buzz-app/blob/067db608fbc624e56161ccf3e4ff1c0f11c30baf/src/shared/design-system/styles/tokens.css",
@@ -4011,6 +4016,16 @@
       "background": "--affordance-message-own-highlight",
       "target": "nontext",
       "context": "installed 0.7.9 categorical merged-PR icon stays purple on ordinary and own-message contexts"
+    },
+    {
+      "foreground": "--text-on-status-success",
+      "background": "--surface-status-success",
+      "target": "body"
+    },
+    {
+      "foreground": "--text-on-status",
+      "background": "--surface-status-danger",
+      "target": "body"
     }
   ],
   "overlays": [

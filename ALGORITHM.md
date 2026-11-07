@@ -30,7 +30,9 @@ coincidence. Tone and contrast still distinguish roles. One neutral seed lends
 the other seed’s hue to Neon; two neutral seeds keep Neon neutral. Hidden
 trichrome seeds survive mode switches.
 
-The original raw shades and 152 default token values remain exact. ANSI magenta
+The pinned 152-color source snapshot and its raw family shades remain exact.
+Legacy removal exports explicitly reference Red instead of decorative Secondary;
+the snapshot itself is unchanged. ANSI magenta
 and cyan now stay anchored to those original colors across rotation and color
 modes, as do the four signal families; the names no longer collapse together in
 monochrome. Black/white tones still follow the selected source families. Visible UI
@@ -55,6 +57,14 @@ GitHub’s merged-state icons likewise retain categorical purple, with separate
 ordinary/own-message contrast solves even in neutral monochrome.
 This intentionally supersedes the historical raw diff aliases
 for actual Buzz diff rendering, while leaving the historical palette data intact.
+The exported `--token-rem-bg` and `--token-rem-txt` now reference Red steps 7 and 10.
+These raw exports select a family; they are not the contrast-solved UI diff pair.
+
+Presence uses the same family and role recipes: Online uses the success icon and
+outline; Away uses the warning icon shade, while its availability label keeps
+warning text ink. Offline uses the existing icon contrast solve at zero chroma,
+independent of decorative rotation, monochrome and ground settings. Completed
+and failed activity headers share the success/danger fill and paired text ink.
 
 Prominent controls use dark L .86/.90/.94 with dark ink, and light L
 .47/.43/.39 with light ink. These shared strong/inverse roles must also work for
@@ -160,7 +170,12 @@ A displayed raw step7 swatch is inverted through a 360-entry table of the same
 rendered swatches, with circular hue distance and a nearest-current-hue tie-break.
 Reselecting the displayed value is a no-op. Neutral RGB picks (C < .02) set only that
 picker’s neutral flag; they do not turn the whole theme monochrome. All three
-pickers use step7 for their controls; the preview shows the actual text ink.
+pickers use step7 for their controls. The Source ramps preview shows the original
+family shades; UI inks and fills are separately gamut-mapped and contrast-solved
+for Light or Dark. For example, default Neon step10 is `#95fae4`, while standard
+reading ink is `#b2ffee` in Dark and `#000000` in Light. Status and diffs tiles
+show the actual solved signal roles. ANSI exports show source console colors;
+they do not configure Buzz's terminal ANSI palette.
 
 The v2 third hue preceded the text hue by 45°; migration adds 45°, preserves rotation
 and leaves v2 storage untouched. v3 records explicit palette/neutral/appearance

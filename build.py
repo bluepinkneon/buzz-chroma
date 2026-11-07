@@ -28,6 +28,10 @@ refs = {}
 for key, value in colors.items():
     if not key.startswith("--palette-"):
         refs[key] = next(k for k, v in palette_colors.items() if v == value)
+# Removal is semantic Red, rather than the snapshot's decorative Secondary.
+# Keep the hash-pinned snapshot intact and make these export relationships explicit.
+refs.update({"--token-rem-bg": "--palette-contrast-7",
+             "--token-rem-txt": "--palette-contrast-10"})
 prefix = "// Colors for Buzz — MIT. OKLCH palettes and measured APCA contrast.\n"
 plugin_copy=json.loads((root / "copy.json").read_text())
 technical_copy=plugin_copy["technical"]

@@ -9,7 +9,7 @@
 .chroma-colors-workspace{display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;align-items:start}
 .chroma-colors-controls{position:sticky;top:24px;min-width:0;padding:16px;border:1px solid var(--border-standard);border-radius:18px;background:var(--surface-panel)}
 .chroma-colors-controls label[for=bluepinkneon-choice]{display:block;margin-bottom:8px;font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-subtle)}
-.chroma-colors-controls select{width:100%;font:inherit;appearance:none;-webkit-appearance:none;min-height:38px;height:38px;padding-right:28px;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 15px) 16px,calc(100% - 10px) 16px;background-size:5px 5px;background-repeat:no-repeat}
+.chroma-colors-controls select{width:100%;font:inherit;appearance:none;-webkit-appearance:none;min-height:38px;height:auto;line-height:1.2;padding-right:28px;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 15px) center,calc(100% - 10px) center;background-size:5px 5px;background-repeat:no-repeat}
 .chroma-colors-controls button{font:inherit;font-size:13px;line-height:1.2;cursor:pointer}
 .chroma-colors-controls fieldset{min-width:0}
 .chroma-colors-controls [aria-label=Appearance]{display:grid!important;grid-template-columns:repeat(3,1fr);gap:6px!important}

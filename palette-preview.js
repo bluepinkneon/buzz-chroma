@@ -1,4 +1,4 @@
-// Previews read the exact emitted values; there is no second color algorithm.
+// Source ramps and ANSI exports read palette variables; status tiles read solved roles.
 const families=[['primary','Primary'],['secondary','Secondary'],['light','Neon'],['shadow','Ground'],['contrast','Red'],['accent','Green'],['warm','Amber'],['cool','Blue']];
 const ansi=['black','red','green','yellow','blue','magenta','cyan','white'];
 export function palettePreview(h,colors,roles,{fading=false}={}) {
@@ -6,11 +6,12 @@ export function palettePreview(h,colors,roles,{fading=false}={}) {
   const swatch=(name,color,label=name)=>h('div',{key:name,'aria-label':label,className:'chroma-console-swatch',title:`${label} · ${value(color)}`},
     h('div',{'aria-hidden':true,className:'chroma-console-color',style:{background:`var(--ansi-${label.startsWith('Bright ')?'bright-':''}${name})`}}),h('span',null,name),h('code',null,value(color)));
   return h('section',{'aria-label':'Generated colors',className:'chroma-generated'},
-    h('h2',null,'Your generated colors'),h('h3',null,'Palette'),
+    h('h2',null,'Your generated colors'),h('h3',null,'Source ramps'),
+    h('p',{className:'chroma-preview-note'},'UI colors are contrast-solved separately for Light or Dark.'),
     ...families.map(([id,label])=>h('div',{key:id,className:'chroma-family-row'},h('span',null,label),
       h('div',{'aria-label':`${label} shades`,className:'chroma-family-shades'},
         ...Array.from({length:12},(_,step)=>h('div',{key:step,title:`${label} ${step} · ${value(colors[`--palette-${id}-${step}`])}`,'aria-label':`${label} ${step} ${value(colors[`--palette-${id}-${step}`])}`,style:{background:`var(--palette-${id}-${step})`}}))))),
-    h('h3',null,'Console colors'),h('p',{className:'chroma-console-note',title:'Buzz 0.7.9 keeps its terminal ANSI defaults; background, text and selection follow this theme.'},'ANSI exports · Buzz keeps its own terminal ANSI colors.'),
+    h('h3',null,'ANSI exports'),h('p',{className:'chroma-console-note',title:'Terminal background, text and selection follow this theme.'},'Buzz keeps its own terminal ANSI colors.'),
     ...['','bright-'].map(prefix=>h('div',{key:prefix||'normal','aria-label':prefix?'Bright console colors':'Normal console colors',className:'chroma-console-row'},
       h('span',{className:'chroma-console-label'},prefix?'Bright':'Normal'),
       h('div',{className:'chroma-console-grid'},...ansi.map(name=>swatch(name,colors[`--ansi-${prefix}${name}`],prefix?`Bright ${name}`:name))))),

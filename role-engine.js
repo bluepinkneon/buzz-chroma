@@ -147,6 +147,8 @@ export function createRoleEngine(originalColors={}) {
     add(inks,"onOwn",1,ownBackgroundNames,90,75);
     add(inks,"ownMetadata",1,ownBackgroundNames,50,50);
     add(inks,"onProminent",0,prominentNames,90,75,4.5,isDark?"light":"dark",.05);
+    // Offline is a neutral graphic, independent of decorative hue and mode.
+    add(inks,"neutralIcon",0,[...genericNames,"own","ownHover"],45,45,3,appearance,0);
     add(borders,"standard",0,genericNames,0,0,1.5,appearance,neutralGround&&!mono?0:.08);
     add(borders,"prominent",0,genericNames,30,30,3,appearance,.14);
     add(borders,"focus",1,genericNames,60,45,3,appearance,.18);
@@ -166,8 +168,9 @@ export function createRoleEngine(originalColors={}) {
       const bgs=[fill,hover,pressed,...backgrounds(genericNames)];
       // Semantic text uses the host's Lc60 body floor with maximum available
       // chroma. Lc75 washed red into pink and light signals toward black.
-      // Profile availability labels use text-success/text-warning and tint
-      // their background with the same status ink. Solve the actual recipes.
+      // Availability labels use text-success/text-warning over status tints.
+      // The self-tint solve is conservative for Away's separate icon tint;
+      // the host graph also measures that actual text-warning/status-away pair.
       const tintBases=name==="success"?backgrounds(["popover"]):name==="warning"?backgrounds(["base","panel","popover"]):[];
       const tintAlphas=name==="success"?[.06,.10,.14]:[.12,.18,.24];
       const signalBgs=hex=>[...bgs,...tintBases.flatMap(bg=>tintAlphas.map(alpha=>tint(hex,bg,alpha)))];

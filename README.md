@@ -130,13 +130,17 @@ in snapshots, so existing integrations keep working.
 
 The RGB controls select a hue or a neutral family; the generator owns
 lightness and chroma. Their displayed swatches round-trip without hue drift.
-Neon supplies the reading-ink tint; its picker shows a hue swatch and the preview
-shows the actual ink. Hidden trichrome choices survive a visit to another mode.
+Neon supplies the reading-ink tint; its picker shows a source hue swatch. The
+Source ramps preview shows family shades; final UI inks are contrast-solved
+separately. Hidden trichrome choices survive a visit to another mode.
 In Light mode, ink can approach black when higher contrast requires it.
 
 Danger/removal stays red, success/addition green, and warning amber. Buzz’s diff
 viewer consumes those same semantic roles. It has no independent modification
 color: modifications are insertion/deletion hunks.
+Presence uses the same semantic families: Online stays green, Away amber and
+Offline neutral gray, even when the decorative hues rotate. Completed and failed
+activity headers share the success/danger fills and paired inks.
 
 Selected, hovered and pressed states use separate tones. Monochrome selections
 also retain an inset stripe; links keep Buzz’s underlines and reactions its rings.
@@ -148,10 +152,11 @@ the old rollback key.
 Controls and the live palette sit side by side in a wide window and stack in a
 narrow one. **Rotate +45°** and **Reset** stay visible.
 
-- **Palette:** eight named families, with twelve source shades in each. Hover a
-  shade to see its name, index and hex value.
-- **Console colors:** all sixteen normal/bright ANSI exports, labeled with names
-  and hex values. Buzz 0.7.9 keeps xterm’s ANSI colors; this preview does not set
+- **Source ramps:** eight named families, with twelve source shades in each.
+  Hover a shade to see its name, index and hex value. Final UI inks and fills
+  are contrast-solved separately for Light or Dark.
+- **ANSI exports:** all sixteen normal/bright ANSI exports, labeled with names
+  and hex values. Buzz 0.7.16 keeps xterm’s ANSI colors; this preview does not set
   its sixteen ANSI colors, indexed colors or explicit RGB escape sequences.
 - **Status and diffs:** the actual contrast-solved Buzz success/addition,
   danger/removal, warning and information inks, backgrounds and icon colors.

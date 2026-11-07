@@ -23,7 +23,7 @@ test('all recommended recipes and every mode/appearance share seeds, with Auto e
         assert.deepEqual(look.hues,p.hues);assert.deepEqual(look.neutrals,p.neutrals);
         assert.equal(look.appearance,appearance);assert.equal(look.resolvedAppearance,resolved);
         assert.deepEqual(rootRoles(h.css()),roles,`${p.id}/${mode}/${appearance}/${resolved}`);
-        assert.equal(Object.keys(roles).length,160);states++;
+        assert.equal(Object.keys(roles).length,164);states++;
       }live.dispose();
     }
   }

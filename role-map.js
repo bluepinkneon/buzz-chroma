@@ -43,7 +43,7 @@ export function mapRoles({surfaces:s, inks:i, borders:b, signals:g, categorical:
   put(b.prominent, "border-prominent border-control border-floating-control scrollbar-thumb border-reaction-self border-reaction-self-own");
   put(b.focus, "border-focus border-accent");
   put(b.standard, "scrollbar-thumb-quiet");
-  put(b.prominent, "status-offline");
+  put(i.neutralIcon, "status-offline");
   put(i.standard, "surface-inverse");
   put(i.onProminent, "text-inverse");
   for (const [name, signal] of Object.entries(g)) {
@@ -55,6 +55,10 @@ export function mapRoles({surfaces:s, inks:i, borders:b, signals:g, categorical:
     put(signal.pressed, `affordance-${name}-pressed`);
   }
   put(g.success.icon, "status-online");
+  put(g.success.fill, "surface-status-success");
+  put(g.success.ink, "text-on-status-success");
+  put(g.danger.fill, "surface-status-danger");
+  put(g.danger.ink, "text-on-status");
   put(g.danger.ink, "text-call-leave");
   put(g.success.ink, "status-availability-online");
   put(g.success.icon, "status-avatar-online icon-status-complete");
@@ -65,7 +69,7 @@ export function mapRoles({surfaces:s, inks:i, borders:b, signals:g, categorical:
   put(g.danger.callFill, "affordance-call-decline");
   put(g.danger.callHover, "affordance-call-decline-hover");
   put(g.success.ownInk, "icon-success-own");
-  put(g.warning.ink, "status-away");
+  put(g.warning.icon, "status-away");
   put(g.success.border, "border-success-subtle");
   put(q.purpleIcon, "icon-categorical-purple");
   put(q.purpleIconOwn, "icon-categorical-purple-own");

@@ -5,12 +5,15 @@ import * as plugin from "../dist/plugin.js";
 
 import {host,find,input,rotate,click,select,variables} from "./host.mjs";
 
-test("default theme preserves every original color without importing layout tokens", () => {
+test("default source shades remain original while removal exports use Red, without layout tokens", () => {
   const h = host(); const app = h.boot();
   const original = variables(readFileSync(new URL("../shepherd-theme.css", import.meta.url), "utf8"));
   assert.equal(original.size, 152);
+  original.set("--token-rem-bg",original.get("--palette-contrast-7"));
+  original.set("--token-rem-txt",original.get("--palette-contrast-10"));
   assert.deepEqual(variables(h.css()), original);
-  // Raw source colors remain exact. Derived role corrections are checked by
+  // Source shades remain exact. Semantic removal aliases and role corrections
+  // are intentionally independent of decorative Secondary. UI contrast is checked by
   // the actual-host contrast graph, rather than freezing earlier wiring bugs.
   assert(!h.css().includes("--space-1:"));
   assert.deepEqual(Object.keys(plugin).sort(), ["apply", "inject"]);
