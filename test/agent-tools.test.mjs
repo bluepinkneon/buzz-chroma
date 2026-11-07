@@ -6,7 +6,7 @@ import {createRoleEngine} from "../role-engine.js";
 import {mapRoles} from "../role-map.js";
 import {PRESETS} from "../presets.js";
 
-const NAMES = ["chroma_get_look", "chroma_set_look", "chroma_save_preset", "chroma_list_presets"];
+const NAMES = ["chroma_get_look", "chroma_set_look", "chroma_save_preset", "chroma_list_presets", "chroma_play"];
 const tick = () => new Promise(resolve => setImmediate(resolve));
 const settle = async (turns = 12) => { for (let i = 0; i < turns; i++) await tick(); };
 const parsed = async promise => JSON.parse(await promise);
@@ -61,7 +61,7 @@ function addedKey(tools) {
   return (hash >>> 0).toString(36);
 }
 
-test("four stable, Buzz-valid tools whose listing is pinned", () => {
+test("five stable, Buzz-valid tools whose listing is pinned", () => {
   const tools = createAgentTools(fakeApi());
   assert.deepEqual(tools.map(tool => tool.name), NAMES);
   for (const tool of tools) {
@@ -72,10 +72,10 @@ test("four stable, Buzz-valid tools whose listing is pinned", () => {
     assert.equal(tool.inputSchema.additionalProperties, false);
     assert(Object.isFrozen(tool) && Object.isFrozen(tool.inputSchema));
   }
-  assert.equal(Object.keys(tools).length, 4, "dispose is not listed as a tool");
+  assert.equal(Object.keys(tools).length, 5, "dispose is not listed as a tool");
   // Changing a name, description or schema gives every Buzz-run Codex agent a
   // fresh thread. Update this only on purpose.
-  assert.equal(addedKey(tools), "4dlbvz");
+  assert.equal(addedKey(tools), "yicl9r");
   tools.dispose();
 });
 
@@ -181,7 +181,7 @@ test("get, save and list return JSON content", async () => {
   await save.call(undefined, undefined, {name: "given", look: {preset: "batman"}});
   assert.deepEqual(api.calls.at(-1), ["savePreset", "given", {preset: "batman"}]);
   assert.deepEqual((await parsed(list.call(undefined, undefined, {}))).presets.map(preset => preset.id), ["spider-man", "local:xmas"]);
-  assert.deepEqual(api.calls.at(-1), ["listPresets", {includeSaved: true}]);
+  assert.deepEqual(api.calls.at(-1), ["listPresets", {includeSaved: true,includeAnimated:true}]);
   // Buzz's own look is showing: no generated palette is claimed.
   assert.deepEqual(Object.keys(await parsed(createAgentTools(fakeApi({theme: "default"}))[0].call(undefined, undefined, {}))), ["look"]);
 });

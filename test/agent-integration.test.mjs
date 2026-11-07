@@ -54,15 +54,39 @@ test('Buzz default uses actual host appearance, and restore cannot bypass the sh
   await assert.rejects(parse(tools[1],{look:before.look}),/appearance-rate-limited/);assert.equal(api.getLook().theme,'bluepinkneon');tools.dispose();app.dispose();
 });
 
-test('the compiled plugin registers four Buzz tools by default through a single setting, then removes them',async()=>{
+test('the compiled plugin registers five Buzz tools by default through a single setting, then removes them',async()=>{
   const native=nativeContext(),h=host(new Map(),native.extra),app=h.boot();
   const checkbox=()=>find(app.tree(),n=>n.props?.['aria-label']==='Let agents control colors');
-  assert.equal(checkbox().props.checked,true);await settle();assert.equal(native.registered.size,4);assert.equal(h.saved.size,0);assert.equal(native.children.length,1);assert.equal(find(app.tree(),n=>n.props?.['aria-label']==='Let local agents control colors'),undefined);
+  assert.equal(checkbox().props.checked,true);await settle();assert.equal(native.registered.size,5);assert.equal(h.saved.size,0);assert.equal(native.children.length,1);assert.equal(find(app.tree(),n=>n.props?.['aria-label']==='Let local agents control colors'),undefined);
   assert(JSON.stringify(app.tree()).includes('every Codex agent thread'));
   const get=native.registered.get('chroma_get_look'),set=native.registered.get('chroma_set_look');
   const before=await parse(get);await parse(set,{colors:['#d62828','#167a43','#efc66c'],mode:'trichrome',fadeMs:2000});h.advance(2000);assert.notDeepEqual((await parse(get)).look,before.look);
   checkbox().props.onChange({target:{checked:false}});await settle();assert.equal(native.registered.size,0);assert.deepEqual(app.services.get('chroma').getLook(),before.look);
   await assert.rejects(parse(get),/off/);app.dispose();await settle();assert.equal(h.styles.size,0);const second=nativeContext(),next=host(h.saved,second.extra).boot();await settle();assert.equal(second.registered.size,0);next.dispose();await settle();
+});
+
+test('a blocked localStorage getter preserves page and service activation with agent tools safely off',async()=>{
+  for(const available of [false,true]) {
+    const native=nativeContext(),h=host(new Map(),available?native.extra:{});
+    const descriptor=Object.getOwnPropertyDescriptor(globalThis,'localStorage');let app;
+    try {
+      Object.defineProperty(globalThis,'localStorage',{configurable:true,get(){throw new DOMException('Storage blocked','SecurityError');}});
+      app=h.boot();await settle();assert.equal(app.title,'Colors');assert(h.css());
+      const api=app.services.get('chroma');assert(api);assert(api.generateTheme()['--text-standard']);
+      const checkbox=()=>find(app.tree(),n=>n.props?.['aria-label']==='Let agents control colors');
+      assert.equal(checkbox().props.checked,false);assert.equal(checkbox().props.disabled,!available);
+      assert.equal(native.registered.size,0);
+      assert(JSON.stringify(app.tree()).includes('Could not read agent access preferences'));
+      if(available) {
+        checkbox().props.onChange({target:{checked:true}});await settle();
+        assert.equal(checkbox().props.checked,true);assert.equal(native.registered.size,5);
+        assert(JSON.stringify(app.tree()).includes('this session'));assert.equal(h.saved.size,0);
+      }
+    } finally {
+      try{app?.dispose();await settle();}
+      finally{if(descriptor)Object.defineProperty(globalThis,'localStorage',descriptor);else delete globalThis.localStorage;}
+    }
+  }
 });
 
 test('mid-fade snapshots are the requested target, so save and cue-restore never adopt a synthetic frame',async()=>{
@@ -88,10 +112,18 @@ test('an empty setter returns a Buzz-default user to Buzz default and counts as 
 
 test('legacy Buzz access is preserved and outside-only preference never enables tools',async()=>{
   for(const native of [true,false]) {
-    const context=nativeContext(),saved=new Map([['com.ranveer.bluepinkneon:agents:v1',JSON.stringify({native,external:true})]]),app=host(saved,context.extra).boot();await settle();assert.equal(context.registered.size,native?4:0);assert.equal(saved.size,1);app.dispose();await settle();assert.equal(context.registered.size,0);
+    const context=nativeContext(),saved=new Map([['com.ranveer.bluepinkneon:agents:v1',JSON.stringify({native,external:true})]]),app=host(saved,context.extra).boot();await settle();assert.equal(context.registered.size,native?5:0);assert.equal(saved.size,1);app.dispose();await settle();assert.equal(context.registered.size,0);
   }
 });
 
 test('unloading during default registration never revives tools',async()=>{
   const context=nativeContext({pending:true}),app=host(new Map(),context.extra).boot();await settle();assert.equal(context.children.length,1);app.dispose();context.release();await settle();assert.equal(context.registered.size,0);
+});
+
+test('native playback continues without an agent wait and opt-out cancels its owned timers',async()=>{
+  const native=nativeContext(),h=host(new Map(),native.extra),app=h.boot();await settle();
+  const api=app.services.get('chroma'),play=native.registered.get('chroma_play');
+  const result=JSON.parse(await play.call({pubkey:'agent-a'},{},{steps:[{look:{rotation:90},holdMs:1000}]}));assert.equal(result.playback.status,'holding');h.advance(1000);assert.equal(api.getPlayback(),null);
+  await play.call({pubkey:'agent-a'},{},{steps:[{look:{rotation:90},holdMs:10000}]});
+  find(app.tree(),n=>n.props?.['aria-label']==='Let agents control colors').props.onChange({target:{checked:false}});await settle();assert.equal(api.getPlayback(),null);assert.equal(h.timers.size,0);assert.equal(native.registered.size,0);await assert.rejects(play.call({pubkey:'agent-a'},{},{preset:'laughing'}),/off/);app.dispose();
 });

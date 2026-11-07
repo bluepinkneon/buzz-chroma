@@ -3,7 +3,7 @@ import { hexToOklch, oklchToHex, solveApcaLightness } from "./vendor/bluepinkneo
 import { createRoleEngine } from "./role-engine.js";
 import { mapRoles, roleCss } from "./role-map.js";
 import { PRESETS, getPreset, findPreset, applyPreset } from "./presets.js";
-import { LOCAL_LIMIT, LIBRARY_KEY, paletteSnapshot, paletteKey, themeSlug, isThemeName } from "./local-themes.js";
+import { LOCAL_LIMIT, LIBRARY_KEY, LEGACY_LIBRARY_KEY, paletteSnapshot, paletteKey, themeSlug, isThemeName } from "./local-themes.js";
 import {deriveNeonHue,derivedNeonNeutral} from "./harmony.js";
 import {palettePreview} from "./palette-preview.js";
 import {sidebarIconCss} from "./sidebar-icon.js";
@@ -14,6 +14,7 @@ import {createPaletteFade,fadeDuration,canFade} from "./palette-fade.js";
 import {ownAgentControls} from "./agent-tools.js";
 import {agentPreferences} from "./agent-preferences.js";
 import {agentSettings} from "./agent-settings.js";
+import {createPlayback,normalizeSteps} from "./playback.js";
 
 export const inject = ["react", "pages"];
 const degree = (value) => ((Math.round(value) % 360) + 360) % 360;
@@ -113,21 +114,29 @@ function readChoice(saved, legacy) {
     ...(legacy ? {} : { mode: saved.mode, neutral: saved.neutral, monoHue: saved.monoHue === null ? null : degree(saved.monoHue) }) };
 }
 
+function readStoredLook(value) {
+  if(!value||typeof value!=="object"||Array.isArray(value)||Object.keys(value).some(key=>!["hues","rotation","neutrals","mode","monoHue","neutral","surfaceOffset","neutralGround","appearance"].includes(key)))return null;
+  const look=readChoice({...value,theme:"bluepinkneon",appearance:value.appearance??"dark"},false);
+  return look?{...paletteSnapshot(look),...(value.appearance!==undefined?{appearance:look.appearance}:{})}:null;
+}
 function readLocalEntry(entry) {
-  if(!entry||typeof entry!=="object"||Array.isArray(entry)||Object.keys(entry).some(key=>!["name","look"].includes(key))||JSON.stringify(entry).length>2048||!isThemeName(entry.name))return null;
-  if(!entry.look||Object.keys(entry.look).some(key=>!["hues","rotation","neutrals","mode","monoHue","neutral","surfaceOffset","neutralGround","appearance"].includes(key)))return null;
-  const look=readChoice({...entry.look,theme:"bluepinkneon",appearance:entry.look.appearance??"dark"},false);
-  return look?{name:entry.name,look:{...paletteSnapshot(look),...(entry.look.appearance!==undefined?{appearance:look.appearance}:{})}}:null;
+  if(!entry||typeof entry!=="object"||Array.isArray(entry)||Object.keys(entry).some(key=>!["name","look","steps"].includes(key))||!isThemeName(entry.name)||Object.hasOwn(entry,'look')===Object.hasOwn(entry,'steps'))return null;
+  if(Object.hasOwn(entry,'steps')) {
+    try{return {name:entry.name,steps:normalizeSteps(entry.steps,value=>{const look=readStoredLook(value);if(!look)throw Error('invalid step look');return look;}).steps};}
+    catch{return null;}
+  }
+  if(JSON.stringify(entry).length>2048)return null;
+  const look=readStoredLook(entry.look);return look?{name:entry.name,look}:null;
 }
 
-function readLibrary(raw) {
+function readLibrary(raw,allowAnimated=true) {
   if(raw===null)return [];
   if(raw.length>131072)throw new Error("oversized library");
   const entries=JSON.parse(raw),seen=new Set();
   if(!Array.isArray(entries)||entries.length>LOCAL_LIMIT)throw new Error("invalid library");
   return entries.map(entry=>{
     const parsed=readLocalEntry(entry);
-    if(!parsed||seen.has(parsed.name))throw new Error("invalid theme entry");
+    if(!parsed||(!allowAnimated&&parsed.steps)||seen.has(parsed.name))throw new Error("invalid theme entry");
     seen.add(parsed.name);return parsed;
   });
 }
@@ -141,6 +150,7 @@ export function apply(ctx) {
   let libraryLocked = false;
   let libraryDirty = false;
   let libraryRaw = null;
+  let libraryLegacyRaw;
   const listeners = new Set();
   let renderTheme = () => {};
   const engine = createRoleEngine(ORIGINAL_COLORS);
@@ -155,6 +165,7 @@ export function apply(ctx) {
   let appearance = "dark";
   let currentRoles;
   let alive = true;
+  const playback=createPlayback({makeLook:(options,changed)=>makeLook(options,changed),changed:notify});
   const buzzAppearance = () => ["light","dark"].includes(document.documentElement.getAttribute("data-color-mode")) ? document.documentElement.getAttribute("data-color-mode")
       : globalThis.matchMedia?.("(prefers-color-scheme: dark)").matches === false ? "light" : "dark";
   const resolveAppearance = value => value === "auto" ? buzzAppearance() : value;
@@ -186,7 +197,8 @@ export function apply(ctx) {
   } catch { warning = "Could not read the saved palette. Using blue-pink-neon for now."; }
   try {
     const raw=localStorage.getItem(LIBRARY_KEY);libraryRaw=raw;
-    localThemes=readLibrary(raw);
+    if(raw===null){libraryLegacyRaw=localStorage.getItem(LEGACY_LIBRARY_KEY);localThemes=readLibrary(libraryLegacyRaw,false);}
+    else localThemes=readLibrary(raw);
   } catch { localThemes=[];libraryLocked=true;warning="Could not read the local theme library. Its stored data has been left untouched. Saving is locked until you explicitly reset it."; }
 
   ctx.effect(() => {
@@ -211,7 +223,7 @@ export function apply(ctx) {
     }
     const media = globalThis.matchMedia?.("(prefers-color-scheme: dark)");
     const reduced = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)");
-    const visibility=()=>{for(const fade of fades.values())fade.visibility(Boolean(document.hidden));};
+    const visibility=()=>{if(document.hidden)playback.cancel('hidden');for(const fade of fades.values())fade.visibility(Boolean(document.hidden));};
     const reduce=()=>{if(reduced?.matches)for(const fade of fades.values())fade.reduce();};
     document.addEventListener?.("visibilitychange",visibility);
     reduced?.addEventListener("change",reduce);
@@ -236,21 +248,23 @@ export function apply(ctx) {
         terminalColors.apply(currentRoles);
       } else { appearance = nextAppearance; currentRoles=undefined;if(style.isConnected)transition.begin();style.remove(); restoreAttribute();terminalColors.restore(); }
     };
-    const refresh = () => { renderTheme(); for (const listener of listeners) listener(); };
+    let hostMode=buzzAppearance();
+    const refresh = () => {const mode=buzzAppearance();if(mode!==hostMode){hostMode=mode;playback.cancel('appearance-changed');}renderTheme();for (const listener of listeners) listener();};
     const observer = typeof MutationObserver === "function" ? new MutationObserver(refresh) : null;
     observer?.observe(root, { attributes:true, attributeFilter:["data-color-mode"] });
     media?.addEventListener("change", refresh);
     renderTheme();
-    return () => { alive = false; for(const fade of fades.values())fade.dispose();fades.clear();syncFadeGuard();syncFadeGuard=()=>{};preparedCache.clear();document.removeEventListener?.("visibilitychange",visibility);reduced?.removeEventListener("change",reduce); observer?.disconnect(); media?.removeEventListener("change",refresh);if(style.isConnected)transition.begin(); style.remove();iconStyle.remove(); restoreAttribute();terminalColors.restore();transition.dispose(); renderTheme = () => {}; listeners.clear(); overrides.clear(); };
+    return () => { playback.cancel('unloaded');alive = false; for(const fade of fades.values())fade.dispose();fades.clear();syncFadeGuard();syncFadeGuard=()=>{};preparedCache.clear();document.removeEventListener?.("visibilitychange",visibility);reduced?.removeEventListener("change",reduce); observer?.disconnect(); media?.removeEventListener("change",refresh);if(style.isConnected)transition.begin(); style.remove();iconStyle.remove(); restoreAttribute();terminalColors.restore();transition.dispose(); renderTheme = () => {}; listeners.clear(); overrides.clear(); };
   });
 
   function save(next) {
     let prepared;
     try {if(next.theme==="bluepinkneon")prepared=prepareRoles(next);}
     catch(error){warning="Could not generate that palette. Keeping the last good appearance.";console.warn("[Colors] palette-generation-failed",error);for(const listener of listeners)listener();return;}
+    playback.cancel('user-edit');
     for(const fade of fades.values())fade.dispose();fades.clear();syncFadeGuard();
     overrides.clear(); // A person changing the controls takes back ownership.
-    if(next.localName&&!localThemes.some(theme=>theme.name===next.localName&&paletteKey(theme.look)===paletteKey(next)))next={...next,localName:null};
+    if(next.localName&&!localThemes.some(theme=>theme.look&&theme.name===next.localName&&paletteKey(theme.look)===paletteKey(next)))next={...next,localName:null};
     choice = next; warning = "";
     try { localStorage.setItem(storageKey, JSON.stringify(choice)); }
     catch { warning = "Applied for now, but could not save. Buzz may reset this palette after restart."; }
@@ -261,7 +275,7 @@ export function apply(ctx) {
   function saveLibrary(next) {
     if(libraryLocked)return "refused";
     try {
-      if(localStorage.getItem(LIBRARY_KEY)!==libraryRaw) {
+      if(localStorage.getItem(LIBRARY_KEY)!==libraryRaw||(libraryLegacyRaw!==undefined&&localStorage.getItem(LEGACY_LIBRARY_KEY)!==libraryLegacyRaw)) {
         warning="Saved themes changed in another window. Reload the plugin before saving; the other copy was not overwritten.";
         for(const listener of listeners)listener();return "refused";
       }
@@ -270,12 +284,13 @@ export function apply(ctx) {
       for(const listener of listeners)listener();return "refused";
     }
     const parsed=next.map(readLocalEntry);
+    if(JSON.stringify(parsed).length>131072){warning="Theme library is too large. Nothing was changed.";notify();return "refused";}
     if(next.length>LOCAL_LIMIT||parsed.some(entry=>entry===null)||new Set(parsed.map(entry=>entry.name)).size!==parsed.length) {
       warning="The theme library update was refused. Existing saved themes were not changed.";
       for(const listener of listeners)listener();return "refused";
     }
     localThemes=parsed;warning="";
-    try {const raw=JSON.stringify(localThemes);localStorage.setItem(LIBRARY_KEY,raw);libraryRaw=raw;libraryDirty=false;}
+    try {const raw=JSON.stringify(localThemes);localStorage.setItem(LIBRARY_KEY,raw);libraryRaw=raw;libraryLegacyRaw=undefined;libraryDirty=false;}
     catch {libraryDirty=true;}
     for(const listener of listeners)listener();
     return libraryDirty?"session":"saved";
@@ -288,7 +303,7 @@ export function apply(ctx) {
     if(!base) {warning="Use a theme name with letters a–z or numbers.";for(const listener of listeners)listener();return;}
     if(localThemes.length>=LOCAL_LIMIT) {warning=`You can save up to ${LOCAL_LIMIT} local themes. Remove one first.`;for(const listener of listeners)listener();return;}
     let unique=base,index=2;
-    while(localThemes.some(theme=>theme.name===unique)||PRESETS.some(preset=>preset.id===unique)) {
+    while(unique==='laughing'||localThemes.some(theme=>theme.name===unique)||PRESETS.some(preset=>preset.id===unique)) {
       const suffix="-"+index++;unique=base.slice(0,60-suffix.length).replace(/-+$/g,"")+suffix;
     }
     const next={...editableChoice(),localName:unique};
@@ -300,27 +315,27 @@ export function apply(ctx) {
 
   function resetLibrary() {
     try {
-      const current=localStorage.getItem(LIBRARY_KEY);
-      if(current!==libraryRaw) {
-        libraryRaw=current;
-        try {localThemes=readLibrary(current);libraryLocked=false;libraryDirty=false;warning="Saved themes changed in another window. Loaded the current library without resetting it.";}
+      const current=localStorage.getItem(LIBRARY_KEY),legacy=current===null?localStorage.getItem(LEGACY_LIBRARY_KEY):undefined;
+      if(current!==libraryRaw||(libraryLegacyRaw!==undefined&&legacy!==libraryLegacyRaw)) {
+        libraryRaw=current;libraryLegacyRaw=legacy;
+        try {localThemes=readLibrary(current??legacy,current!==null);libraryLocked=false;libraryDirty=false;warning="Saved themes changed in another window. Loaded the current library without resetting it.";}
         catch {localThemes=[];libraryLocked=true;warning="Saved themes changed in another window and are still unreadable. Nothing was reset.";}
         for(const listener of listeners)listener();return;
       }
-      localStorage.setItem(LIBRARY_KEY,"[]");libraryRaw="[]";libraryDirty=false;localThemes=[];libraryLocked=false;save({...editableChoice(),localName:null});
+      localStorage.setItem(LIBRARY_KEY,"[]");libraryRaw="[]";libraryLegacyRaw=undefined;libraryDirty=false;localThemes=[];libraryLocked=false;save({...editableChoice(),localName:null});
     } catch {warning="Could not reset the local library. Stored data was not changed.";for(const listener of listeners)listener();}
   }
 
   function presetBackup() {
     assertAlive();if(libraryLocked)throw new Error("The preset library is locked");
-    return JSON.stringify({format:"buzz-chroma-presets",version:1,presets:structuredClone(localThemes)},null,2);
+    return JSON.stringify({format:"buzz-chroma-presets",version:2,presets:structuredClone(localThemes)});
   }
   function restorePresets(text) {
     assertAlive();if(libraryLocked)throw new Error("The preset library is locked");
     if(typeof text!=="string"||text.length>131200)throw new TypeError("Preset backup is too large");
     let doc;try{doc=JSON.parse(text);}catch{throw new TypeError("Preset backup is not valid JSON");}
-    if(!doc||typeof doc!=="object"||Array.isArray(doc)||Object.keys(doc).some(k=>!["format","version","presets"].includes(k))||doc.format!=="buzz-chroma-presets"||doc.version!==1||!Array.isArray(doc.presets))throw new TypeError("Expected a Colors preset backup");
-    let incoming;try{incoming=readLibrary(JSON.stringify(doc.presets));}
+    if(!doc||typeof doc!=="object"||Array.isArray(doc)||Object.keys(doc).some(k=>!["format","version","presets"].includes(k))||doc.format!=="buzz-chroma-presets"||![1,2].includes(doc.version)||!Array.isArray(doc.presets))throw new TypeError("Expected a Colors preset backup");
+    let incoming;try{incoming=readLibrary(JSON.stringify(doc.presets),doc.version===2);}
     catch{throw new TypeError("Preset backup contains an invalid or oversized library. Nothing was changed.");}
     if(incoming.some(entry=>localThemes.some(existing=>existing.name===entry.name)))throw new TypeError("A preset with that name already exists. Nothing was overwritten.");
     if(!incoming.length)return {added:0,persisted:true};
@@ -385,6 +400,7 @@ export function apply(ctx) {
         if(libraryLocked)throw new TypeError("Saved presets are unavailable while the library is locked");
         const saved=localThemes.find(preset=>`local:${preset.name}`===options.preset);
         if(!saved)throw new TypeError("Unknown saved preset");
+        if(saved.steps)throw new TypeError("Animated presets use play, not setLook");
         next={...next,...structuredClone(saved.look),theme:"bluepinkneon",localName:saved.name};
       } else next=applyPreset(next,options.preset);
     }
@@ -435,7 +451,7 @@ export function apply(ctx) {
     return cleanLocalIdentity(next);
   }
   function cleanLocalIdentity(next) {
-    return next.localName&&!localThemes.some(theme=>theme.name===next.localName&&paletteKey(theme.look)===paletteKey(next))?{...next,localName:null}:next;
+    return next.localName&&!localThemes.some(theme=>theme.look&&theme.name===next.localName&&paletteKey(theme.look)===paletteKey(next))?{...next,localName:null}:next;
   }
   function assertAlive() {if(!alive)throw new Error("Chroma is disabled");}
   function requestLook(options,base) {
@@ -444,7 +460,7 @@ export function apply(ctx) {
     const {fadeMs,...look}=options;
     return {next:apiChoice(look,base),duration:fadeDuration(fadeMs)};
   }
-  function makeLook(options) {
+  function makeLook(options,onTransition=()=>{}) {
     const {next,duration}=requestLook(options);
     if(next.theme==="bluepinkneon")prepareRoles(next);
     const previous=structuredClone(activeChoice()),key=Symbol();
@@ -452,7 +468,7 @@ export function apply(ctx) {
     overrides.set(key,shouldFade?previous:next);
     const fade=createPaletteFade({read:()=>overrides.get(key),isTop:()=>[...overrides.keys()].at(-1)===key,
       write:value=>{const fresh=value.theme==="bluepinkneon"?prepareRoles(value):undefined;overrides.set(key,value);if([...overrides.keys()].at(-1)===key)renderTheme(fresh);},
-      failed:error=>{warning="A color fade stopped. Keeping the last good palette.";console.warn("[Colors] fade-failed",error);},changed:()=>{syncFadeGuard();notify();}});
+      failed:error=>{warning="A color fade stopped. Keeping the last good palette.";console.warn("[Colors] fade-failed",error);onTransition({status:"failed"});},changed:()=>{syncFadeGuard();notify();onTransition(fade.state());}});
     fades.set(key,fade);
     try {fade.start(next,duration,{hidden:Boolean(document.hidden),reduced:!shouldFade});}
     catch(error){fade.dispose();fades.delete(key);overrides.delete(key);throw error;}
@@ -469,26 +485,65 @@ export function apply(ctx) {
       fade.start(next,duration,{hidden:Boolean(document.hidden),covered:[...overrides.keys()].at(-1)!==key,
         reduced:Boolean(globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches)});
     };
+    dispose.active=()=>alive&&overrides.has(key);
+    dispose.restorationAppearance=()=>{const entries=[...overrides];const index=entries.findIndex(([id])=>id===key);const below=index>0?entries[index-1][1]:choice;return below.theme==="default"?buzzAppearance():resolveAppearance(below.appearance);};
     dispose.dispose=dispose;dispose.transition=()=>fade.state();return Object.freeze(dispose);
+  }
+  function resolveSteps(steps,{playing=false}={}) {
+    const base=structuredClone(choice),polarity=appearance;
+    return normalizeSteps(structuredClone(steps),value=>{
+      const next=apiChoice(value&&Object.hasOwn(value,'hues')&&!Object.hasOwn(value,'theme')?{theme:'bluepinkneon',...value}:value,base);
+      if(next.theme!=='bluepinkneon')throw TypeError('Animation steps need generated looks');
+      const look={...next,localName:null,...(playing?{appearance:polarity}:{})};prepareRoles(look);return look;
+    });
+  }
+  function play(options) {
+    assertAlive();
+    if(!options||typeof options!=='object'||Array.isArray(options)||Object.keys(options).some(key=>!['preset','steps'].includes(key))||Object.hasOwn(options,'preset')===Object.hasOwn(options,'steps'))throw TypeError('Play accepts exactly one preset or steps');
+    if(document.hidden)throw Error('Open Buzz before playing an animation');
+    let steps=options.steps,name='Animation';
+    if(Object.hasOwn(options,'preset')) {
+      if(options.preset==='laughing') {
+        const base=structuredClone(choice);
+        steps=[12,-12,12].map(offset=>({look:{...base,theme:'bluepinkneon',rotation:degree(base.rotation+offset)},fadeMs:1200,holdMs:1200}));name='Laughing';
+      } else {
+        if(typeof options.preset!=='string'||!options.preset.startsWith('local:'))throw TypeError('Unknown animated preset');
+        if(libraryLocked)throw Error('The saved preset library is locked');
+        const preset=localThemes.find(p=>`local:${p.name}`===options.preset);
+        if(!preset?.steps)throw TypeError('Choose an animated preset; use setLook for a static look');
+        steps=preset.steps;name=displayName(preset.name);
+      }
+    }
+    const plan=resolveSteps(steps,{playing:true});
+    return playback.start(plan,name);
   }
   const service=Object.freeze({
     version:1,
     listPresets:(options={})=>{
-      assertAlive();if(!options||typeof options!=="object"||Array.isArray(options)||Object.keys(options).some(k=>k!=="includeSaved")||options.includeSaved!==undefined&&typeof options.includeSaved!=="boolean")throw new TypeError("Expected optional includeSaved boolean");
+      assertAlive();if(!options||typeof options!=="object"||Array.isArray(options)||Object.keys(options).some(k=>!["includeSaved","includeAnimated"].includes(k))||['includeSaved','includeAnimated'].some(k=>options[k]!==undefined&&typeof options[k]!=="boolean"))throw new TypeError("Expected optional includeSaved/includeAnimated booleans");
       if(options.includeSaved&&libraryLocked)throw new Error("The saved preset library is locked");
-      return structuredClone([...PRESETS,...(options.includeSaved?localThemes.map(preset=>({id:`local:${preset.name}`,name:displayName(preset.name),description:"Saved on this device",...preset.look,look:preset.look})):[])]);
+      return structuredClone([...PRESETS.map(p=>({...p,kind:'static'})),...(options.includeAnimated?[{id:'laughing',name:'Laughing',kind:'animated',description:'A gentle three-step hue sway using your colors.',stepCount:3,durationMs:7200}]:[]),...(options.includeSaved?localThemes.filter(p=>p.look||options.includeAnimated).map(preset=>preset.steps?{id:`local:${preset.name}`,name:displayName(preset.name),kind:'animated',description:'Saved on this device',stepCount:preset.steps.length,durationMs:preset.steps.reduce((n,s)=>n+s.fadeMs+s.holdMs,0)}:{id:`local:${preset.name}`,name:displayName(preset.name),kind:'static',description:"Saved on this device",...preset.look,look:preset.look}):[])]);
     },
     getLook:()=>{assertAlive();const next=editableChoice();return structuredClone({...next,preset:findPreset(next)?.id??"custom",effectiveHues:next.mode==="mono"?Array(3).fill(monoHue(next)):effectiveHues(next),effectiveNeutrals:effectiveNeutrals(next),resolvedAppearance:appearance});},
     generateTheme:(options={})=>structuredClone(mapRoles(generateRoles(apiChoice(options)))),
-    setLook:makeLook,
+    setLook:options=>{const next=makeLook(options);playback.cancel('replaced');return next;},
+    play,
+    getPlayback:()=>{assertAlive();return playback.state();},
+    stopPlayback:()=>{assertAlive();playback.cancel('cancelled');},
     savePreset:(name,options)=>{
       assertAlive();if(!isThemeName(name))throw new TypeError("Preset names must be kebab-case, at most 60 characters");
       if(libraryLocked)throw new Error("The saved preset library is locked");
       if(localThemes.length>=LOCAL_LIMIT)throw new Error("The saved preset library is full");
-      if(localThemes.some(p=>p.name===name)||PRESETS.some(p=>p.id===name))throw new TypeError("That preset name already exists; choose another name");
-      const next=apiChoice(options);if(next.theme!=="bluepinkneon")throw new TypeError("Save a generated palette, not Buzz default");
-      prepareRoles(next);
-      const result=saveLibrary([...localThemes,{name,look:{...paletteSnapshot(next),appearance:next.appearance}}]);
+      if(name==='laughing'||localThemes.some(p=>p.name===name)||PRESETS.some(p=>p.id===name))throw new TypeError("That preset name already exists; choose another name");
+      let entry;
+      if(options&&Object.hasOwn(options,'steps')) {
+        if(Object.keys(options).length!==1)throw TypeError('Save exactly one look or steps');
+        const plan=resolveSteps(options.steps);entry={name,steps:plan.steps.map(step=>({...step,look:{...paletteSnapshot(step.look),appearance:step.look.appearance}}))};
+      } else {
+        const next=apiChoice(options);if(next.theme!=="bluepinkneon")throw new TypeError("Save a generated palette, not Buzz default");
+        prepareRoles(next);entry={name,look:{...paletteSnapshot(next),appearance:next.appearance}};
+      }
+      const result=saveLibrary([...localThemes,entry]);
       if(result==="refused")throw new Error(warning);
       if(result==="session"){warning="Preset saved for this session only; device storage could not be written.";notify();}
       return {id:`local:${name}`,persisted:result==="saved"};
@@ -507,6 +562,7 @@ export function apply(ctx) {
       const [localName,setLocalName] = React.useState("");
       const [backup,setBackup] = React.useState("");
       const [backupNotice,setBackupNotice] = React.useState("");
+      const [animation,setAnimation] = React.useState('laughing');
       React.useEffect(() => {
         const refresh = () => update((value) => value + 1);
         listeners.add(refresh);
@@ -514,10 +570,12 @@ export function apply(ctx) {
       }, []);
       const h = React.createElement;
       const colors = paletteFor(activeChoice());
+      const animations=service.listPresets({includeSaved:!libraryLocked,includeAnimated:true}).filter(p=>p.kind==='animated');
+      const selectedAnimation=animations.some(p=>p.id===animation)?animation:'laughing';
       const hues = effectiveHues(choice);
       const candidate = choice.localName ? null : findPreset(choice);
       const preset = candidate&&PRESETS.includes(candidate)?candidate:null;
-      const localTheme = localThemes.find(theme=>theme.name===choice.localName&&paletteKey(theme.look)===paletteKey(choice));
+      const localTheme = localThemes.find(theme=>theme.look&&theme.name===choice.localName&&paletteKey(theme.look)===paletteKey(choice));
       const control = { color: "var(--text-standard)", backgroundColor: "var(--surface-panel)",
         border: "1px solid var(--border-prominent)", borderRadius: "6px", padding: "8px" };
       const buttonStyle = (selected) => ({ ...control, backgroundColor: selected ? "var(--affordance-selected)" : control.backgroundColor });
@@ -537,12 +595,12 @@ export function apply(ctx) {
             else if(PRESETS.some(preset=>preset.id===id))save(applyPreset(choice,id));
             else if(id.startsWith("local:")) {
               const theme=localThemes.find(theme=>`local:${theme.name}`===id);
-              if(theme)save({...choice,...structuredClone(theme.look),theme:"bluepinkneon",localName:theme.name});
+              if(theme?.look)save({...choice,...structuredClone(theme.look),theme:"bluepinkneon",localName:theme.name});
             }
           } },
           h("option", { value: "default" }, "Buzz Default"),
           ...displayedPresets.map(preset=>h("option",{key:preset.id,value:preset.id},displayName(preset.id))),
-          ...(localThemes.length?[h("optgroup",{label:"Saved on this device"},...[...localThemes].sort((a,b)=>compareNames(a.name,b.name)).map(theme=>h("option",{key:theme.name,value:`local:${theme.name}`},displayName(theme.name))))]:[]),
+          ...(localThemes.length?[h("optgroup",{label:"Saved on this device"},...localThemes.filter(theme=>theme.look).sort((a,b)=>compareNames(a.name,b.name)).map(theme=>h("option",{key:theme.name,value:`local:${theme.name}`},displayName(theme.name))))]:[]),
           ...(!preset&&!localTheme?[h("option",{value:"custom",disabled:true},"Custom")]:[])),
         h("p",null,choice.theme==="default"?"Buzz’s own appearance is active.":localTheme?(libraryDirty?"This theme library has changes saved only for this session.":"Saved on this device."):preset?.description??"Your own color combination."),
         h("div", { style: {display:"flex",gap:"8px",marginTop:"16px"}, "aria-label":"Appearance" },
@@ -610,6 +668,9 @@ export function apply(ctx) {
             choice.theme==="bluepinkneon"&&currentRoles?palettePreview(h,colors,currentRoles,{fading}):h("p",{className:"chroma-colors-empty"},"Buzz’s own appearance is active. Choose a preset or a color to preview your generated palette."))),
         h("div",{className:"chroma-extra-settings"},
           agentSettings(h,{state:agentAccess.getState(),enabled:agentChoices.get(),notice:agentChoices.notice(),
+            animations,selected:selectedAnimation,onSelect:setAnimation,playback:playback.state(),onStop:()=>playback.cancel('cancelled'),
+            onPlay:()=>{try{play({preset:selectedAnimation});}catch(error){warning=error.message;notify();}},
+            onRemove:!libraryLocked&&selectedAnimation.startsWith('local:')?()=>{saveLibrary(localThemes.filter(p=>`local:${p.name}`!==selectedAnimation));}:undefined,
             onToggle:value=>{void agentChoices.set(value).catch(()=>{warning="Could not update agent access. Try again from the connection controls.";notify();});}}))));
     },
   });

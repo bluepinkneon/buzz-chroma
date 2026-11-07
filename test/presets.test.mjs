@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {PRESETS} from "../presets.js";
 import {host,find,click,select,input,rotate} from "./host.mjs";
 import {hexOklch,deltaE} from "../role-engine.js";
+import {LIBRARY_KEY} from '../local-themes.js';
 
 test("picker uses alphabetized readable labels without changing preset IDs or API order",()=>{
   const h=host(),app=h.boot(),api=app.services.get("chroma");
@@ -23,7 +24,7 @@ test("saved theme display order and labels leave stored names and selection iden
   for(const name of ["zebra-night","apple-day"]) {input(app,"Theme name").props.onChange({target:{value:name}});click(app,"Save locally");}
   const group=find(app.tree(),n=>n.tag==="optgroup");
   assert.deepEqual(group.children.map(o=>[o.props.value,o.children[0]]),[["local:apple-day","Apple Day"],["local:zebra-night","Zebra Night"]]);
-  const library=JSON.parse(h.saved.get("com.ranveer.bluepinkneon:presets:v1"));assert.deepEqual(library.map(t=>t.name),["zebra-night","apple-day"]);
+  const library=JSON.parse(h.saved.get(LIBRARY_KEY));assert.deepEqual(library.map(t=>t.name),["zebra-night","apple-day"]);
   select(app,"local:zebra-night");assert.equal(api.getLook().localName,"zebra-night");app.dispose();
 });
 

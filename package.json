@@ -10,7 +10,7 @@
   "dependencies": {
     "culori": "4.0.2"
   },
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Say it with color.",
   "license": "MIT"
 }

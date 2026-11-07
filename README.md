@@ -204,9 +204,16 @@ a celebratory moment, a Christmassy palette, or a brief attention cue when an
 agent needs your input. Error details still belong in the conversation; color is
 an additional expression, not the only message.
 
-One call selects **one look**. For a sequence, the caller sets a look, waits, then
-sets the next one. Colors has no background playlist or internal loop. The agent
-can save a recipe once and reuse its `local:<name>` ID.
+`setLook` selects one enduring temporary look. `play` runs a finite animation:
+each step has a look, a fade, then a full hold. Colors owns the timers, so the
+agent can finish its turn immediately. Completion releases the animation's lease
+and reveals the current underlying look, including an enduring agent atmosphere.
+It never replays a captured user snapshot over later edits.
+
+Open **Colors → Agent expression → Animated presets** to try **Laughing**, a
+restrained three-step hue sway using your colors, or a saved animation. **Stop and
+return** releases it immediately. Playing again replaces it. Static preset choices
+and their existing save/apply behavior stay unchanged.
 
 Transitions use one built-in easing rule; there are no animation settings to tune.
 Agents and plugins request a duration with `fadeMs`. Manual edits take over and
@@ -221,6 +228,13 @@ bounded. The final frame exactly matches an immediate call for the same target.
 Mode, appearance and neutral-family/ground changes switch atomically. Reduced
 motion or a hidden window finishes the target immediately. Covered older
 handles pause until revealed. These are gentle color changes, not a strobe mode.
+Timed playback keeps the currently painted Light/Dark appearance for every step;
+stored appearance metadata does not alternate the window's polarity. Holds are
+1000–300000ms after the fade actually finishes. A cut or reduced motion skips the
+fade but keeps the full hold. Playback is limited to16 steps and300000ms of
+requested fade+hold time, with no repeats. Hiding Buzz, changing its appearance,
+editing a color control, replacing playback, disabling agent access, or unloading
+the plugin cancels the appropriate owned job. Missed cues are not replayed.
 
 ```js
 const live = ctx.chroma.setLook({
@@ -244,6 +258,26 @@ const available = ctx.chroma.listPresets({ includeSaved: true });
 const live = ctx.chroma.setLook({ preset: result.id, fadeMs: 5000 });
 ```
 
+Animated presets use the same look recipes inside timed steps:
+
+```js
+const steps = [
+  { look: { rotation: 12 }, fadeMs: 1200, holdMs: 1500 },
+  { look: { rotation: 348 }, fadeMs: 1200, holdMs: 1500 },
+];
+ctx.chroma.savePreset("laughing-turns", { steps });
+const playback = ctx.chroma.play({ preset: "local:laughing-turns" });
+// ctx.chroma.play({ steps }) uses the same player and validation.
+playback.state(); // {id, name, status, step, total}
+playback.dispose(); // stop and return; no agent wait or timer required
+```
+
+Steps are normalized to complete looks before saving or playing; omitted fields
+start from the saved user look, not the preceding step. Saved animations freeze
+those choices. Saving never starts playback. Animated IDs use `play`; `setLook`
+continues to accept only static looks. Discovery with `includeAnimated:true`
+reports `kind`, step counts and requested duration rather than every frame.
+
 Names are kebab-case, at most 60 characters. Creation refuses an existing name,
 a built-in name, or a full/locked library; it never overwrites or deletes a
 preset. A stale or unreadable storage comparison refuses the write. A quota
@@ -260,12 +294,12 @@ backup before downgrading and do not reset a refused library to recover it.
 
 ## Tools for agents
 
-The same color controls are exposed as four tools. Their descriptions encourage
+The same color controls are exposed as five tools. Their descriptions encourage
 subtle expression: mood, focus, celebration, a festive atmosphere, and brief
 attention or error cues alongside a clear conversational message.
 
 Open **Colors → Agent expression**. There is one switch: **Let agents control colors**.
-It makes the four tools available in Buzz through its built-in agent tool registry.
+It makes the tools available in Buzz through its built-in agent tool registry.
 Access defaults **on** when the Buzz build supports it. Your choice is remembered;
 upgrades preserve the old Buzz-agent preference, ignoring the retired outside-access
 preference. Unreadable settings leave tools off until you choose.
@@ -275,10 +309,11 @@ removed. Change the switch between tasks. This applies to agents managed by Buzz
 
 | Tool | Input | Result |
 |---|---|---|
-| `chroma_get_look` | `{}` | `{look, palette?}`; generated colors are omitted while Buzz Default is active |
+| `chroma_get_look` | `{}` | `{look, palette?, playback?}`; generated colors are omitted while Buzz Default is active |
 | `chroma_set_look` | Look options with optional `fadeMs`, or `{look: snapshot, fadeMs?}` | `{look, transition}`; applies one temporary look and returns without waiting for the fade |
-| `chroma_save_preset` | `{name, look}` | Creates one local preset; reports its ID and whether storage persisted |
-| `chroma_list_presets` | `{}` | Built-ins and saved `local:<name>` presets |
+| `chroma_save_preset` | Exactly one of `{name, look}` or `{name, steps}` | Creates a static or animated local preset; reports its ID and whether storage persisted |
+| `chroma_list_presets` | `{}` | Static and animated built-ins/local presets, with `kind` and compact animation timing |
+| `chroma_play` | Exactly one of `{preset}`, `{steps}`, `{cancel: playbackId}` | Starts nonblocking playback, or cancels the caller's matching job. A stale ID cannot cancel its replacement. |
 
 `look` cannot be combined with patch fields in the setter. The agent tools own
 one live setter handle, replacing it only after the new request validates.
@@ -300,10 +335,9 @@ Ask an agent in Buzz: “Make this feel Christmassy.” It can call
 }
 ```
 
-For a brief attention cue, first keep the result of `chroma_get_look`, choose a
-look, wait in the agent, then restore with
-`chroma_set_look({look: previous.look, fadeMs: 2000})`. The same pattern can build
-a sequence of festive presets; no sequence engine or LLM runs inside Colors.
+For a brief attention cue, call `chroma_play({preset:"laughing"})` or provide
+explicit timed steps. The plugin owns playback and restoration after the agent
+turn ends; no Attention timer or caller-owned wait is needed.
 Your manual color controls cancel temporary handles. Brightness, contrast and
 protected signal colors continue to be generated by the same engine.
 
@@ -317,15 +351,17 @@ next prunes expired sessions; Colors does not read or edit that store.
 
 This is an in-process Cordis service named **chroma**, not an HTTP endpoint.
 Require it with `export const inject = ["chroma"]`, then use `ctx.chroma`.
-The service has `version: 1` and five methods:
+The service has `version: 1`; playback methods are additive:
 
 | Method | Returns | Effect |
 |---|---|---|
-| `listPresets({ includeSaved = false } = {})` | A fresh array of built-in recipes, optionally including local saves | No changes |
+| `listPresets({ includeSaved = false, includeAnimated = false } = {})` | A fresh array of recipes, optionally including local saves and animations | No changes |
 | `getLook()` | A fresh snapshot of the current requested look (the target during a fade) | No changes |
 | `generateTheme(options = {})` | `Record<string, "#RRGGBB">` containing Buzz semantic CSS roles | Generates only; does not apply or save |
 | `setLook(options)` | A callable live handle with `update(patch)`, `transition()` and `dispose()` | Applies or fades to one temporary look; does not save |
-| `savePreset(name, look)` | `{ id: "local:<name>", persisted: boolean }` | Creates a local preset without applying it |
+| `savePreset(name, lookOrSteps)` | `{ id: "local:<name>", persisted: boolean }` | Creates a local preset without applying it |
+| `play({ preset } or { steps })` | A lease with `state()` and `dispose()` | Runs one finite animation using the existing generator |
+| `getPlayback()` / `stopPlayback()` | Current playback state / nothing | Inspect or stop the current job; owner UI and trusted plugins |
 
 Each new `setLook` and `generateTheme` request starts from the **saved user look**
 for omitted fields, independently of other temporary handles. A handle’s
@@ -470,9 +506,10 @@ live.update({ mode: snapshot.mode });     // snapshot IDs also work in patches
 live.dispose();
 ```
 
-Each `listPresets()` entry contains `id`, `description`, three `hues`, three
+Each static `listPresets()` entry contains `id`, `description`, three `hues`, three
 `neutrals`, `surfaceOffset`, `neutralGround`, `defaultMode` (`color`/`duo`/`mono`),
-`defaultAppearance` (`dark`/`light`/`auto`) and `defaultNeutral` (currently always `false`). Mutating the returned catalog never changes built-ins.
+`defaultAppearance` (`dark`/`light`/`auto`) and `defaultNeutral` (currently always `false`). With `includeAnimated:true`, animated entries instead contain `kind:"animated"`,
+`stepCount` and `durationMs`. Mutating the returned catalog never changes built-ins.
 The API grants no messages, account, filesystem or network access. Buzz plugins
 share a trusted JavaScript context; the service is not a security sandbox.
 
@@ -533,6 +570,13 @@ at 512px in neutral gray `#8a8a8a`, on a transparent background.
 `tools/render-icon.html` renders the PNG using browser Canvas 2D;
 `icon.provenance.json` records the renderer/version and source/output hashes.
 The build verifies those hashes so the two assets cannot drift silently.
+
+## Changes in v1.7.0
+
+- Finite, plugin-owned playback with named and inline animated presets and a Stop/return control.
+- One new `chroma_play` tool; existing save/list tools support timed compositions.
+- Strict v2 preset storage and compact backups retain old static libraries/backups without activation writes.
+- Playback preserves the current appearance and never writes the active user palette.
 
 ## Changes in v1.6.0
 
@@ -659,7 +703,8 @@ spacing, typography and layout. New host roles may require updates; contrast
 checks cover the documented graph, not every future plugin or arbitrary CSS.
 The code makes no network requests. It saves only namespaced theme preferences
 under `com.ranveer.bluepinkneon:theme:v3` and a bounded local library under
-`com.ranveer.bluepinkneon:presets:v1`. External plugins are reviewed by Buzz.
+`com.ranveer.bluepinkneon:presets:v2`. The old v1 library is read only when v2 is
+absent and remains untouched for rollback. External plugins are reviewed by Buzz.
 
 MIT. The original palette generator is published by its owner. Bundled culori
 is MIT; its notice is included. Independent plugin, without marketplace endorsement.

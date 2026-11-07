@@ -1,10 +1,11 @@
-// Four tools registered with Buzz’s built-in agent tool registry.
+// Five tools registered with Buzz’s built-in agent tool registry.
 // Contract pinned to Buzz desktop-v0.7.9 (8ad11326).
 
 export const POLARITY_CUT_MS = 1000;
 export const MAX_FADE_MS = 300000;
 const MAX_ARGUMENT_BYTES = 8192;
 const HEX = "^#[0-9A-Fa-f]{6}$";
+const STEPS={type:'array',minItems:1,maxItems:16,items:{type:'object',additionalProperties:false,required:['look','holdMs'],properties:{look:{type:'object'},fadeMs:{type:'integer',minimum:0,maximum:MAX_FADE_MS},holdMs:{type:'integer',minimum:1000,maximum:MAX_FADE_MS}}}};
 
 const frozen = value => {
   if (value && typeof value === "object") { Object.values(value).forEach(frozen); Object.freeze(value); }
@@ -17,11 +18,11 @@ const plain = value => value !== null && typeof value === "object" && !Array.isA
 // Buzz gives each Codex agent a fresh thread when any of them changes.
 const SCHEMAS = frozen({
   chroma_get_look: {
-    description: "Read the user's current look from the Colors plugin in Buzz: to describe it, build on it, or keep it so chroma_set_look can restore it exactly after a brief cue. Returns look and, while the Colors plugin paints Buzz, palette: every generated semantic color role. During a fade, both describe the fade's target.",
+    description: "Read the current look and generated semantic palette from Colors in Buzz. During a fade they describe its target. Active timed playback is reported separately. Use chroma_play for brief cues: it owns timing and restoration without agent waits.",
     inputSchema: {type: "object", properties: {}, additionalProperties: false},
   },
   chroma_set_look: {
-    description: "Express a mood or moment through the user\u2019s colors\u2014for example a calm working atmosphere, a celebration, or a Christmassy look. Apply one preset or color recipe, optionally with a gentle finite fade. Use these colors as a subtle companion to conversation. Brief cues work too, such as an error, a request for attention, a short blink or a finished task: read chroma_get_look first, set the cue, wait, then pass that look back to restore it. Always say the error or request in words as well; color only accompanies them. Give a preset id from chroma_list_presets or #RRGGBB seed colors, with optional rotation, appearance, mode, monochrome, surfaceOffset and neutralGround; fields left out come from the user's own look, so a call without them returns to it. Or give look, a complete look from chroma_get_look. fadeMs fades once to the result. Every look is contrast-checked. It shows until the next call, until the user changes colors (the user always wins), or until agent access is turned off, and it is never saved; chroma_save_preset keeps one. Dark and light may switch at most once a second, so a look never flashes the whole window; a refused call reports retryAfterMs.",
+    description: "Express a mood or moment through the user\u2019s colors\u2014for example a calm working atmosphere, a celebration, or a Christmassy look. Apply one preset or color recipe, optionally with a gentle finite fade. Use these colors as a subtle companion to conversation. For brief cues or timed compositions use chroma_play, which owns timing and returns to this atmosphere without agent waits. Always say the error or request in words as well; color only accompanies them. Give a static preset id from chroma_list_presets or #RRGGBB seed colors, with optional rotation, appearance, mode, monochrome, surfaceOffset and neutralGround; fields left out come from the user's own look, so a call without them returns to it. Or give look, a complete look from chroma_get_look. fadeMs fades once to the result. Every look is contrast-checked. It shows until the next call, until the user changes colors (the user always wins), or until agent access is turned off, and it is never saved; chroma_save_preset keeps one. Dark and light may switch at most once a second, so a look never flashes the whole window; a refused call reports retryAfterMs.",
     inputSchema: {
       type: "object", additionalProperties: false,
       properties: {
@@ -39,18 +40,23 @@ const SCHEMAS = frozen({
     },
   },
   chroma_save_preset: {
-    description: "Create a new local preset from an explicit look, for example a recipe you made together or a snapshot from chroma_get_look. It only creates; it never changes or removes a saved preset. Use a kebab-case name such as christmas-cheer. Returns the new preset id, which chroma_set_look and chroma_list_presets use, and whether it persisted on this device.",
+    description: "Create a new local preset from exactly one look or timed steps. A static look uses chroma_set_look; saved animations use chroma_play. It only creates and never overwrites another preset. Returns its local id and whether it persisted on this device.",
     inputSchema: {
-      type: "object", additionalProperties: false, required: ["name", "look"],
+      type: "object", additionalProperties: false, required: ["name"],
       properties: {
         name: {type: "string", minLength: 1, maxLength: 60, pattern: "^[a-z0-9]+(-[a-z0-9]+)*$", description: "Kebab-case preset name, such as christmas-cheer."},
         look: {type: "object", description: "A look from chroma_get_look."},
+        steps: STEPS,
       },
     },
   },
   chroma_list_presets: {
-    description: "List the presets chroma_set_look can apply by id: the Colors plugin's built-in character looks and the user's saved local presets.",
+    description: "List static and animated Colors presets. Static ids use chroma_set_look; animated ids use chroma_play. Animated entries report stepCount and durationMs without full frame data.",
     inputSchema: {type: "object", properties: {}, additionalProperties: false},
+  },
+  chroma_play: {
+    description: 'Play a finite animation in Buzz without waiting or scheduling agent timers. Give exactly one animated preset id, timed steps, or cancel with the playback id returned by your own earlier call. Steps use existing look recipes; fadeMs is 0 or 1000–300000, holdMs is 1000–300000 after the fade finishes. At most 16 steps and 300000ms total. Playback preserves the current appearance and returns to the current underlying look. A new call or manual edit replaces it; off/unload/hidden Buzz stops it. Never loop or wait to restore it yourself.',
+    inputSchema:{type:'object',additionalProperties:false,properties:{preset:{type:'string',maxLength:70,pattern:'^(local:)?[a-z0-9]+(-[a-z0-9]+)*$'},steps:STEPS,cancel:{type:'string',minLength:1,maxLength:64}}},
   },
 });
 
@@ -112,15 +118,16 @@ export function polarityGate(now = () => globalThis.performance.now()) {
   return Object.freeze({wait: () => Math.max(0, Math.ceil(last + POLARITY_CUT_MS - now())), cut: () => { last = now(); }});
 }
 
-// Four tools that share one live look handle. Call `.dispose()` to release it.
+// Keep one enduring look beneath one temporary playback lease. Disposal releases both.
 export function createAgentTools(api, {gate = polarityGate()} = {}) {
   for (const method of ["getLook", "setLook", "savePreset", "listPresets", "generateTheme"])
     if (typeof api?.[method] !== "function") throw new TypeError(`The Chroma API has no ${method}`);
-  let handle = null, live = true;
+  let handle = null,playing=null, live = true,playOwner=null;
   const handlers = {
     chroma_get_look() {
       const look = api.getLook();
-      return look.theme === "bluepinkneon" ? {look, palette: api.generateTheme(look)} : {look};
+      const playback=typeof api.getPlayback==='function'?api.getPlayback():playing?.state?.();
+      return {...(look.theme === "bluepinkneon" ? {look, palette: api.generateTheme(look)} : {look}),...(playback?{playback}:{})};
     },
     chroma_set_look(args) {
       const {fadeMs, look: saved, ...patch} = args;
@@ -139,16 +146,34 @@ export function createAgentTools(api, {gate = polarityGate()} = {}) {
       if (typeof next?.dispose !== "function") throw new TypeError("setLook returned no look handle");
       const previous = handle;
       handle = next;
+      playing?.dispose();playing=null;playOwner=null;
       const after = api.getLook();
       if (cut||after.resolvedAppearance !== before) gate.cut();
       previous?.dispose();
       return {look: after,...(typeof next.transition==="function"?{transition:next.transition()}:{})};
     },
-    chroma_save_preset({name, look}) {
-      return api.savePreset(name, look);
+    chroma_save_preset({name, look,steps}) {
+      if((look!==undefined)===(steps!==undefined))throw invalid('Save exactly one look or steps');
+      return api.savePreset(name,steps===undefined?look:{steps});
     },
     chroma_list_presets() {
-      return {presets: api.listPresets({includeSaved: true})};
+      return {presets: api.listPresets({includeSaved: true,includeAnimated:true})};
+    },
+    chroma_play(args,client) {
+      if(Object.keys(args).length!==1)throw invalid('Play accepts exactly one preset, steps or cancel');
+      if(typeof client?.pubkey!=='string'||!client.pubkey)throw new ToolError('unavailable','Buzz caller identity is required for playback');
+      if(args.cancel!==undefined) {
+        if(playing?.state?.().id!==args.cancel||(typeof api.getPlayback==='function'&&api.getPlayback()?.id!==args.cancel))return {cancelled:false};
+        if(playOwner!==client.pubkey)throw new ToolError('not-owner','Only the calling agent can cancel its playback');
+        const before=api.getLook().resolvedAppearance,cut=playing.restorationAppearance()!==before;
+        if(cut&&gate.wait()>0)throw new ToolError('appearance-rate-limited','Wait before returning across Light/Dark.',{retryAfterMs:gate.wait()});
+        playing.dispose();playing=null;playOwner=null;if(cut)gate.cut();return {cancelled:true,look:api.getLook()};
+      }
+      if(typeof api.play!=='function')throw new ToolError('unavailable','This Colors build has no playback service');
+      const before=api.getLook().resolvedAppearance,next=api.play(args),previous=playing;
+      playing=next;playOwner=client.pubkey;previous?.dispose();
+      next.onFinish(()=>{try{if(api.getLook().resolvedAppearance!==before)gate.cut();}catch{}});
+      return {playback:next.state(),look:api.getLook()};
     },
   };
   const tools = Object.entries(SCHEMAS).map(([name, {description, inputSchema}]) => Object.freeze({
@@ -158,7 +183,7 @@ export function createAgentTools(api, {gate = polarityGate()} = {}) {
       const valid = validate(inputSchema, args);
       if(valid.fadeMs>0&&valid.fadeMs<1000)throw invalid("Animated fades must last at least 1000 milliseconds");
       let result;
-      try { result = handlers[name](valid); }
+      try { result = handlers[name](valid,_client); }
       catch (error) { throw error instanceof ToolError ? error : new ToolError("rejected", error instanceof Error ? error.message : String(error)); }
       return JSON.stringify(result);
     },
@@ -166,6 +191,7 @@ export function createAgentTools(api, {gate = polarityGate()} = {}) {
   return Object.freeze(Object.defineProperty(tools, "dispose", {value() {
     if (!live) return;
     live = false;
+    playing?.dispose();playing=null;playOwner=null;
     const previous = handle;
     handle = null;
     previous?.dispose();

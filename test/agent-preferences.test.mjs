@@ -31,6 +31,23 @@ test('corrupt current or legacy data and unreadable storage leave tools off with
   }
   const f=setup();f.storage.getItem=()=>{throw Error('blocked');};const p=agentPreferences(f.manager,{storage:f.storage});await p.start();assert.equal(p.get(),false);assert(p.notice());
 });
+test('a blocked default storage getter and explicit null keep agent choices available for the session',async()=>{
+  const descriptor=Object.getOwnPropertyDescriptor(globalThis,'localStorage');let reads=0;
+  try {
+    Object.defineProperty(globalThis,'localStorage',{configurable:true,get(){reads++;throw new DOMException('Storage blocked','SecurityError');}});
+    for(const available of [false,true])for(const storage of [undefined,null]) {
+      const f=setup(new Map(),available),before=reads,prefs=agentPreferences(f.manager,{storage});
+      assert.equal(reads-before,storage===undefined?1:0,'explicit null must not acquire default storage');
+      await prefs.start();assert.equal(prefs.get(),false);assert.deepEqual(f.calls,[]);
+      assert(prefs.notice().includes('Could not read agent access preferences'));
+      await prefs.set(true);assert.equal(prefs.get(),true);assert.deepEqual(f.calls,[available]);
+      assert(prefs.notice().includes('this session'));assert.equal(f.saved.size,0);
+      await prefs.dispose();
+    }
+  } finally {
+    if(descriptor)Object.defineProperty(globalThis,'localStorage',descriptor);else delete globalThis.localStorage;
+  }
+});
 test('rapid toggles retain the last choice even when completions arrive out of order',async()=>{
   const f=setup(),pending=[];f.manager.set=value=>new Promise(resolve=>pending.push(resolve));const first=f.prefs.set(true),second=f.prefs.set(false);pending[1]();await second;pending[0]();await first;assert.equal(f.prefs.get(),false);assert.equal(JSON.parse(f.saved.get(AGENT_PREFERENCES_KEY)).enabled,false);
 });

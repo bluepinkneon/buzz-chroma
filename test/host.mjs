@@ -3,9 +3,12 @@ export function host(saved = new Map(), extra = {}) {
   const attributes = new Map();
   const styles = new Set();
   const frames=new Map();let nextFrame=0,time=0;
+  const timers=new Map();let nextTimer=0;
   Object.defineProperty(globalThis.performance,"now",{configurable:true,value:()=>time});
   globalThis.requestAnimationFrame=fn=>{const id=++nextFrame;frames.set(id,fn);return id;};
   globalThis.cancelAnimationFrame=id=>frames.delete(id);
+  globalThis.setTimeout=(fn,ms)=>{const id=++nextTimer;timers.set(id,{fn,at:time+ms});return id;};
+  globalThis.clearTimeout=id=>timers.delete(id);
   globalThis.getComputedStyle=()=>({backgroundColor:""});
   const flushFrames=()=>{for(let turn=0;turn<3&&frames.size;turn++){const pending=[...frames];frames.clear();for(const [,fn]of pending)fn();}};
   const inline=new Map();
@@ -35,8 +38,8 @@ export function host(saved = new Map(), extra = {}) {
     createElement: () => ({ dataset: {}, isConnected: false, remove() { this.isConnected = false; styles.delete(this); } }),
   };
   return {
-    saved, attributes, styles, mediaListeners, observers, rootStyle, frames,flushFrames,documentListeners,
-    advance(ms){time+=ms;const pending=[...frames];frames.clear();for(const [,fn] of pending)fn(time);},
+    saved, attributes, styles, mediaListeners, observers, rootStyle, frames,timers,flushFrames,documentListeners,
+    advance(ms){time+=ms;const pending=[...frames];frames.clear();for(const [,fn] of pending)fn(time);for(const [id,timer]of [...timers].sort((a,b)=>a[1].at-b[1].at))if(timer.at<=time&&timers.has(id)){timers.delete(id);timer.fn();}},
     visibility(hidden){document.hidden=hidden;for(const fn of documentListeners.get('visibilitychange')??[])fn();},
     reduced(value){matchMedia('(prefers-reduced-motion: reduce)').matches=value;for(const fn of mediaListeners)fn();},
     mode(value) { attributes.set("data-color-mode",value); for(const o of observers) o.fn(); },

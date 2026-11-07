@@ -69,6 +69,8 @@
 .chroma-extra-settings>details{padding:14px 16px;border:1px solid var(--border-standard);border-radius:12px;background:var(--surface-panel)}
 .chroma-extra-settings summary{cursor:pointer;font-size:13px;color:var(--text-subtle)}
 .chroma-extra-settings p{font-size:13px;line-height:1.5;color:var(--text-subtle)}
+.chroma-extra-settings select,.chroma-extra-settings button{font:inherit;font-size:13px;line-height:1.3;min-height:36px;padding:8px 12px;border:1px solid var(--border-prominent);border-radius:6px;background:var(--surface-panel);color:var(--text-standard)}
+.chroma-extra-settings button{cursor:pointer}
 .chroma-extra-settings label{display:grid;gap:8px;font-size:13px;margin:12px 0;max-width:480px}
 .chroma-agent-access{padding:12px 0;border-bottom:1px solid var(--border-standard)}
 .chroma-extra-settings label.chroma-agent-toggle{display:flex;align-items:flex-start;gap:10px;max-width:none}

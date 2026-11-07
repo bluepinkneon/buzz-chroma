@@ -1,9 +1,10 @@
 export const AGENT_PREFERENCES_KEY='com.ranveer.bluepinkneon:agents:v2';
 const LEGACY_KEY='com.ranveer.bluepinkneon:agents:v1';
 // One device-local preference; tool registration belongs to Buzz.
-export function agentPreferences(manager,{storage=localStorage,changed=()=>{}}={}) {
+export function agentPreferences(manager,{storage,changed=()=>{}}={}) {
   let enabled=Boolean(manager.getState().available),notice='',closed=false,generation=0;
   try {
+    if(storage===undefined)storage=localStorage;
     const raw=storage.getItem(AGENT_PREFERENCES_KEY);
     if(raw!==null) {
       const saved=JSON.parse(raw);

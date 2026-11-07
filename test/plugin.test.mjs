@@ -5,6 +5,16 @@ import * as plugin from "../dist/plugin.js";
 
 import {host,find,input,rotate,click,select,variables} from "./host.mjs";
 
+test('compiled module evaluation does not read default storage or activate a preset',async()=>{
+  const descriptor=Object.getOwnPropertyDescriptor(globalThis,'localStorage');let reads=0;
+  try {
+    Object.defineProperty(globalThis,'localStorage',{configurable:true,get(){reads++;throw new DOMException('Storage blocked','SecurityError');}});
+    const module=await import('../dist/plugin.js?storage-purity');assert.equal(typeof module.apply,'function');assert.equal(reads,0);
+  } finally {
+    if(descriptor)Object.defineProperty(globalThis,'localStorage',descriptor);else delete globalThis.localStorage;
+  }
+});
+
 test("default source shades remain original while removal exports use Red, without layout tokens", () => {
   const h = host(); const app = h.boot();
   const original = variables(readFileSync(new URL("../shepherd-theme.css", import.meta.url), "utf8"));

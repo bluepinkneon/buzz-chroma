@@ -186,8 +186,12 @@ not rotate, eliminating the old exact-preset cliff and success/danger collisions
 
 The local library is separate from the active preference. A saved record contains
 a capped kebab-case name and the palette settings, without a forced appearance.
-It is bounded to 50 entries, 60 name characters, 2,048 characters per stored entry
-and 131,072 characters for the library. It uses the shared preference validator,
+It is bounded to 50 entries, 60 name characters, 2,048 characters per static entry
+and 131,072 characters for the library. Animated records contain at most16
+complete look/fade/hold steps, with a32768-character input bound. The v2 key
+accepts a strict look/steps union; v1 static arrays migrate in memory without
+activation writes. Compact v2 backups and old v1 backups use the same validators.
+It uses the shared preference validator,
 rejects foreign fields and locks writes after a refused load, leaving invalid
 stored data untouched until an explicit library reset. The same entry validator
 runs on load and every write. Duplicate saves
@@ -239,8 +243,11 @@ a hidden handle does not repaint or interrupt the current owner. UI edits adopt
 the target, never persist an interpolated frame, and invalidate all temporary
 handles.
 
-The finite fade is one operation, not an internal sequence format. Agents own
-caller-owned waits and loops. The tool adapter also bounds resolved-polarity cuts;
+The finite fade remains one operation. A bounded playback owner sequences those
+operations with full holds after completion, reusing one look lease. Named and
+inline animations share the same frozen validated plan. Playback pins the current
+appearance, cancels on hidden UI or human takeover, and releases only its own
+lease rather than restoring an old snapshot. The tool adapter also bounds resolved-polarity cuts;
 there is no rapid full-window blinking option. Numeric graph checks cover
 1,176 fade samples across the visible catalog, all three color modes and both
 polarities, alongside the static hue and overlay sweeps. They establish the
