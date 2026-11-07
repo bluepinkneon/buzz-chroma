@@ -1,0 +1,6 @@
+{
+  "id": "com.ranveer.bluepinkneon.demo-agent",
+  "name": "Colors demo agent driver",
+  "description": "Demo only: calls the agent tools Colors registers, so a scripted conversation drives the real handlers.",
+  "apiVersion": 1
+}

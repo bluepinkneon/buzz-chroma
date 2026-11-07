@@ -1,0 +1,107 @@
+{
+  "community": {
+    "name": "Lighthouse Labs"
+  },
+  "people": [
+    {
+      "handle": "riley",
+      "name": "Riley Park",
+      "title": "Product engineer",
+      "viewer": true
+    },
+    {
+      "handle": "sam",
+      "name": "Sam Okafor",
+      "title": "Design lead"
+    },
+    {
+      "handle": "ana",
+      "name": "Ana Lindqvist",
+      "title": "Staff engineer"
+    },
+    {
+      "handle": "jo",
+      "name": "Jo Castillo",
+      "title": "Engineering manager"
+    },
+    {
+      "handle": "juniper",
+      "name": "Juniper",
+      "title": "Studio agent",
+      "agent": true
+    }
+  ],
+  "channels": [
+    {
+      "slug": "juniper",
+      "name": "Juniper",
+      "private": true,
+      "members": [
+        "riley",
+        "juniper"
+      ],
+      "messages": [
+        {
+          "from": "riley",
+          "text": "Board review moved to the big meeting room at 4.",
+          "minutesAgo": 9
+        },
+        {
+          "from": "juniper",
+          "text": "Booked. The deck will be on screen when you walk in.",
+          "minutesAgo": 8
+        }
+      ],
+      "about": "Riley and Juniper"
+    },
+    {
+      "slug": "launch-room",
+      "name": "launch-room",
+      "about": "Coordinating the Beacon 2.0 launch",
+      "messages": [
+        {
+          "from": "jo",
+          "text": "Beacon 2.0 goes out Thursday. Anything launch-blocking lands here.",
+          "reactions": {
+            "🚀": [
+              "sam",
+              "ana",
+              "riley"
+            ]
+          }
+        },
+        {
+          "from": "ana",
+          "text": "Load test passed at 3x expected traffic.",
+          "reactions": {
+            "🎉": [
+              "jo",
+              "riley"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "design-crit",
+      "name": "design-crit",
+      "about": "Weekly design critique",
+      "messages": [
+        {
+          "from": "sam",
+          "text": "Crit at 2pm: settings and the new command palette."
+        }
+      ]
+    },
+    {
+      "slug": "random",
+      "name": "random",
+      "messages": [
+        {
+          "from": "jo",
+          "text": "Team lunch Friday — tacos or ramen?"
+        }
+      ]
+    }
+  ]
+}
