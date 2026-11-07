@@ -490,11 +490,11 @@ export function apply(ctx) {
     dispose.dispose=dispose;dispose.transition=()=>fade.state();return Object.freeze(dispose);
   }
   function resolveSteps(steps,{playing=false}={}) {
-    const base=structuredClone(choice),polarity=appearance;
+    const base=structuredClone(choice),active=activeChoice(),playbackAppearance=active.theme==='default'?'auto':active.appearance;
     return normalizeSteps(structuredClone(steps),value=>{
       const next=apiChoice(value&&Object.hasOwn(value,'hues')&&!Object.hasOwn(value,'theme')?{theme:'bluepinkneon',...value}:value,base);
       if(next.theme!=='bluepinkneon')throw TypeError('Animation steps need generated looks');
-      const look={...next,localName:null,...(playing?{appearance:polarity}:{})};prepareRoles(look);return look;
+      const look={...next,localName:null,...(playing?{appearance:playbackAppearance}:{})};prepareRoles(look);return look;
     });
   }
   function play(options) {

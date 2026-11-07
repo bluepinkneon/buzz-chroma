@@ -79,3 +79,19 @@ test('a temporary animation returns to an enduring agent atmosphere and get_look
   click(app,'Play animation');const status=JSON.parse(await get.call(undefined,undefined,{}));assert.equal(status.playback.id,api.getPlayback().id);
   click(app,'Stop and return');assert.equal(h.css(),atmosphere);tools.dispose();app.dispose();
 });
+
+test('playback preserves Auto through its first fade and a later manual color edit',()=>{
+  const h=host(),app=h.boot(),api=app.services.get('chroma');click(app,'Auto');const before=h.css();
+  const job=api.play({steps:[{look:{rotation:90},fadeMs:2000,holdMs:1000}]});
+  assert.equal(api.getLook().appearance,'auto');assert.equal(job.state().status,'fading');assert.equal(h.css(),before);
+  h.advance(500);rotate(app,120);assert.equal(job.state().status,'user-edit');assert.equal(api.getLook().appearance,'auto');
+  assert.equal(JSON.parse(h.saved.get('com.ranveer.bluepinkneon:theme:v3')).appearance,'auto');assert.equal(h.timers.size,0);app.dispose();
+});
+
+test('Auto host-mode changes cancel playback and a Buzz-default look plays in Auto without saving',()=>{
+  const h=host(),app=h.boot(),api=app.services.get('chroma');click(app,'Auto');
+  const job=api.play({steps:[{look:{rotation:90},holdMs:1000}]});h.mode('light');assert.equal(job.state().status,'appearance-changed');assert.equal(api.getLook().appearance,'auto');assert.equal(api.getLook().resolvedAppearance,'light');
+  find(app.tree(),n=>n.tag==='select'&&n.props?.id==='bluepinkneon-choice').props.onChange({target:{value:'default'}});
+  const saved=[...h.saved],fromDefault=api.play({steps:[{look:{rotation:30},holdMs:1000}]});assert.equal(api.getLook().appearance,'auto');assert.equal(api.getLook().resolvedAppearance,'light');
+  h.advance(1000);assert.equal(fromDefault.state().status,'completed');assert.equal(api.getLook().theme,'default');assert.deepEqual([...h.saved],saved);app.dispose();
+});
