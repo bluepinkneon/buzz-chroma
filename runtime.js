@@ -610,7 +610,7 @@ export function apply(ctx) {
             choice.theme==="bluepinkneon"&&currentRoles?palettePreview(h,colors,currentRoles,{fading}):h("p",{className:"chroma-colors-empty"},"Buzz’s own appearance is active. Choose a preset or a color to preview your generated palette."))),
         h("div",{className:"chroma-extra-settings"},
           agentSettings(h,{state:agentAccess.getState(),enabled:agentChoices.get(),notice:agentChoices.notice(),
-            onToggle:(key,value)=>{void agentChoices.set({[key]:value}).catch(()=>{warning="Could not update agent access. Try again from the connection controls.";notify();});}}))));
+            onToggle:value=>{void agentChoices.set(value).catch(()=>{warning="Could not update agent access. Try again from the connection controls.";notify();});}}))));
     },
   });
 }

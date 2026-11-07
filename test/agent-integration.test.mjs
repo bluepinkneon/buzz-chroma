@@ -6,13 +6,13 @@ import {LIBRARY_KEY} from '../local-themes.js';
 const settle=async()=>{for(let i=0;i<8;i++)await new Promise(resolve=>setImmediate(resolve));};
 const parse=async(tool,args={})=>JSON.parse(await tool.call(undefined,undefined,args));
 const fixture=()=>{const h=host(),app=h.boot(),api=app.services.get('chroma'),tools=createAgentTools(api);return {h,app,api,tools};};
-function nativeContext() {
-  const registered=new Map(),children=[];
+function nativeContext({pending=false}={}) {
+  const registered=new Map(),children=[],waiting=[];
   const capability={addTool(){}};
-  return {registered,children,extra:{reflect:{get:name=>name==='agents'?capability:undefined},plugin({apply}){
+  return {registered,children,release:()=>waiting.forEach(fn=>fn()),extra:{reflect:{get:name=>name==='agents'?capability:undefined},plugin({apply}){
     const owned=[];let closed=false;
     const fiber={async dispose(){if(closed)return;closed=true;for(const name of owned)registered.delete(name);}};
-    children.push(fiber);apply({agents:{addTool(tool){if(registered.has(tool.name))throw Error('duplicate');registered.set(tool.name,tool);owned.push(tool.name);}}});return fiber;
+    children.push(fiber);const start=()=>{if(!closed)apply({agents:{addTool(tool){if(registered.has(tool.name))throw Error('duplicate');registered.set(tool.name,tool);owned.push(tool.name);}}});};if(pending)waiting.push(start);else start();return fiber;
   }}};
 }
 
@@ -54,16 +54,15 @@ test('Buzz default uses actual host appearance, and restore cannot bypass the sh
   await assert.rejects(parse(tools[1],{look:before.look}),/appearance-rate-limited/);assert.equal(api.getLook().theme,'bluepinkneon');tools.dispose();app.dispose();
 });
 
-test('the compiled plugin registers discoverable native tools only after the explicit setting, then removes them',async()=>{
+test('the compiled plugin registers four Buzz tools by default through a single setting, then removes them',async()=>{
   const native=nativeContext(),h=host(new Map(),native.extra),app=h.boot();
-  const checkbox=()=>find(app.tree(),n=>n.props?.['aria-label']==='Let Buzz agents control colors');
-  assert.equal(checkbox().props.checked,false);assert.equal(native.registered.size,0);
+  const checkbox=()=>find(app.tree(),n=>n.props?.['aria-label']==='Let agents control colors');
+  assert.equal(checkbox().props.checked,true);await settle();assert.equal(native.registered.size,4);assert.equal(h.saved.size,0);assert.equal(native.children.length,1);assert.equal(find(app.tree(),n=>n.props?.['aria-label']==='Let local agents control colors'),undefined);
   assert(JSON.stringify(app.tree()).includes('every Codex agent thread'));
-  checkbox().props.onChange({target:{checked:true}});await settle();assert.equal(native.registered.size,4);
   const get=native.registered.get('chroma_get_look'),set=native.registered.get('chroma_set_look');
   const before=await parse(get);await parse(set,{colors:['#d62828','#167a43','#efc66c'],mode:'trichrome',fadeMs:2000});h.advance(2000);assert.notDeepEqual((await parse(get)).look,before.look);
   checkbox().props.onChange({target:{checked:false}});await settle();assert.equal(native.registered.size,0);assert.deepEqual(app.services.get('chroma').getLook(),before.look);
-  await assert.rejects(parse(get),/off/);app.dispose();await settle();assert.equal(h.styles.size,0);
+  await assert.rejects(parse(get),/off/);app.dispose();await settle();assert.equal(h.styles.size,0);const second=nativeContext(),next=host(h.saved,second.extra).boot();await settle();assert.equal(second.registered.size,0);next.dispose();await settle();
 });
 
 test('mid-fade snapshots are the requested target, so save and cue-restore never adopt a synthetic frame',async()=>{
@@ -87,32 +86,12 @@ test('an empty setter returns a Buzz-default user to Buzz default and counts as 
   now=3000;await parse(tools[1],{look:user});assert.deepEqual(api.getLook(),user);tools.dispose();app.dispose();
 });
 
-function externalContext({pending=false,fail=false}={}) {
-  const servers=[],spawns=[];let release;
-  const hostService={serveMcp(){},spawn(){}};
-  const extra={reflect:{get:name=>name==='host'?hostService:undefined},plugin({apply}) {
-    let closed=false;const owned=[];
-    const scope={host:{async serveMcp(handler) {
-      if(pending)await new Promise(resolve=>{release=resolve;});
-      if(closed)throw Error('inactive scope');
-      let stop;const server={handler,closed:new Promise(resolve=>{stop=resolve;}),close(){stop();}};
-      owned.push(server);servers.push(server);return server;
-    },async spawn(id,{mcp}){spawns.push({id,mcp});if(fail)throw Error('helper unavailable');return{exited:Promise.resolve(0)};}}};
-    apply(scope);return {async dispose(){closed=true;for(const server of owned)server.close();}};
-  }};
-  return {extra,servers,spawns,release:()=>release()};
-}
-
-test('a supported compiled boot advertises local tools by default, remembers off, and cleans up',async()=>{
-  const local=externalContext(),saved=new Map(),h=host(saved,local.extra),app=h.boot();await settle();
-  const checkbox=()=>find(app.tree(),n=>n.props?.['aria-label']==='Let local agents control colors');
-  assert.equal(checkbox().props.checked,true);assert.equal(local.servers.length,1);assert.equal(local.spawns.length,1);assert.equal(local.spawns[0].id,'agent-access');assert.equal(saved.size,0);
-  const list=await local.servers[0].handler({jsonrpc:'2.0',id:1,method:'tools/list',params:{}});assert.equal(list.result.tools.length,4);
-  checkbox().props.onChange({target:{checked:false}});await settle();assert.equal(checkbox().props.checked,false);app.dispose();await settle();
-  const second=externalContext(),next=host(saved,second.extra).boot();await settle();assert.equal(second.spawns.length,0);next.dispose();await settle();
+test('legacy Buzz access is preserved and outside-only preference never enables tools',async()=>{
+  for(const native of [true,false]) {
+    const context=nativeContext(),saved=new Map([['com.ranveer.bluepinkneon:agents:v1',JSON.stringify({native,external:true})]]),app=host(saved,context.extra).boot();await settle();assert.equal(context.registered.size,native?4:0);assert.equal(saved.size,1);app.dispose();await settle();assert.equal(context.registered.size,0);
+  }
 });
 
-test('default local startup tolerates unload while starting and reports helper failure on the usable page',async()=>{
-  const local=externalContext({pending:true}),app=host(new Map(),local.extra).boot();await settle();app.dispose();local.release();await settle();assert.equal(local.servers.length,0);assert.equal(local.spawns.length,0);
-  const failed=externalContext({fail:true}),page=host(new Map(),failed.extra).boot();await settle();const tree=JSON.stringify(page.tree());assert(tree.includes('Could not start'));assert(tree.includes('helper unavailable'));assert(tree.includes('Colors settings'));page.dispose();await settle();
+test('unloading during default registration never revives tools',async()=>{
+  const context=nativeContext({pending:true}),app=host(new Map(),context.extra).boot();await settle();assert.equal(context.children.length,1);app.dispose();context.release();await settle();assert.equal(context.registered.size,0);
 });

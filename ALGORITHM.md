@@ -225,7 +225,7 @@ the target, never persist an interpolated frame, and invalidate all temporary
 handles.
 
 The finite fade is one operation, not an internal sequence format. Agents own
-external waits and loops. The tool adapter also bounds resolved-polarity cuts;
+caller-owned waits and loops. The tool adapter also bounds resolved-polarity cuts;
 there is no rapid full-window blinking option. Numeric graph checks cover
 1,176 fade samples across the visible catalog, all three color modes and both
 polarities, alongside the static hue and overlay sweeps. They establish the

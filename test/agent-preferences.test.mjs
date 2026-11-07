@@ -1,38 +1,36 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {agentPreferences,AGENT_PREFERENCES_KEY} from '../agent-preferences.js';
-function setup(raw=null) {
-  const saved=new Map(raw===null?[]:[[AGENT_PREFERENCES_KEY,raw]]),calls=[];let disposed=false;
+const LEGACY_KEY='com.ranveer.bluepinkneon:agents:v1';
+function setup(saved=new Map(),available=true) {
+  const calls=[];let disposed=false;
   const storage={getItem:key=>saved.get(key)??null,setItem:(key,value)=>saved.set(key,value)};
-  const manager={getState:()=>({capabilities:{native:true,external:true}}),set:async value=>{calls.push(value);},dispose:async()=>{disposed=true;}};
+  const manager={getState:()=>({available}),set:async value=>{calls.push(value);},dispose:async()=>{disposed=true;}};
   const prefs=agentPreferences(manager,{storage});return {prefs,saved,calls,storage,manager,get disposed(){return disposed;}};
 }
-test('corrupt and unreadable settings never enable an agent connection',async()=>{
-  for(const raw of ['{','{}','[]','{"native":"true","external":false}','{"native":true,"external":false,"other":true}']) {
-    const f=setup(raw);await f.prefs.start();assert.deepEqual(f.prefs.get(),{native:false,external:false});assert.equal(f.calls.length,0);assert(f.prefs.notice());
+test('one supported agent setting defaults on without writing; unavailable builds stay off',async()=>{
+  const f=setup();await f.prefs.start();assert.equal(f.prefs.get(),true);assert.deepEqual(f.calls,[true]);assert.equal(f.saved.size,0);
+  const bare=setup(new Map(),false);await bare.prefs.start();assert.equal(bare.prefs.get(),false);assert.deepEqual(bare.calls,[]);assert.equal(bare.prefs.notice(),'');
+});
+test('explicit off persists, invalid input is atomic, and quota failures retain the session choice',async()=>{
+  const f=setup();await f.prefs.set(false);assert.equal(f.saved.get(AGENT_PREFERENCES_KEY),'{"enabled":false}');
+  const next=setup(f.saved);await next.prefs.start();assert.equal(next.prefs.get(),false);assert.deepEqual(next.calls,[]);
+  for(const value of [1,'true',{},null])await assert.rejects(next.prefs.set(value),TypeError);assert.equal(next.prefs.get(),false);
+  next.storage.setItem=()=>{throw Error('quota');};await next.prefs.set(true);assert.equal(next.prefs.get(),true);assert(next.prefs.notice().includes('this session'));
+  await next.prefs.dispose();assert(next.disposed);await assert.rejects(next.prefs.set(false),/inactive/);
+});
+test('migration keeps the old Buzz preference, independently of outside access, without writing',async()=>{
+  for(const native of [false,true])for(const external of [false,true]) {
+    const saved=new Map([[LEGACY_KEY,JSON.stringify({native,external})]]),before=[...saved],f=setup(saved);await f.prefs.start();assert.equal(f.prefs.get(),native);assert.deepEqual(f.calls,native?[true]:[]);assert.deepEqual([...saved],before);
+    await f.prefs.set(!native);const next=setup(saved);assert.equal(next.prefs.get(),!native,'new preference wins');
   }
-  const f=setup();f.storage.getItem=()=>{throw Error('blocked');};const p=agentPreferences(f.manager,{storage:f.storage});await p.start();assert.equal(f.calls.length,0);assert(p.notice());
 });
-test('supported local access defaults on without saving, while explicit off and unavailable hosts stay off',async()=>{
-  const f=setup();await f.prefs.start();assert.deepEqual(f.calls,[{native:false,external:true}]);assert.equal(f.saved.size,0);assert.equal(f.prefs.notice(),'');
-  await f.prefs.set({external:false});const next=setup(f.saved.get(AGENT_PREFERENCES_KEY));await next.prefs.start();assert.deepEqual(next.prefs.get(),{native:false,external:false});assert.equal(next.calls.length,0);
-  const unavailable=setup();unavailable.manager.getState=()=>({capabilities:{native:true,external:false}});
-  const prefs=agentPreferences(unavailable.manager,{storage:unavailable.storage});await prefs.start();assert.equal(prefs.get().external,false);assert.equal(unavailable.calls.length,0);assert.equal(prefs.notice(),'');
+test('corrupt current or legacy data and unreadable storage leave tools off with a visible notice',async()=>{
+  for(const key of [AGENT_PREFERENCES_KEY,LEGACY_KEY])for(const raw of ['{','{}','[]','{"enabled":"true"}','{"enabled":true,"other":true}']) {
+    const f=setup(new Map([[key,raw]]));await f.prefs.start();assert.equal(f.prefs.get(),false);assert.deepEqual(f.calls,[]);assert(f.prefs.notice());
+  }
+  const f=setup();f.storage.getItem=()=>{throw Error('blocked');};const p=agentPreferences(f.manager,{storage:f.storage});await p.start();assert.equal(p.get(),false);assert(p.notice());
 });
-test('only explicit booleans persist, and enabled settings restart without credentials',async()=>{
-  const f=setup();await f.prefs.set({external:true});assert.deepEqual(f.calls,[{native:false,external:true}]);
-  const raw=f.saved.get(AGENT_PREFERENCES_KEY);assert.equal(raw,'{"native":false,"external":true}');
-  const next=setup(raw);await next.prefs.start();assert.deepEqual(next.calls,[{native:false,external:true}]);
-  await next.prefs.dispose();assert(next.disposed);await assert.rejects(next.prefs.set({external:false}),/inactive/);
-});
-test('quota failure preserves session choice and reports the durability limit',async()=>{
-  const f=setup();f.storage.setItem=()=>{throw Error('quota');};await f.prefs.set({native:true});
-  assert.equal(f.prefs.get().native,true);assert(f.prefs.notice().includes('this session'));assert.equal(f.saved.size,0);
-  await assert.rejects(f.prefs.set({native:1}),TypeError);assert.equal(f.prefs.get().native,true);
-});
-test('rapid toggles retain the latest preference even if an older transport result arrives last',async()=>{
-  const f=setup(),pending=[];f.manager.set=value=>{f.calls.push(value);return new Promise(resolve=>pending.push(resolve));};
-  const first=f.prefs.set({external:true}),second=f.prefs.set({external:false});
-  pending[1]();await second;pending[0]();await first;
-  assert.deepEqual(f.prefs.get(),{native:false,external:false});assert.equal(JSON.parse(f.saved.get(AGENT_PREFERENCES_KEY)).external,false);
+test('rapid toggles retain the last choice even when completions arrive out of order',async()=>{
+  const f=setup(),pending=[];f.manager.set=value=>new Promise(resolve=>pending.push(resolve));const first=f.prefs.set(true),second=f.prefs.set(false);pending[1]();await second;pending[0]();await first;assert.equal(f.prefs.get(),false);assert.equal(JSON.parse(f.saved.get(AGENT_PREFERENCES_KEY)).enabled,false);
 });

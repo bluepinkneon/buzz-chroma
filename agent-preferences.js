@@ -1,32 +1,36 @@
-export const AGENT_PREFERENCES_KEY='com.ranveer.bluepinkneon:agents:v1';
-// Only the user's access booleans are stored here. Connections and credentials
-// belong entirely to Buzz's host/helper, never to plugin preferences.
+export const AGENT_PREFERENCES_KEY='com.ranveer.bluepinkneon:agents:v2';
+const LEGACY_KEY='com.ranveer.bluepinkneon:agents:v1';
+// One device-local preference; tool registration belongs to Buzz.
 export function agentPreferences(manager,{storage=localStorage,changed=()=>{}}={}) {
-  let enabled={native:false,external:Boolean(manager.getState?.().capabilities?.external)},notice='',closed=false,generation=0;
+  let enabled=Boolean(manager.getState().available),notice='',closed=false,generation=0;
   try {
     const raw=storage.getItem(AGENT_PREFERENCES_KEY);
     if(raw!==null) {
       const saved=JSON.parse(raw);
-      if(!saved||typeof saved!=='object'||Array.isArray(saved)||Object.keys(saved).length!==2||typeof saved.native!=='boolean'||typeof saved.external!=='boolean')throw Error('invalid preferences');
-      enabled={native:saved.native,external:saved.external};
+      if(!saved||typeof saved!=='object'||Array.isArray(saved)||Object.keys(saved).length!==1||typeof saved.enabled!=='boolean')throw Error('invalid preferences');
+      enabled=saved.enabled;
+    } else {
+      const legacy=storage.getItem(LEGACY_KEY);
+      if(legacy!==null) {
+        const saved=JSON.parse(legacy);
+        if(!saved||typeof saved!=='object'||Array.isArray(saved)||Object.keys(saved).length!==2||typeof saved.native!=='boolean'||typeof saved.external!=='boolean')throw Error('invalid preferences');
+        enabled=saved.native;
+      }
     }
-  } catch {enabled={native:false,external:false};notice='Could not read agent access preferences. Both connections are off until you choose.';}
+  } catch {enabled=false;notice='Could not read agent access preferences. Agent tools are off until you choose.';}
   const apply=async()=>{
     const current=++generation;
-    const capabilities=manager.getState?.().capabilities;
-    const available=Object.fromEntries(Object.entries(enabled).map(([key,on])=>[key,on&&capabilities?.[key]!==false]));
-    try{await manager.set(available);}
-    catch{if(!closed&&current===generation){notice='Could not change agent access. Check the connection status and try again.';changed();}}
+    try{await manager.set(enabled&&manager.getState().available);}
+    catch{if(!closed&&current===generation){notice='Could not change agent access. Check the status and try again.';changed();}}
   };
   return {
-    get:()=>({...enabled}),
-    notice:()=>notice,
-    start(){if(enabled.native||enabled.external)return apply();return Promise.resolve();},
-    async set(patch) {
+    get:()=>enabled,notice:()=>notice,
+    start(){return enabled?apply():Promise.resolve();},
+    async set(value) {
       if(closed)throw Error('Agent settings are inactive');
-      if(!patch||typeof patch!=='object'||Array.isArray(patch)||Object.keys(patch).some(k=>!['native','external'].includes(k)||typeof patch[k]!=='boolean'))throw TypeError('Expected agent access booleans');
-      enabled={...enabled,...patch};notice='';
-      try{storage.setItem(AGENT_PREFERENCES_KEY,JSON.stringify(enabled));}
+      if(typeof value!=='boolean')throw TypeError('Expected an agent-access boolean');
+      enabled=value;notice='';
+      try{storage.setItem(AGENT_PREFERENCES_KEY,JSON.stringify({enabled}));}
       catch{notice='Agent access changed for this session, but could not be saved on this device.';}
       changed();await apply();
     },

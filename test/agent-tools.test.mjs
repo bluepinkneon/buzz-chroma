@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {AGENT_PROCESS_ID, MAX_FADE_MS, POLARITY_CUT_MS, agentMcpHandler, createAgentTools, ownAgentControls, polarityGate, polarityOf} from "../agent-tools.js";
+import {MAX_FADE_MS, POLARITY_CUT_MS, createAgentTools, ownAgentControls, polarityGate, polarityOf} from "../agent-tools.js";
 import {createRoleEngine} from "../role-engine.js";
 import {mapRoles} from "../role-map.js";
 import {PRESETS} from "../presets.js";
@@ -204,249 +204,44 @@ test("the dark/light reading matches the real engine for every mode and hue", ()
   assert.throws(() => polarityOf({}), /no --bg-app/);
 });
 
-test("the MCP handler answers the helper's handshake, lists and calls the same tools", async () => {
-  const api = fakeApi(), tools = createAgentTools(api), mcp = agentMcpHandler(tools);
-  const request = (method, params, id = 1) => mcp({jsonrpc: "2.0", id, method, ...(params === undefined ? {} : {params})});
-  // buzz-agent-command --launch sends exactly this (agent-command main.rs:156).
-  const init = await request("initialize", {protocolVersion: "2025-06-18", capabilities: {}, clientInfo: {name: "buzz-agent-command", version: "1"}});
-  assert.deepEqual(init.result, {protocolVersion: "2025-06-18", capabilities: {tools: {listChanged: false}}, serverInfo: {name: "chroma", version: "1"}});
-  assert.equal((await request("initialize", {protocolVersion: "2099-01-01"})).result.protocolVersion, "2025-06-18");
-  assert.equal((await request("initialize", {protocolVersion: "2025-03-26"})).result.protocolVersion, "2025-03-26");
-  assert.equal(await mcp({jsonrpc: "2.0", method: "notifications/initialized", params: {}}), undefined);
-  assert.equal(await mcp({jsonrpc: "2.0", method: "notifications/cancelled", params: {requestId: 1}}), undefined);
-  assert.equal(await mcp({jsonrpc: "2.0", id: 9, result: {}}), undefined);
-  assert.deepEqual((await request("ping", undefined, "p")), {jsonrpc: "2.0", id: "p", result: {}});
-  const listed = (await request("tools/list", {})).result.tools;
-  assert.deepEqual(listed, tools.map(({name, description, inputSchema}) => ({name, description, inputSchema})));
-  const called = await request("tools/call", {name: "chroma_set_look", arguments: {preset: "spider-man", fadeMs: 1200}}, 7);
-  assert.equal(called.id, 7);
-  assert.equal(called.result.isError, undefined);
-  assert.equal(JSON.parse(called.result.content[0].text).look.preset, "spider-man");
-  const toolError = (await request("tools/call", {name: "chroma_set_look", arguments: {bogus: true}})).result;
-  assert.equal(toolError.isError, true);
-  assert.equal(JSON.parse(toolError.content[0].text).error, "invalid-arguments");
-  assert.equal((await request("tools/call", {name: "chroma_get_look"})).result.isError, undefined, "arguments may be omitted");
-  assert.equal((await request("tools/call", {name: "nope"})).error.code, -32602);
-  assert.equal((await request("resources/list", {})).error.code, -32601);
-  assert.equal((await request("tools/list", [])).error.code, -32602);
-  assert.deepEqual(await mcp([{jsonrpc: "2.0", id: 1, method: "ping"}]), {jsonrpc: "2.0", id: null, error: {code: -32600, message: "Invalid Request"}});
-  assert.equal((await mcp({id: 1, method: "ping"})).error.code, -32600);
-  assert.equal((await mcp({jsonrpc: "2.0", id: {}, method: "ping"})).error.code, -32600);
-  tools.dispose();
-  assert.equal(JSON.parse((await request("tools/call", {name: "chroma_get_look", arguments: {}})).result.content[0].text).error, "off");
-});
-
-// Cordis-like scopes over Buzz's agents and host services.
-function fakeBuzz({agents = true, host = true, helperExit = 0, afterServe = () => {}} = {}) {
-  const registry = new Map(), fibers = [], servers = [], spawns = [], cleanups = [];
-  const bind = scope => ({
-    agents: agents && {addTool(tool) {
-      if (scope.disposing) throw new Error("inactive scope");
-      if (registry.has(tool.name)) throw new Error(`Another plugin adds agent tool ${tool.name}`);
-      registry.set(tool.name, tool);
-      scope.effects.push(() => registry.delete(tool.name));
-    }},
-    host: host && {
-      async serveMcp(handler) {
-        await tick();
-        let stop;
-        const record = {handler, open: true, closed: new Promise(resolve => { stop = resolve; })};
-        const close = async () => { if (record.open) { record.open = false; stop(); } };
-        record.server = Object.freeze({url: "http://127.0.0.1:49152/mcp", headers: Object.freeze([Object.freeze({name: "Authorization", value: "Bearer SECRET-TOKEN"})]), close, closed: record.closed});
-        servers.push(record);
-        // Like Buzz: a server whose scope already ended is closed and refused.
-        if (scope.disposing) { await close(); throw new Error("inactive scope"); }
-        scope.effects.push(close);
-        afterServe();
-        return record.server;
-      },
-      async spawn(id, options) {
-        await tick();
-        let exit;
-        const exited = new Promise(resolve => { exit = resolve; });
-        const record = {id, options, killed: false, exit};
-        spawns.push(record);
-        scope.effects.push(() => { record.killed = true; exit(null); });
-        if (helperExit !== "hang") setImmediate(() => exit(helperExit));
-        return {exited, kill: async () => exit(null), write: async () => {}, end: async () => {}};
-      },
-    },
-  });
-  const ctx = {
-    reflect: {get: name => ({agents: agents ? {addTool() {}} : undefined, host: host ? {serveMcp() {}, spawn() {}} : undefined})[name]},
-    effect(fn) { cleanups.push(fn()); },
-    plugin({name, inject, apply}) {
-      const scope = {effects: [], disposing: false};
-      Object.assign(scope, bind(scope));
-      const fiber = {name, inject, scope, disposals: 0, dispose() {
-        fiber.disposals++;
-        if (fiber.ended) return fiber.ended;
-        scope.disposing = true;
-        fiber.ended = (async () => { await tick(); await tick(); for (const effect of scope.effects.reverse()) await effect(); })();
-        return fiber.ended;
-      }};
-      // Cordis applies in a later task; a failing apply fails only this fiber.
-      queueMicrotask(() => { if (!scope.disposing) try { apply(scope); } catch (error) { fiber.error = error; } });
-      fibers.push(fiber);
-      return fiber;
-    },
-  };
-  return {ctx, registry, fibers, servers, spawns, unload: () => cleanups.forEach(cleanup => cleanup?.())};
+// Cordis-like scopes over Buzz's built-in registry.
+function fakeBuzz({agents=true,pending=false}={}) {
+  const registry=new Map(),fibers=[],cleanups=[];
+  const ctx={reflect:{get(name){assert.equal(name,"agents");return agents?{addTool(){}}:undefined;}},
+    effect(fn){cleanups.push(fn());},
+    plugin({name,inject,apply}) {
+      const scope={effects:[],disposing:false};
+      scope.agents={addTool(tool){if(scope.disposing)throw Error("inactive scope");if(registry.has(tool.name))throw Error(`Another plugin adds agent tool ${tool.name}`);registry.set(tool.name,tool);scope.effects.push(()=>registry.delete(tool.name));}};
+      const fiber={name,inject,scope,disposals:0,dispose(){fiber.disposals++;if(fiber.ended)return fiber.ended;scope.disposing=true;return fiber.ended=(async()=>{await tick();await tick();for(const effect of scope.effects.reverse())await effect();})();}};
+      fiber.apply=()=>{if(scope.disposing)return;try{apply(scope);}catch(error){fiber.error=error;}};
+      fibers.push(fiber);if(!pending)fiber.apply();return fiber;
+    }};
+  return{ctx,registry,fibers,unload:()=>cleanups.forEach(fn=>fn?.())};
 }
 
-test("agent controls start off and report what this Buzz can offer", async () => {
-  const buzz = fakeBuzz(), events = [];
-  const controls = ownAgentControls(buzz.ctx, fakeApi(), state => events.push(state));
-  assert.deepEqual(controls.get(), {native: false, external: false});
-  assert.deepEqual(controls.getState(), {capabilities: {native: true, external: true}, native: {enabled: false, status: "off"}, external: {enabled: false, status: "off"}});
-  assert.equal(buzz.fibers.length, 0, "nothing is offered until turned on");
-  const bare = ownAgentControls(fakeBuzz({agents: false, host: false}).ctx, fakeApi());
-  assert.deepEqual(bare.getState().capabilities, {native: false, external: false});
-  assert.equal(bare.getState().native.status, "unavailable");
-  await assert.rejects(bare.set({native: true}), /cannot offer native/);
-  await assert.rejects(controls.set({native: "yes"}), TypeError);
-  await assert.rejects(controls.set({other: true}), TypeError);
-  assert.deepEqual(events, []);
+test("one agent control reports availability and accepts only a boolean",async()=>{
+  const buzz=fakeBuzz(),controls=ownAgentControls(buzz.ctx,fakeApi());
+  assert.equal(controls.get(),false);assert.deepEqual(controls.getState(),{available:true,enabled:false,status:"off"});assert.equal(buzz.fibers.length,0);
+  const unavailable=ownAgentControls(fakeBuzz({agents:false}).ctx,fakeApi());assert.equal(unavailable.getState().status,"unavailable");await assert.rejects(unavailable.set(true),/cannot offer/);
+  for(const value of ["yes",1,{},null])await assert.rejects(controls.set(value),TypeError);
 });
 
-test("native tools live in a child scope that is fully released before they return", async () => {
-  const buzz = fakeBuzz(), api = fakeApi(), events = [];
-  const controls = ownAgentControls(buzz.ctx, api, state => events.push(state.native.status));
-  const state = await controls.set({native: true});
-  assert.equal(state.native.status, "on");
-  assert.deepEqual(buzz.fibers[0].inject, ["agents"]);
-  assert.deepEqual([...buzz.registry.keys()], NAMES);
-  await buzz.registry.get("chroma_set_look").call({}, {}, {preset: "spider-man"});
-  assert.equal(api.getLook().preset, "spider-man");
-  // Rapid toggles end in one registration, never "Another plugin adds".
-  const toggles = [controls.set({native: false}), controls.set({native: true}), controls.set({native: false}), controls.set({native: true})];
-  await Promise.all(toggles);
-  await settle();
-  assert.equal(controls.getState().native.status, "on");
-  assert.deepEqual([...buzz.registry.keys()], NAMES);
-  assert(buzz.fibers.every(fiber => fiber.error === undefined));
-  assert.deepEqual(api.stack, [], "turning off released the agent's look");
-  const stale = buzz.fibers[0].scope;
-  assert(stale.disposing);
-  await controls.set({native: false});
-  assert.deepEqual([...buzz.registry.keys()], []);
-  assert.equal(controls.getState().native.status, "off");
-  assert.deepEqual(events.slice(0, 2), ["starting", "on"]);
+test("tools live in one child scope and asynchronous disposal completes before re-registration",async()=>{
+  const buzz=fakeBuzz(),api=fakeApi(),events=[],controls=ownAgentControls(buzz.ctx,api,state=>events.push(state.status));
+  assert.equal((await controls.set(true)).status,"on");assert.deepEqual(buzz.fibers[0].inject,["agents"]);assert.deepEqual([...buzz.registry.keys()],NAMES);
+  await buzz.registry.get("chroma_set_look").call({}, {},{preset:"spider-man"});assert.equal(api.getLook().preset,"spider-man");
+  await Promise.all([controls.set(false),controls.set(true),controls.set(false),controls.set(true)]);await settle();
+  assert.equal(controls.getState().status,"on");assert.deepEqual([...buzz.registry.keys()],NAMES);assert(buzz.fibers.every(f=>!f.error));assert.deepEqual(api.stack,[]);
+  const stale=buzz.registry.get("chroma_get_look");await controls.set(false);assert.equal(buzz.registry.size,0);await assert.rejects(stale.call({}, {},{}),/off/);assert.deepEqual(events.slice(0,2),["starting","on"]);
 });
 
-test("a failed native registration is reported and cleaned up", async () => {
-  const buzz = fakeBuzz();
-  buzz.registry.set("chroma_save_preset", {});
-  const controls = ownAgentControls(buzz.ctx, fakeApi());
-  const state = await controls.set({native: true});
-  assert.deepEqual(state.native, {enabled: false, status: "error", error: "Another plugin adds agent tool chroma_save_preset"});
-  await settle();
-  assert.deepEqual([...buzz.registry.keys()], ["chroma_save_preset"], "the tools it had added are removed");
-  assert.equal(buzz.fibers[0].disposals, 1);
+test("failed registration reports the error and releases partially registered tools",async()=>{
+  const buzz=fakeBuzz();buzz.registry.set("chroma_save_preset",{});const controls=ownAgentControls(buzz.ctx,fakeApi());
+  assert.deepEqual(await controls.set(true),{available:true,enabled:false,status:"error",error:"Another plugin adds agent tool chroma_save_preset"});
+  await settle();assert.deepEqual([...buzz.registry.keys()],["chroma_save_preset"]);assert.equal(buzz.fibers[0].disposals,1);
 });
 
-test("external agents get one server, one helper spawn, and no token from us", async () => {
-  const buzz = fakeBuzz(), api = fakeApi(), seen = [];
-  const original = {log: console.log, warn: console.warn, error: console.error, info: console.info, debug: console.debug};
-  for (const name of Object.keys(original)) console[name] = (...args) => seen.push(args);
-  try {
-    const controls = ownAgentControls(buzz.ctx, api, state => seen.push(state));
-    const state = await controls.set({external: true});
-    assert.equal(state.external.status, "on");
-    assert.deepEqual(buzz.fibers[0].inject, ["host"]);
-    assert.equal(buzz.servers.length, 1);
-    assert.deepEqual(buzz.spawns.map(spawn => spawn.id), [AGENT_PROCESS_ID]);
-    assert.equal(buzz.spawns[0].options.mcp, buzz.servers[0].server, "the server goes to the helper as Buzz returned it");
-    assert.deepEqual(Object.keys(buzz.spawns[0].options), ["mcp"]);
-    const {handler} = buzz.servers[0];
-    assert.equal((await handler({jsonrpc: "2.0", id: 1, method: "initialize", params: {protocolVersion: "2025-06-18"}})).result.serverInfo.name, "chroma");
-    await handler({jsonrpc: "2.0", id: 2, method: "tools/call", params: {name: "chroma_set_look", arguments: {preset: "batman"}}});
-    assert.equal(api.getLook().preset, "batman");
-    await controls.set({external: false});
-    assert.equal(buzz.servers[0].open, false, "turning off closes the server");
-    assert.deepEqual(api.stack, []);
-    await controls.set({external: true});
-    assert.equal(buzz.servers.length, 2);
-    assert.equal(buzz.spawns.length, 2, "one spawn per server");
-    await controls.dispose();
-    assert(buzz.servers.every(server => !server.open));
-    await assert.rejects(controls.set({external: true}), /disposed/);
-  } finally { Object.assign(console, original); }
-  await settle();
-  assert(!JSON.stringify(seen).includes("SECRET-TOKEN"));
-});
-
-test("a helper failure or a stopped server turns external agents off with the reason", async () => {
-  const failing = fakeBuzz({helperExit: 1});
-  const controls = ownAgentControls(failing.ctx, fakeApi());
-  assert.deepEqual((await controls.set({external: true})).external, {enabled: false, status: "error", error: "Buzz's agent helper could not offer the tools (exit 1)."});
-  await settle();
-  assert.equal(failing.servers[0].open, false);
-
-  const buzz = fakeBuzz(), api = fakeApi(), events = [];
-  const live = ownAgentControls(buzz.ctx, api, state => events.push(state.external.status));
-  await live.set({native: true, external: true});
-  await buzz.registry.get("chroma_set_look").call({}, {}, {preset: "spider-man"});
-  await buzz.servers[0].handler({jsonrpc: "2.0", id: 1, method: "tools/call", params: {name: "chroma_set_look", arguments: {preset: "batman"}}});
-  // A second initialize, a reload or Buzz itself can stop the server.
-  await buzz.servers[0].server.close();
-  await settle();
-  assert.deepEqual(live.getState().external, {enabled: false, status: "error", error: "The agent server stopped. Turn external agents off and on to offer the tools again."});
-  assert.deepEqual(api.stack.map(entry => entry.look.preset), ["spider-man"], "the native look is untouched");
-  assert.equal(live.getState().native.status, "on");
-  assert.equal(events.at(-1), "error");
-  await live.set({external: true});
-  assert.equal(live.getState().external.status, "on");
-  await live.dispose();
-});
-
-test("turning external off while it starts never leaves a server or helper running", async () => {
-  const buzz = fakeBuzz({helperExit: "hang"});
-  const controls = ownAgentControls(buzz.ctx, fakeApi());
-  const starting = controls.set({external: true});
-  await settle(4);
-  assert.equal(controls.getState().external.status, "starting");
-  await controls.set({external: false});
-  await starting;
-  await settle();
-  assert.equal(controls.getState().external.status, "off");
-  assert(buzz.servers.every(server => !server.open));
-  assert(buzz.spawns.every(spawn => spawn.killed));
-});
-
-test("native and external agents share one dark/light flip limit", async () => {
-  const buzz = fakeBuzz(), api = fakeApi();
-  const controls = ownAgentControls(buzz.ctx, api);
-  await controls.set({native: true, external: true});
-  await buzz.registry.get("chroma_set_look").call({}, {}, {appearance: "light"});
-  const reply = await buzz.servers[0].handler({jsonrpc: "2.0", id: 1, method: "tools/call", params: {name: "chroma_set_look", arguments: {appearance: "dark"}}});
-  assert.equal(reply.result.isError, true);
-  assert.equal(JSON.parse(reply.result.content[0].text).error, "appearance-rate-limited");
-  assert.equal(api.getLook().resolvedAppearance, "light");
-  await controls.dispose();
-});
-
-test("a server stopped before the helper starts is never advertised", async () => {
-  let controls;
-  const buzz = fakeBuzz({afterServe: () => void controls.set({external: false})});
-  controls = ownAgentControls(buzz.ctx, fakeApi());
-  await controls.set({external: true});
-  await settle();
-  assert.equal(buzz.servers.length, 1);
-  assert.equal(buzz.spawns.length, 0);
-  assert.equal(buzz.servers[0].open, false);
-  assert.equal(controls.getState().external.status, "off");
-});
-
-test("plugin unload turns both transports off", async () => {
-  const buzz = fakeBuzz(), api = fakeApi();
-  const controls = ownAgentControls(buzz.ctx, api);
-  await controls.set({native: true, external: true});
-  await buzz.registry.get("chroma_set_look").call({}, {}, {preset: "spider-man"});
-  buzz.unload();
-  await settle();
-  assert.deepEqual(controls.get(), {native: false, external: false});
-  assert.deepEqual([...buzz.registry.keys()], []);
-  assert(buzz.servers.every(server => !server.open));
-  assert.deepEqual(api.stack, []);
+test("unload during registration cannot revive tools, and unload releases a temporary look",async()=>{
+  const delayed=fakeBuzz({pending:true}),waiting=ownAgentControls(delayed.ctx,fakeApi()),start=waiting.set(true);await settle();await waiting.dispose();await start;delayed.fibers[0].apply();assert.equal(delayed.registry.size,0);await assert.rejects(waiting.set(true),/disposed/);
+  const buzz=fakeBuzz(),api=fakeApi(),controls=ownAgentControls(buzz.ctx,api);await controls.set(true);await buzz.registry.get("chroma_set_look").call({}, {},{preset:"spider-man"});buzz.unload();await settle();assert.equal(controls.get(),false);assert.equal(buzz.registry.size,0);assert.deepEqual(api.stack,[]);
 });
